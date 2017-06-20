@@ -8,7 +8,7 @@ public class SrcGen {
     private static final String EXT = ".java";
     private static final String INDENT = "    ";
     private static final String PACKAGE = SrcGen.class.getPackage().getName();
-    private static final int NUM_PARAMS = 5;
+    private static final int NUM_PARAMS = 3;
     public static final String SEPARATOR = ", ";
 
     public static void main(String[] args) {
@@ -53,7 +53,6 @@ public class SrcGen {
         writer.println(INDENT + "public interface TF<R1, T1> {");
         writer.println(INDENT + INDENT + "R1 apply(T1 param) throws Throwable;");
         writer.println(INDENT + "}");
-        writer.println();
 
         writer.println();
         writer.println(INDENT + "public static class Step<R1, T1> {");
@@ -75,29 +74,30 @@ public class SrcGen {
         writer.println(INDENT + INDENT + "}");
         writer.println();
         writer.println(INDENT + INDENT + "public R1 apply(T1 param) throws Throwable {");
-        writer.println(INDENT + INDENT + INDENT + "return function(param);");
+        writer.println(INDENT + INDENT + INDENT + "return function.apply(param);");
         writer.println(INDENT + INDENT + "}");
         writer.println();
         writer.println(INDENT + INDENT + "public R1 measure(T1 param) throws Throwable {");
         writer.println(INDENT + INDENT + INDENT + "long start = System.nanoTime();");
         writer.println(INDENT + INDENT + INDENT + "try {");
-        writer.println(INDENT + INDENT + INDENT + "return function(param);");
+        writer.println(INDENT + INDENT + INDENT + INDENT + "return function.apply(param);");
         writer.println(INDENT + INDENT + INDENT + "} finally {");
         writer.println(INDENT + INDENT + INDENT + INDENT + "time = System.nanoTime() - start;");
         writer.println(INDENT + INDENT + INDENT + "}");
         writer.println(INDENT + INDENT + "}");
         writer.println(INDENT + "}");
         writer.println();
-
-        writer.println();
-        writer.println(INDENT + "protected static abstract class Flow {");
+        writer.println(INDENT + "protected static class Flow {");
         writer.println(INDENT + INDENT + "private final Flow prev;");
+        writer.println(INDENT + INDENT + "protected Step<?, ?> step;");
         writer.println();
         writer.println(INDENT + INDENT + "protected Flow(Flow prev) {");
         writer.println(INDENT + INDENT + INDENT + "this.prev = prev;");
         writer.println(INDENT + INDENT + "}");
         writer.println();
-        writer.println(INDENT + INDENT + "public abstract <R1, T1> Step<R1, T1> step();");
+        writer.println(INDENT + INDENT + "public <R1, T1> Step<R1, T1> step() {");
+        writer.println(INDENT + INDENT + INDENT + "return (Step<R1, T1>) step;");
+        writer.println(INDENT + INDENT + "}");
         writer.println();
         writer.println(INDENT + INDENT + "public Flow prev() {");
         writer.println(INDENT + INDENT + INDENT + "return prev;");
@@ -106,12 +106,30 @@ public class SrcGen {
         writer.println();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            writer.println(INDENT + "public static class Flow" + i + "<" + typeList("T", i) + "> extends Tuple {");
+            writer.println(INDENT + "public static class " + flowNameType("T", i) + " extends Flow {");
             writer.println(INDENT + INDENT + "public Flow" + i + "(Flow prev) {");
             writer.println(INDENT + INDENT + INDENT + "super(prev);");
             writer.println(INDENT + INDENT + "}");
+            writer.println();
 
             //Flow methods
+            for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
+                for (int j = 1; j <= i; j++) { //Inputs
+                    writer.println(INDENT + INDENT + "public <" + typeList("R", k) + "> "+ flowNameType("R", k) + " apply" + k + "(" + functionNameType(j, k) +  " function) {");
+                    writer.println(INDENT + INDENT + INDENT +
+                        "step = new Step<>(false, (" + tupleName("T", j) + " param) -> function.apply(" +
+                            tupleToParams("T", j) + "));");
+                    writer.println(INDENT + INDENT + INDENT + "return new Flow" + k + "<>(this);");
+                    writer.println(INDENT + INDENT + "}");
+
+                    if (j != i) {
+                        writer.println();
+                    }
+                }
+                if (k != NUM_PARAMS) {
+                    writer.println();
+                }
+            }
 
             writer.println(INDENT + "}");
 
@@ -121,6 +139,10 @@ public class SrcGen {
         }
 
         writer.println("}");
+    }
+
+    private static String flowNameType(String prefix, int i) {
+        return "Flow" + i + "<" + typeList(prefix, i) + ">";
     }
 
     private static void generateTuples(PrintWriter writer, String name) {
@@ -176,9 +198,9 @@ public class SrcGen {
         writer.println();
         writer.println("public interface " + name + " {");
 
-        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            for(int j = 1; j <= NUM_PARAMS; j++) { //Outputs
-                writer.println(INDENT + "public interface FN" + i + j + typeList(i, j) + " {");
+        for(int j = 1; j <= NUM_PARAMS; j++) { //Outputs
+            for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+                writer.println(INDENT + "interface " + functionNameType(i, j) + " {");
                 writer.println(INDENT + INDENT + tupleName("R", j) + " apply(" + inputParamList(i) + ");");
                 writer.println(INDENT + "}");
 
@@ -191,11 +213,26 @@ public class SrcGen {
         writer.println("}");
     }
 
+    private static String functionNameType(int i, int j) {
+        return "FN" + j + i + typeList(i, j);
+    }
+
     private static String paramList(int count) {
         StringBuilder builder = new StringBuilder();
 
         for (int i = 1; i <= count; i++) {
             builder.append("param").append(i).append(SEPARATOR);
+        }
+
+        builder.setLength(builder.length() - SEPARATOR.length());
+        return builder.toString();
+    }
+
+    private static String tupleToParams(String prefix, int count) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 1; i <= count; i++) {
+            builder.append("(T").append(i).append(") ").append("param.get(").append(i-1).append(")").append(SEPARATOR);
         }
 
         builder.setLength(builder.length() - SEPARATOR.length());
