@@ -1,5 +1,7 @@
 package org.rxbooter.flow;
 
+import java.util.function.Consumer;
+
 import static org.rxbooter.flow.Functions.*;
 import static org.rxbooter.flow.Tuples.*;
 
@@ -48,6 +50,16 @@ public final class Flows {
 
         public Flow<O1> prev() {
             return prev;
+        }
+
+        public void apply(Consumer<Step<?, ?>> consumer) {
+            if (prev != null) {
+                prev.apply(consumer);
+            }
+
+            if (step != null) {
+                consumer.accept(step);
+            }
         }
     }
 

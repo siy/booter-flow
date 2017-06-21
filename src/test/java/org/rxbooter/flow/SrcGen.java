@@ -15,7 +15,7 @@ public class SrcGen {
         // Don't run it for now!
 //        generate("Tuples", SrcGen::generateTuples);
 //        generate("Functions", SrcGen::generateFunctions);
-//        generate("Flows", SrcGen::generateFlows);
+        generate("Flows", SrcGen::generateFlows);
     }
 
     public interface Generator {
@@ -32,6 +32,8 @@ public class SrcGen {
 
     private static void generateFlows(PrintWriter writer, String name) {
         writer.println("package " + PACKAGE + ";");
+        writer.println();
+        writer.println("import java.util.function.Consumer;");
         writer.println();
         writer.println("import static " + PACKAGE + ".Functions.*;");
         writer.println("import static " + PACKAGE + ".Tuples.*;");
@@ -65,6 +67,29 @@ public class SrcGen {
         writer.println(INDENT + INDENT + "public Flow<O1> prev() {");
         writer.println(INDENT + INDENT + INDENT + "return prev;");
         writer.println(INDENT + INDENT + "}");
+        writer.println();
+        writer.println(INDENT + INDENT + "public void apply(Consumer<Step<?, ?>> consumer) {");
+        writer.println(INDENT + INDENT + INDENT + "if (prev != null) {");
+        writer.println(INDENT + INDENT + INDENT + INDENT + "prev.apply(consumer);");
+        writer.println(INDENT + INDENT + INDENT + "}");
+        writer.println();
+        writer.println(INDENT + INDENT + INDENT + "if (step != null) {");
+        writer.println(INDENT + INDENT + INDENT + INDENT + "consumer.accept(step);");
+        writer.println(INDENT + INDENT + INDENT + "}");
+        writer.println(INDENT + INDENT + "}");
+
+        /*
+                public void apply(Consumer<Step<?, ?>> consumer) {
+            if (prev != null) {
+                prev.apply(consumer);
+            }
+
+            if (step != null) {
+                consumer.accept(step);
+            }
+        }
+
+         */
         writer.println(INDENT + "}");
         writer.println();
 
