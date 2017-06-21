@@ -57,7 +57,7 @@ public class ExecutableFlow<O extends Tuple, I extends Tuple> {
                 if (error != null) {
                     throw new RuntimeException("Flow processing threw an exception:", error);
                 }
-            } while (latch.getCount() != 1);
+            } while (latch.getCount() != 0);
             return (O) value();
         }
 
