@@ -36,7 +36,7 @@ public final class Flows {
         return new Flow7<>(null);
     }
 
-    protected static class Flow<O1> {
+    protected static class Flow<O1 extends Tuple> {
         private final Flow<O1> prev;
         protected Step<?, ?> step;
 
@@ -63,7 +63,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow1<O1, T1> extends Flow<O1> {
+    public static class Flow1<O1 extends Tuple, T1> extends Flow<O1> {
         public Flow1(Flow<O1> prev) {
             super(prev);
         }
@@ -199,7 +199,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow2<O1, T1, T2> extends Flow<O1> {
+    public static class Flow2<O1 extends Tuple, T1, T2> extends Flow<O1> {
         public Flow2(Flow<O1> prev) {
             super(prev);
         }
@@ -461,7 +461,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow3<O1, T1, T2, T3> extends Flow<O1> {
+    public static class Flow3<O1 extends Tuple, T1, T2, T3> extends Flow<O1> {
         public Flow3(Flow<O1> prev) {
             super(prev);
         }
@@ -849,7 +849,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow4<O1, T1, T2, T3, T4> extends Flow<O1> {
+    public static class Flow4<O1 extends Tuple, T1, T2, T3, T4> extends Flow<O1> {
         public Flow4(Flow<O1> prev) {
             super(prev);
         }
@@ -1363,7 +1363,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow5<O1, T1, T2, T3, T4, T5> extends Flow<O1> {
+    public static class Flow5<O1 extends Tuple, T1, T2, T3, T4, T5> extends Flow<O1> {
         public Flow5(Flow<O1> prev) {
             super(prev);
         }
@@ -2003,7 +2003,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow6<O1, T1, T2, T3, T4, T5, T6> extends Flow<O1> {
+    public static class Flow6<O1 extends Tuple, T1, T2, T3, T4, T5, T6> extends Flow<O1> {
         public Flow6(Flow<O1> prev) {
             super(prev);
         }
@@ -2769,7 +2769,7 @@ public final class Flows {
         }
     }
 
-    public static class Flow7<O1, T1, T2, T3, T4, T5, T6, T7> extends Flow<O1> {
+    public static class Flow7<O1 extends Tuple, T1, T2, T3, T4, T5, T6, T7> extends Flow<O1> {
         public Flow7(Flow<O1> prev) {
             super(prev);
         }

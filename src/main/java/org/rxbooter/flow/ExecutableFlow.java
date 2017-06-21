@@ -1,12 +1,14 @@
 package org.rxbooter.flow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.rxbooter.flow.Flows.Flow;
 import org.rxbooter.flow.Tuples.Tuple;
 
-public class ExecutableFlow<O, I> {
+public class ExecutableFlow<O extends Tuple, I extends Tuple> {
     private final List<Step<Tuple, Tuple>> steps = new ArrayList<>();
 
     public ExecutableFlow(Flow<O> last) {
@@ -17,9 +19,9 @@ public class ExecutableFlow<O, I> {
         return new Cursor<O, I>(steps, input);
     }
 
-    public static class Cursor<O, I> {
+    public static class Cursor<O extends Tuple, I extends Tuple> {
         private final List<Step<Tuple, Tuple>> steps;
-        private final I input;
+        private final CountDownLatch latch = new CountDownLatch(1);
 
         private int index = 0;
         private Tuple intermediate;
@@ -27,16 +29,52 @@ public class ExecutableFlow<O, I> {
 
         protected Cursor(List<Step<Tuple, Tuple>> steps, I input) {
             this.steps = steps;
-            this.input = input;
-            this.intermediate = (input instanceof Tuple) ? (Tuple) input : Tuples.of(input);
+            this.intermediate = input;
+        }
+
+        public Cursor<O, ?> subCursor() {
+            if (!canRun()) {
+                //TODO: use other exception?
+                throw new IllegalStateException("No active executable steps in cursor");
+            }
+
+            return new Cursor<>(Arrays.asList(currentStep()), intermediate);
         }
 
         public Tuple value() {
             return intermediate;
         }
 
-        public I input() {
-            return input;
+        @SuppressWarnings("unchecked")
+        public O await() {
+            do {
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    //Ignore it, it's irrelevant anyway
+                }
+
+                if (error != null) {
+                    throw new RuntimeException("Flow processing threw an exception:", error);
+                }
+            } while (latch.getCount() != 1);
+            return (O) value();
+        }
+
+        public boolean isBlocking() {
+            if (!canRun()) {
+                return false;
+            }
+
+            return currentStep().type() != StepType.SYNC;
+        }
+
+        public boolean isAsync() {
+            if (!canRun()) {
+                return false;
+            }
+
+            return currentStep().type() == StepType.ASYNC;
         }
 
         public boolean canRun() {
@@ -45,22 +83,32 @@ public class ExecutableFlow<O, I> {
 
         public Cursor<O, I> run() {
             if (canRun()) {
-                Step<Tuple, Tuple> step = steps.get(index);
-
                 try {
-                    intermediate = step.apply(intermediate);
+                    intermediate = currentStep().apply(intermediate);
+
+                    if (index == (steps.size() - 1)) {
+                        latch.countDown();
+                    }
                 } catch (Throwable t) {
-                    //TODO: call step.onError when this functiinality will be implemented
+                    //TODO: call step.onError when this functionality will be implemented
                     //TODO: use FlowException
-                    throw new RuntimeException(t);
+                    error = t;
+                    index = steps.size();
+                    latch.countDown();
                 }
             }
             return this;
         }
 
-        private boolean advance() {
+        private Step<Tuple, Tuple> currentStep() {
+            return steps.get(index);
+        }
+
+        public boolean advance() {
             if (index < steps.size()) {
                 index++;
+            } else {
+                latch.countDown();
             }
             return canRun();
         }

@@ -52,7 +52,7 @@ public class SrcGen {
         }
         writer.println();
 
-        writer.println(INDENT + "protected static class Flow<O1> {");
+        writer.println(INDENT + "protected static class Flow<O1 extends Tuple> {");
         writer.println(INDENT + INDENT + "private final Flow<O1> prev;");
         writer.println(INDENT + INDENT + "protected Step<?, ?> step;");
         writer.println();
@@ -77,24 +77,11 @@ public class SrcGen {
         writer.println(INDENT + INDENT + INDENT + INDENT + "consumer.accept(step);");
         writer.println(INDENT + INDENT + INDENT + "}");
         writer.println(INDENT + INDENT + "}");
-
-        /*
-                public void apply(Consumer<Step<?, ?>> consumer) {
-            if (prev != null) {
-                prev.apply(consumer);
-            }
-
-            if (step != null) {
-                consumer.accept(step);
-            }
-        }
-
-         */
         writer.println(INDENT + "}");
         writer.println();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            writer.println(INDENT + "public static class " + flowNameType("T", i) + " extends Flow<O1> {");
+            writer.println(INDENT + "public static class " + flowMainTypeName("T", i) + " extends Flow<O1> {");
             writer.println(INDENT + INDENT + "public Flow" + i + "(Flow<O1> prev) {");
             writer.println(INDENT + INDENT + INDENT + "super(prev);");
             writer.println(INDENT + INDENT + "}");
@@ -138,7 +125,7 @@ public class SrcGen {
     private static void addFlowMethod(PrintWriter writer, int k, int j, String name, String stepType) {
         writer.println(INDENT + INDENT + "@SuppressWarnings(\"unchecked\")");
         writer.println(INDENT + INDENT + "public <" + typeList("R", k) + "> " +
-                       flowNameType("R", k) + " " + name + k + "(" + functionNameType(j, k) +  " function) {");
+                       flowTypeName("R", k) + " " + name + k + "(" + functionNameType(j, k) +  " function) {");
         writer.println(INDENT + INDENT + INDENT +
             "step = new Step<>(" + stepType + ", (" + tupleName("T", j) + " param) -> function.apply(" +
                 tupleToParams("T", j) + "));");
@@ -146,7 +133,11 @@ public class SrcGen {
         writer.println(INDENT + INDENT + "}");
     }
 
-    private static String flowNameType(String prefix, int i) {
+    private static String flowMainTypeName(String prefix, int i) {
+        return "Flow" + i + "<" + "O1 extends Tuple, " + typeList(prefix, i) + ">";
+    }
+
+    private static String flowTypeName(String prefix, int i) {
         return "Flow" + i + "<" + "O1, " + typeList(prefix, i) + ">";
     }
 
