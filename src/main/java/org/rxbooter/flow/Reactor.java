@@ -5,9 +5,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
-import org.rxbooter.flow.ExecutableFlow.Cursor;
 import org.rxbooter.flow.Tuples.Tuple;
+import org.rxbooter.flow.Tuples.Tuple1;
 
 public class Reactor {
     private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 4;
@@ -40,13 +41,26 @@ public class Reactor {
         ioPool.start();
     }
 
+    public static Reactor defaultReactor() {
+        return ReactorHolder.INSTANCE.reactor();
+    }
+
     public void shutdown() {
         shutdown.compareAndSet(false, true);
+    }
+
+    public static <O extends Tuple, I extends Tuple> O waitFor(Cursor<O, I> cursor) {
+        return defaultReactor().await(cursor);
     }
 
     public <O extends Tuple, I extends Tuple> O await(Cursor<O, I> cursor) {
         putTask(cursor);
         return cursor.await();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T await(Supplier<T> function) {
+        return (T) await(Cursor.single(Step.waiting(function))).get(0);
     }
 
     private void ioHandler() {
@@ -81,6 +95,7 @@ public class Reactor {
                 continue;
             }
 
+            //TODO: execute groups of steps
             runStep(cursor);
             putTask(cursor);
         }
@@ -119,5 +134,18 @@ public class Reactor {
     private static int calculateDefaultPoolSize() {
         int numCores = Runtime.getRuntime().availableProcessors();
         return Math.max(numCores, DEFAULT_MIN_COMPUTING_POOL_SIZE);
+    }
+
+    private static enum ReactorHolder {
+        INSTANCE;
+
+        private final Reactor reactor;
+        private ReactorHolder() {
+            reactor = new Reactor();
+        }
+
+        public Reactor reactor() {
+            return reactor;
+        }
     }
 }

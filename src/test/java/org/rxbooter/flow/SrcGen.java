@@ -6,207 +6,256 @@ import java.io.PrintWriter;
 
 public class SrcGen {
     private static final String EXT = ".java";
-    private static final String INDENT = "    ";
+    private static final String I = "    ";
     private static final String PACKAGE = SrcGen.class.getPackage().getName();
     private static final int NUM_PARAMS = 7;
-    public static final String SEPARATOR = ", ";
+    private static final String SEPARATOR = ", ";
+
+    private final String name;
+    private PrintWriter writer;
+
+    public SrcGen(String name) {
+        this.name = name;
+    }
 
     public static void main(String[] args) {
-        // Don't run it for now!
-//        generate("Tuples", SrcGen::generateTuples);
-//        generate("Functions", SrcGen::generateFunctions);
-        generate("Flows", SrcGen::generateFlows);
+        new SrcGen("Flow").generateFlow();
+//        new SrcGen("Tuples").generateTuples();
+//        new SrcGen("Functions").generateFunctions();
     }
 
     public interface Generator {
-        void generate(PrintWriter writer, String name);
+        void generate(String name);
     }
 
-    private static void generate(String name, Generator generator) {
+    private void generate(Generator generator) {
         try(PrintWriter writer = openWriter(name)) {
-            generator.generate(writer, name);
+            this.writer = writer;
+            generator.generate(name);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void generateFlows(PrintWriter writer, String name) {
-        writer.println("package " + PACKAGE + ";");
-        writer.println();
-        writer.println("import java.util.function.Consumer;");
-        writer.println();
-        writer.println("import static " + PACKAGE + ".Functions.*;");
-        writer.println("import static " + PACKAGE + ".Tuples.*;");
-        writer.println();
-        writer.println("public final class " + name + " {");
-        writer.println(INDENT + "private " + name + "() {}");
-        writer.println();
+    private void generateFlow() {
+        generate(this::generateFlow);
+    }
+
+    private void generateTuples() {
+        generate(this::generateTuples);
+    }
+
+    private void generateFunctions() {
+        generate(this::generateFunctions);
+    }
+
+    private void generateFlow(String name) {
+        out(0, "package " + PACKAGE + ";");
+        nl();
+        out(0, "import java.util.function.Consumer;");
+        nl();
+        out(0, "import static " + PACKAGE + ".Functions.*;");
+        out(0, "import static " + PACKAGE + ".Tuples.*;");
+        nl();
+        out(0, "public final class " + name + " {");
+        out(1, "private " + name + "() {}");
+        nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            writer.println(INDENT + "public static<" + typeList("T", i) + "> Flow" + i + "<"
-                           + tupleName("T", i) + ", "
-                           + typeList("T", i) + "> with(" + inputClassParamList(i) + ") {");
-            writer.println(INDENT + INDENT + "return new Flow" + i + "<>(null);");
-            writer.println(INDENT + "}");
+            out(1, "public static<" + typeList("T", i) + "> FlowBuilder" + i + "<"
+                + tupleName("T", i) + ", "
+                + typeList("T", i) + "> to(" + inputClassParamList(i) + ") {");
+            out(2, "return new FlowBuilder" + i + "<>(null);");
+            out(1, "}");
             writeSeparator(writer, i);
         }
-        writer.println();
+        nl();
 
-        writer.println(INDENT + "protected static class Flow<O1 extends Tuple> {");
-        writer.println(INDENT + INDENT + "private final Flow<O1> prev;");
-        writer.println(INDENT + INDENT + "protected Step<?, ?> step;");
-        writer.println();
-        writer.println(INDENT + INDENT + "protected Flow(Flow<O1> prev) {");
-        writer.println(INDENT + INDENT + INDENT + "this.prev = prev;");
-        writer.println(INDENT + INDENT + "}");
-        writer.println();
-        writer.println(INDENT + INDENT + "public <R1, T1> Step<R1, T1> step() {");
-        writer.println(INDENT + INDENT + INDENT + "return (Step<R1, T1>) step;");
-        writer.println(INDENT + INDENT + "}");
-        writer.println();
-        writer.println(INDENT + INDENT + "public Flow<O1> prev() {");
-        writer.println(INDENT + INDENT + INDENT + "return prev;");
-        writer.println(INDENT + INDENT + "}");
-        writer.println();
-        writer.println(INDENT + INDENT + "public void apply(Consumer<Step<?, ?>> consumer) {");
-        writer.println(INDENT + INDENT + INDENT + "if (prev != null) {");
-        writer.println(INDENT + INDENT + INDENT + INDENT + "prev.apply(consumer);");
-        writer.println(INDENT + INDENT + INDENT + "}");
-        writer.println();
-        writer.println(INDENT + INDENT + INDENT + "if (step != null) {");
-        writer.println(INDENT + INDENT + INDENT + INDENT + "consumer.accept(step);");
-        writer.println(INDENT + INDENT + INDENT + "}");
-        writer.println(INDENT + INDENT + "}");
-        writer.println(INDENT + "}");
-        writer.println();
+        out(1, "protected static class FlowBuilder<O1 extends Tuple> {");
+        out(2, "private final FlowBuilder<O1> prev;");
+        out(2, "protected Step<?, ?> step;");
+        nl();
+        out(2, "protected FlowBuilder(FlowBuilder<O1> prev) {");
+        out(3, "this.prev = prev;");
+        out(2, "}");
+        nl();
+        out(2, "@SuppressWarnings(\"unchecked\")");
+        out(2, "public <R1, T1> Step<R1, T1> step() {");
+        out(3, "return (Step<R1, T1>) step;");
+        out(2, "}");
+        nl();
+        out(2, "public FlowBuilder<O1> prev() {");
+        out(3, "return prev;");
+        out(2, "}");
+        nl();
+        out(2, "public void apply(Consumer<Step<?, ?>> consumer) {");
+        out(3, "if (prev != null) {");
+        out(3, I + "prev.apply(consumer);");
+        out(3, "}");
+        nl();
+        out(3, "if (step != null) {");
+        out(3, I + "consumer.accept(step);");
+        out(3, "}");
+        out(2, "}");
+        out(1, "}");
+        nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            writer.println(INDENT + "public static class " + flowMainTypeName("T", i) + " extends Flow<O1> {");
-            writer.println(INDENT + INDENT + "public Flow" + i + "(Flow<O1> prev) {");
-            writer.println(INDENT + INDENT + INDENT + "super(prev);");
-            writer.println(INDENT + INDENT + "}");
-            writer.println();
-            writer.println(INDENT + INDENT + "public ExecutableFlow<O1, " + tupleName("T", i) + "> build() {");
-            writer.println(INDENT + INDENT + INDENT + "return new ExecutableFlow<>(this);");
-            writer.println(INDENT + INDENT + "}");
-            writer.println();
+            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder<O1> {");
+            out(2, "public FlowBuilder" + i + "(FlowBuilder<O1> prev) {");
+            out(3, "super(prev);");
+            out(2, "}");
+            nl();
+            out(2, "public Pipeline<O1, " + tupleName("T", i) + "> asPipeline() {");
+            out(3, "return new Pipeline<>(this);");
+            out(2, "}");
+            nl();
+            out(2, "public Processor<O1, " + tupleName("T", i) + "> asProcessorIn(Reactor reactor) {");
+            out(3, "return new Processor<>(reactor, new Pipeline<>(this));");
+            out(2, "}");
+            nl();
 
             //Flow methods
             for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
                 for (int j = 1; j <= i; j++) { //Inputs
-                    addFlowMethod(writer, k, j, "then", "StepType.SYNC");
-                    writer.println();
-                    addFlowMethod(writer, k, j, "async", "StepType.ASYNC");
-                    writer.println();
-                    addFlowMethod(writer, k, j, "await", "StepType.AWAIT");
+                    addFlowMethod(writer, k, j, "apply", "StepType.SYNC");
+                    nl();
+                    addFlowMethod(writer, k, j, "asyncApply", "StepType.ASYNC");
+                    nl();
+                    addFlowMethod(writer, k, j, "awaitApply", "StepType.AWAIT");
                     writeInnerSeparator(writer, i, j);
                 }
                 writeSeparator(writer, k);
             }
 
-            writer.println(INDENT + "}");
+            out(1, "}");
 
             writeSeparator(writer, i);
         }
 
-        writer.println("}");
+        out(0, "}");
     }
 
-    private static void writeInnerSeparator(PrintWriter writer, int i, int j) {
+    private void nl() {
+        writer.println();
+    }
+
+    private void out(String text) {
+        writer.println(text);
+    }
+
+    private void out(int n, String text) {
+        for (int i = 0; i < n; i++) {
+            writer.print(I);
+        }
+        writer.println(text);
+    }
+
+    private void writeInnerSeparator(PrintWriter writer, int i, int j) {
         if (j != i) {
-            writer.println();
+            nl();
         }
     }
 
-    private static void writeSeparator(PrintWriter writer, int i) {
+    private void writeSeparator(PrintWriter writer, int i) {
         writeInnerSeparator(writer, NUM_PARAMS, i);
     }
 
-    private static void addFlowMethod(PrintWriter writer, int k, int j, String name, String stepType) {
-        writer.println(INDENT + INDENT + "@SuppressWarnings(\"unchecked\")");
-        writer.println(INDENT + INDENT + "public <" + typeList("R", k) + "> " +
-                       flowTypeName("R", k) + " " + name + k + "(" + functionNameType(j, k) +  " function) {");
-        writer.println(INDENT + INDENT + INDENT +
-            "step = new Step<>(" + stepType + ", (" + tupleName("T", j) + " param) -> function.apply(" +
-                tupleToParams("T", j) + "));");
-        writer.println(INDENT + INDENT + INDENT + "return new Flow" + k + "<>(this);");
-        writer.println(INDENT + INDENT + "}");
+    private void addFlowMethod(PrintWriter writer, int k, int j, String name, String stepType) {
+        out(2, "@SuppressWarnings(\"unchecked\")");
+        out(2, "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + k + "(" + functionTypeName(j, k) + " function) {");
+        out(3, "step = new Step<>(" + stepType + ", (" + tupleName("T", j) + " param) -> function.apply(" + tupleToParams("T", j) + "));");
+        out(3, "return new FlowBuilder" + k + "<>(this);");
+        out(2, "}");
+        nl();
+        out(2, "@SuppressWarnings(\"unchecked\")");
+        out(2, "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + k + "(" + functionTypeName(j, k) + " function, " + errorHandlerTypeName(k) + " handler) {");
+        out(3, "step = new Step<>(" + stepType + ", (" + tupleName("T", j) + " param) -> function.apply(" + tupleToParams("T", j) + "), handler::apply);");
+        out(3, "return new FlowBuilder" + k + "<>(this);");
+        out(2, "}");
     }
 
-    private static String flowMainTypeName(String prefix, int i) {
-        return "Flow" + i + "<" + "O1 extends Tuple, " + typeList(prefix, i) + ">";
+    private String flowMainTypeName(String prefix, int i) {
+        return "FlowBuilder" + i + "<" + "O1 extends Tuple, " + typeList(prefix, i) + ">";
     }
 
-    private static String flowTypeName(String prefix, int i) {
-        return "Flow" + i + "<" + "O1, " + typeList(prefix, i) + ">";
+    private String flowTypeName(String prefix, int i) {
+        return "FlowBuilder" + i + "<" + "O1, " + typeList(prefix, i) + ">";
     }
 
-    private static void generateTuples(PrintWriter writer, String name) {
-        writer.println("package " + PACKAGE + ";");
-        writer.println();
-        writer.println("public final class " + name + " {");
-        writer.println(INDENT + "private " + name + "() {}");
-        writer.println();
+    private void generateTuples(String name) {
+        out(0, "package " + PACKAGE + ";");
+        nl();
+        out(0, "public final class " + name + " {");
+        out(1, "private " + name + "() {}");
+        nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            writer.println(INDENT + "public static<" + typeList("T", i) + "> Tuple" + i + "<"
-                           + typeList("T", i) + "> of(" + inputParamList(i) + ") {");
-            writer.println(INDENT + INDENT + "return new Tuple" + i + "<>(" + paramList(i) + ");");
-            writer.println(INDENT + "}");
+            out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> of(" + inputParamList(i) + ") {");
+            out(2, "return new Tuple" + i + "<>(" + paramList(i) + ");");
+            out(1, "}");
+            nl();
+            out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> with(" + inputParamList(i) + ") {");
+            out(2, "return new Tuple" + i + "<>(" + paramList(i) + ");");
+            out(1, "}");
             writeSeparator(writer, i);
         }
 
-        writer.println();
-        writer.println(INDENT + "public static class Tuple {");
-        writer.println(INDENT + INDENT + "private final Object[] values;");
-        writer.println();
-        writer.println(INDENT + INDENT + "protected Tuple(Object ... values) {");
-        writer.println(INDENT + INDENT + INDENT + "this.values = values;");
-        writer.println(INDENT + INDENT + "}");
-        writer.println();
-        writer.println(INDENT + INDENT + "public Object get(int i) {");
-        writer.println(INDENT + INDENT + INDENT + "return values[i];");
-        writer.println(INDENT + INDENT + "}");
-        writer.println(INDENT + "}");
-        writer.println();
+        nl();
+        out(1, "public static class Tuple {");
+        out(2, "private final Object[] values;");
+        nl();
+        out(2, "protected Tuple(Object ... values) {");
+        out(3, "this.values = values;");
+        out(2, "}");
+        nl();
+        out(2, "public Object get(int i) {");
+        out(3, "return values[i];");
+        out(2, "}");
+        out(1, "}");
+        nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-                writer.println(INDENT + "public static class Tuple" + i + "<" + typeList("T", i) + "> extends Tuple {");
-                writer.println(INDENT + INDENT + "public Tuple" + i + "(" + inputParamList(i) + ") {");
-                writer.println(INDENT + INDENT + INDENT + "super(" + paramList(i) + ");");
-                writer.println(INDENT + INDENT + "}");
-                writer.println(INDENT + "}");
+                out(1, "public static class Tuple" + i + "<" + typeList("T", i) + "> extends Tuple {");
+                out(2, "public Tuple" + i + "(" + inputParamList(i) + ") {");
+                out(3, "super(" + paramList(i) + ");");
+                out(2, "}");
+                out(1, "}");
 
             writeSeparator(writer, i);
         }
 
-        writer.println("}");
+        out(0, "}");
     }
 
-    private static void generateFunctions(PrintWriter writer, String name) {
-        writer.println("package " + PACKAGE + ";");
-        writer.println();
-        writer.println("import static " + PACKAGE + ".Tuples.*;");
-        writer.println();
-        writer.println("public interface " + name + " {");
+    private void generateFunctions(String name) {
+        out(0, "package " + PACKAGE + ";");
+        nl();
+        out(0, "import static " + PACKAGE + ".Tuples.*;");
+        nl();
+        out(0, "public interface " + name + " {");
 
         for(int j = 1; j <= NUM_PARAMS; j++) { //Outputs
             for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-                writer.println(INDENT + "interface " + functionNameType(i, j) + " {");
-                writer.println(INDENT + INDENT + tupleName("R", j) + " apply(" + inputParamList(i) + ");");
-                writer.println(INDENT + "}");
+                out(1, "interface " + functionTypeName(i, j) + " {");
+                out(2, tupleName("R", j) + " apply(" + inputParamList(i) + ");");
+                out(1, "}");
 
                 if (i != NUM_PARAMS || j != NUM_PARAMS) {
-                    writer.println();
+                    nl();
                 }
             }
         }
 
-        writer.println("}");
+        out(0, "}");
     }
 
-    private static String functionNameType(int i, int j) {
-        return "FN" + j + i + typeList(i, j);
+    private static String functionTypeName(int inputs, int outputs) {
+        return "FN" + outputs + inputs + typeList(inputs, outputs);
+    }
+
+    private static String errorHandlerTypeName(int j) {
+        return "FN" + j + "1<" + typeList("R", j) + SEPARATOR + "Throwable>";
     }
 
     private static String paramList(int count) {
