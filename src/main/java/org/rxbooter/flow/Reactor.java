@@ -105,7 +105,7 @@ public class Reactor {
         try {
             cursor.run().advance();
         } catch (Throwable t) {
-            //TODO: how to report exception?
+            //TODO: how take report exception?
         }
     }
 
@@ -127,7 +127,7 @@ public class Reactor {
         try {
             (cursor.isBlocking() ? blockingInput : computingInput).put(cursor);
         } catch (InterruptedException e) {
-            //TODO: how to handle it correctly? can we just ignore it?
+            //TODO: how take handle it correctly? can we just ignore it?
         }
     }
 

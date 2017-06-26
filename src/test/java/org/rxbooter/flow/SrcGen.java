@@ -1,5 +1,7 @@
 package org.rxbooter.flow;
 
+import org.rxbooter.flow.Tuples.Tuple;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,7 +21,8 @@ public class SrcGen {
     }
 
     public static void main(String[] args) {
-        new SrcGen("Flow").generateFlow();
+//        new SrcGen("Flow").generateFlow();
+        new SrcGen("FlowBuilders").generateFlowBuilders();
 //        new SrcGen("Tuples").generateTuples();
 //        new SrcGen("Functions").generateFunctions();
     }
@@ -37,8 +40,12 @@ public class SrcGen {
         }
     }
 
-    private void generateFlow() {
-        generate(this::generateFlow);
+//    private void generateFlow() {
+//        generate(this::generateFlow);
+//    }
+
+    private void generateFlowBuilders() {
+        generate(this::generateFlowBuilder);
     }
 
     private void generateTuples() {
@@ -49,26 +56,20 @@ public class SrcGen {
         generate(this::generateFunctions);
     }
 
-    private void generateFlow(String name) {
+    private void generateFlowBuilder(String name) {
         out(0, "package " + PACKAGE + ";");
         nl();
+
+        out(0, "import java.util.ArrayList;");
+        out(0, "import java.util.List;");
         out(0, "import java.util.function.Consumer;");
         nl();
         out(0, "import static " + PACKAGE + ".Functions.*;");
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
-        out(0, "public final class " + name + " {");
-        out(1, "private " + name + "() {}");
-        nl();
 
-        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            out(1, "public static<" + typeList("T", i) + "> FlowBuilder" + i + "<"
-                + tupleName("T", i) + ", "
-                + typeList("T", i) + "> to(" + inputClassParamList(i) + ") {");
-            out(2, "return new FlowBuilder" + i + "<>(null);");
-            out(1, "}");
-            writeSeparator(writer, i);
-        }
+        out(0,"public final class " + name + " {");
+        out(1, "private " + name + "() {}");
         nl();
 
         out(1, "protected static class FlowBuilder<O1 extends Tuple> {");
@@ -106,12 +107,9 @@ public class SrcGen {
             out(3, "super(prev);");
             out(2, "}");
             nl();
-            out(2, "public Pipeline<O1, " + tupleName("T", i) + "> asPipeline() {");
-            out(3, "return new Pipeline<>(this);");
-            out(2, "}");
-            nl();
-            out(2, "public Processor<O1, " + tupleName("T", i) + "> asProcessorIn(Reactor reactor) {");
-            out(3, "return new Processor<>(reactor, new Pipeline<>(this));");
+            out(2, "@SuppressWarnings(\"unchecked\")");
+            out(2, "public Flow<O1, " + tupleName("T", i) + "> build() {");
+            out(3, "return new Flow<>(this);");
             out(2, "}");
             nl();
 
@@ -135,6 +133,103 @@ public class SrcGen {
 
         out(0, "}");
     }
+
+//    private void generateFlow(String name) {
+//        out(0, "package " + PACKAGE + ";");
+//        nl();
+//
+//        out(0, "import java.util.ArrayList;");
+//        out(0, "import java.util.List;");
+//        out(0, "import java.util.function.Consumer;");
+//        nl();
+//        out(0, "import static " + PACKAGE + ".Functions.*;");
+//        out(0, "import static " + PACKAGE + ".Tuples.*;");
+//        nl();
+//
+//        out(0,"public class " + name + "<O extends Tuple, I extends Tuple> {");
+//        out(1, "private final List<Step<? extends Tuple, ? extends Tuple>> steps = new ArrayList<>();");
+//        nl();
+//        out(1, "@SuppressWarnings(\"unchecked\")");
+//        out(1, "public " + name + "(FlowBuilder<O> last) {");
+//        out(2, "//TODO: add grouping steps in batches");
+//        out(2, "last.apply((step) -> steps.add((Step<Tuple, Tuple>) step));");
+//        out(1, "}");
+//        nl();
+//        out(1, "public " + name + "(Step<O, I> step) {");
+//        out(2, "steps.add(step);");
+//        out(1, "}");
+//        nl();
+//
+//        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+//            out(1, "public static<" + typeList("T", i) + "> FlowBuilder" + i + "<"
+//                + tupleName("T", i) + ", "
+//                + typeList("T", i) + "> take(" + inputClassParamList(i) + ") {");
+//            out(2, "return new FlowBuilder" + i + "<>(null);");
+//            out(1, "}");
+//            writeSeparator(writer, i);
+//        }
+//        nl();
+//
+//        out(1, "protected static class FlowBuilder<O1 extends Tuple> {");
+//        out(2, "private final FlowBuilder<O1> prev;");
+//        out(2, "protected Step<?, ?> step;");
+//        nl();
+//        out(2, "protected FlowBuilder(FlowBuilder<O1> prev) {");
+//        out(3, "this.prev = prev;");
+//        out(2, "}");
+//        nl();
+//        out(2, "@SuppressWarnings(\"unchecked\")");
+//        out(2, "public <R1, T1> Step<R1, T1> step() {");
+//        out(3, "return (Step<R1, T1>) step;");
+//        out(2, "}");
+//        nl();
+//        out(2, "public FlowBuilder<O1> prev() {");
+//        out(3, "return prev;");
+//        out(2, "}");
+//        nl();
+//        out(2, "public void apply(Consumer<Step<?, ?>> consumer) {");
+//        out(3, "if (prev != null) {");
+//        out(3, I + "prev.apply(consumer);");
+//        out(3, "}");
+//        nl();
+//        out(3, "if (step != null) {");
+//        out(3, I + "consumer.accept(step);");
+//        out(3, "}");
+//        out(2, "}");
+//        out(1, "}");
+//        nl();
+//
+//        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+//            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder<O1> {");
+//            out(2, "public FlowBuilder" + i + "(FlowBuilder<O1> prev) {");
+//            out(3, "super(prev);");
+//            out(2, "}");
+//            nl();
+//            out(2, "public " + name + "<O1, " + tupleName("T", i) + "> build() {");
+//            out(3, "return new " + name + "<>(this);");
+//            out(2, "}");
+//            nl();
+//
+//            //Flow methods
+//            for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
+//                for (int j = 1; j <= i; j++) { //Inputs
+//                    addFlowMethod(writer, k, j, "apply", "StepType.SYNC");
+//                    nl();
+//                    addFlowMethod(writer, k, j, "asyncApply", "StepType.ASYNC");
+//                    nl();
+//                    addFlowMethod(writer, k, j, "awaitApply", "StepType.AWAIT");
+//                    writeInnerSeparator(writer, i, j);
+//                }
+//                writeSeparator(writer, k);
+//            }
+//
+//            out(1, "}");
+//
+//            writeSeparator(writer, i);
+//        }
+//
+//        out(0, "}");
+//    }
 
     private void nl() {
         writer.println();
