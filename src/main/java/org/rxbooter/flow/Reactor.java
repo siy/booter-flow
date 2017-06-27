@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.rxbooter.flow.Tuples.Tuple;
-import org.rxbooter.flow.Tuples.Tuple1;
+import org.rxbooter.flow.Flow.ExecutableFlow;
 
 public class Reactor {
     private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 4;
@@ -18,8 +18,8 @@ public class Reactor {
     private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DefaultThreadFactory("Reactor-io-");
     private static final long POLL_INTERVAL = 100;
 
-    private final BlockingQueue<Cursor<?, ?>> computingInput = new LinkedBlockingQueue<>();
-    private final BlockingQueue<Cursor<?, ?>> blockingInput = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ExecutableFlow<?, ?>> computingInput = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ExecutableFlow<?, ?>> blockingInput = new LinkedBlockingQueue<>();
     private final AtomicBoolean shutdown = new AtomicBoolean();
     private final FixedThreadPool computingPool;
     private final FixedThreadPool ioPool;
@@ -49,67 +49,67 @@ public class Reactor {
         shutdown.compareAndSet(false, true);
     }
 
-    public static <O extends Tuple, I extends Tuple> O waitFor(Cursor<O, I> cursor) {
-        return defaultReactor().await(cursor);
+    public static <O extends Tuple, I extends Tuple> O waitFor(ExecutableFlow<O, I> executableFlow) {
+        return defaultReactor().await(executableFlow);
     }
 
-    public <O extends Tuple, I extends Tuple> O await(Cursor<O, I> cursor) {
-        putTask(cursor);
-        return cursor.await();
+    public <O extends Tuple, I extends Tuple> O await(ExecutableFlow<O, I> executableFlow) {
+        putTask(executableFlow);
+        return executableFlow.await();
     }
 
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function) {
-        return (T) await(Cursor.single(Step.waiting(function))).get(0);
+        return (T) await(Flow.waiting(function).bind(null)).get(0);
     }
 
     private void ioHandler() {
         while (!shutdown.get()) {
-            Cursor<?, ?> cursor = pollQueue(computingInput);
+            ExecutableFlow<?, ?> executableFlow = pollQueue(computingInput);
 
-            if (cursor == null) {
+            if (executableFlow == null) {
                 continue;
             }
 
-            runStep(cursor);
-            putTask(cursor);
+            runStep(executableFlow);
+            putTask(executableFlow);
         }
     }
 
     private void computingHandler() {
         while (!shutdown.get()) {
-            Cursor<?, ?> cursor = pollQueue(blockingInput);
+            ExecutableFlow<?, ?> executableFlow = pollQueue(blockingInput);
 
-            if (cursor == null) {
+            if (executableFlow == null) {
                 continue;
             }
 
-            if (cursor.isAsync()) {
-                Cursor<?, ?> subtask = cursor.subCursor();
+            if (executableFlow.isAsync()) {
+                ExecutableFlow<?, ?> subtask = executableFlow.forCurrent();
                 putTask(subtask);
-                cursor.advance();
+                executableFlow.advance();
 
-                if (cursor.canRun()) {
-                    putTask(cursor);
+                if (executableFlow.canRun()) {
+                    putTask(executableFlow);
                 }
                 continue;
             }
 
             //TODO: execute groups of steps
-            runStep(cursor);
-            putTask(cursor);
+            runStep(executableFlow);
+            putTask(executableFlow);
         }
     }
 
-    private void runStep(Cursor<?, ?> cursor) {
+    private void runStep(ExecutableFlow<?, ?> executableFlow) {
         try {
-            cursor.run().advance();
+            executableFlow.step().advance();
         } catch (Throwable t) {
             //TODO: how take report exception?
         }
     }
 
-    private Cursor<?, ?> pollQueue(BlockingQueue<Cursor<?, ?>> queue) {
+    private ExecutableFlow<?, ?> pollQueue(BlockingQueue<ExecutableFlow<?, ?>> queue) {
         try {
             return queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -118,14 +118,14 @@ public class Reactor {
         }
     }
 
-    private void putTask(Cursor<?, ?> cursor) {
-        if (!cursor.canRun()) {
+    private void putTask(ExecutableFlow<?, ?> executableFlow) {
+        if (!executableFlow.canRun()) {
             //TODO: signal end of processing somehow
             return;
         }
 
         try {
-            (cursor.isBlocking() ? blockingInput : computingInput).put(cursor);
+            (executableFlow.isBlocking() ? blockingInput : computingInput).put(executableFlow);
         } catch (InterruptedException e) {
             //TODO: how take handle it correctly? can we just ignore it?
         }

@@ -45,7 +45,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple1<T1>> build() {
-            return new Flow<O1, Tuple1<T1>>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -308,7 +308,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple2<T1, T2>> build() {
-            return new Flow<>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -823,7 +823,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple3<T1, T2, T3>> build() {
-            return new Flow<>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -1590,7 +1590,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple4<T1, T2, T3, T4>> build() {
-            return new Flow<>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -2609,7 +2609,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple5<T1, T2, T3, T4, T5>> build() {
-            return new Flow<>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -3880,7 +3880,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple6<T1, T2, T3, T4, T5, T6>> build() {
-            return new Flow<>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")
@@ -5403,7 +5403,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         public Flow<O1, Tuple7<T1, T2, T3, T4, T5, T6, T7>> build() {
-            return new Flow<>(this);
+            return Flow.of(this);
         }
 
         @SuppressWarnings("unchecked")

@@ -109,7 +109,7 @@ public class SrcGen {
             nl();
             out(2, "@SuppressWarnings(\"unchecked\")");
             out(2, "public Flow<O1, " + tupleName("T", i) + "> build() {");
-            out(3, "return new Flow<>(this);");
+            out(3, "return Flow.of(this);");
             out(2, "}");
             nl();
 
