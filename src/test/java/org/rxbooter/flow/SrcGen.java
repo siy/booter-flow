@@ -346,11 +346,11 @@ public class SrcGen {
     }
 
     private static String functionTypeName(int inputs, int outputs) {
-        return "FN" + outputs + inputs + typeList(inputs, outputs);
+        return "FN10" + outputs + inputs + typeList(inputs, outputs);
     }
 
     private static String errorHandlerTypeName(int j) {
-        return "FN" + j + "1<" + typeList("R", j) + SEPARATOR + "Throwable>";
+        return "FN10" + j + "1<" + typeList("R", j) + SEPARATOR + "Throwable>";
     }
 
     private static String paramList(int count) {
