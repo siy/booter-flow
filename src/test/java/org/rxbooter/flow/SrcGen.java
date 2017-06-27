@@ -23,7 +23,7 @@ public class SrcGen {
     public static void main(String[] args) {
         new SrcGen("FlowBuilders").generateFlowBuilders();
 //        new SrcGen("Tuples").generateTuples();
-        new SrcGen("Functions").generateFunctions();
+//        new SrcGen("Functions").generateFunctions();
     }
 
     public interface Generator {
@@ -60,6 +60,7 @@ public class SrcGen {
         out(0, "import java.util.function.Consumer;");
         nl();
         out(0, "import static " + PACKAGE + ".Functions.*;");
+        out(0, "import static " + PACKAGE + ".Step.*;");
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
 
@@ -80,7 +81,7 @@ public class SrcGen {
         out(3, "return (Step<R1, T1>) step;");
         out(2, "}");
         nl();
-        out(2, "public FlowBuilder<O1> prev() {");
+        out(2, "public FlowBuilder0<O1> prev() {");
         out(3, "return prev;");
         out(2, "}");
         nl();
@@ -92,6 +93,11 @@ public class SrcGen {
         out(3, "if (step != null) {");
         out(3, I + "consumer.accept(step);");
         out(3, "}");
+        out(2, "}");
+        nl();
+        out(2, "@SuppressWarnings(\"unchecked\")");
+        out(2, "public<R extends Tuple> Flow<O1, R> build() {");
+        out(3, "return Flow.of(this);");
         out(2, "}");
         out(1, "}");
         nl();
@@ -108,22 +114,17 @@ public class SrcGen {
             out(3, "super(prev);");
             out(2, "}");
             nl();
-            out(2, "@SuppressWarnings(\"unchecked\")");
-            out(2, "public Flow<O1, " + tupleName("T", i) + "> build() {");
-            out(3, "return Flow.of(this);");
-            out(2, "}");
-            nl();
 
             //Flow methods
             for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
-                for (int j = i; j <= i; j++) { //Inputs
-                    addFlowMethod(writer, k, j, "apply", "StepType.SYNC");
+                //for (int j = i; j <= i; j++) { //Inputs
+                    addFlowMethod(writer, k, i, "apply", "StepType.SYNC");
                     nl();
-                    addFlowMethod(writer, k, j, "asyncApply", "StepType.ASYNC");
+                    addFlowMethod(writer, k, i, "asyncApply", "StepType.ASYNC");
                     nl();
-                    addFlowMethod(writer, k, j, "awaitApply", "StepType.AWAIT");
-                    writeInnerSeparator(writer, i, j);
-                }
+                    addFlowMethod(writer, k, i, "awaitApply", "StepType.AWAIT");
+                    writeInnerSeparator(writer, i, k);
+                //}
                 writeSeparator(writer, k);
             }
 
@@ -169,7 +170,7 @@ public class SrcGen {
         nl();
         out(2, "@SuppressWarnings(\"unchecked\")");
         out(2, "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + k + "(" + functionTypeName(j, k) + " function, " + errorHandlerTypeName(k) + " handler) {");
-        out(3, "step = new Step<>(" + stepType + ", (" + tupleName("T", j) + " param) -> function.apply(" + tupleToParams("T", j) + "), handler::apply);");
+        out(3, "step = new Step<>(" + stepType + ", (" + tupleName("T", j) + " param) -> function.apply(" + tupleToParams("T", j) + "), handler);");
         out(3, "return new FlowBuilder" + k + "<>(this);");
         out(2, "}");
     }
@@ -252,11 +253,11 @@ public class SrcGen {
     }
 
     private static String functionTypeName(int inputs, int outputs) {
-        return "FN" + outputs + inputs + typeList(inputs, outputs);
+        return "FN" + inputs + outputs + typeList(inputs, outputs);
     }
 
     private static String errorHandlerTypeName(int j) {
-        return "FN" + j + "1<" + typeList("R", j) + SEPARATOR + "Throwable>";
+        return "EH<Tuple" + j + "<" + typeList("R", j) + ">>";
     }
 
     private static String paramList(int count) {
