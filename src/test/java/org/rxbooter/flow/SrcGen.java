@@ -9,8 +9,8 @@ import java.io.PrintWriter;
 public class SrcGen {
     private static final String EXT = ".java";
     private static final String I = "    ";
-    private static final String PACKAGE = SrcGen.class.getPackage().getName();
-    private static final int NUM_PARAMS = 7;
+    private static final String PACKAGE = SrcGen.class.getPackage().getName() + ".flux";
+    private static final int NUM_PARAMS = 9;
     private static final String SEPARATOR = ", ";
 
     private final String name;
@@ -21,10 +21,9 @@ public class SrcGen {
     }
 
     public static void main(String[] args) {
-//        new SrcGen("Flow").generateFlow();
         new SrcGen("FlowBuilders").generateFlowBuilders();
 //        new SrcGen("Tuples").generateTuples();
-//        new SrcGen("Functions").generateFunctions();
+        new SrcGen("Functions").generateFunctions();
     }
 
     public interface Generator {
@@ -39,10 +38,6 @@ public class SrcGen {
             e.printStackTrace();
         }
     }
-
-//    private void generateFlow() {
-//        generate(this::generateFlow);
-//    }
 
     private void generateFlowBuilders() {
         generate(this::generateFlowBuilder);
@@ -72,11 +67,11 @@ public class SrcGen {
         out(1, "private " + name + "() {}");
         nl();
 
-        out(1, "protected static class FlowBuilder<O1 extends Tuple> {");
-        out(2, "private final FlowBuilder<O1> prev;");
+        out(1, "protected static class FlowBuilder0<O1 extends Tuple> {");
+        out(2, "private final FlowBuilder0<O1> prev;");
         out(2, "protected Step<?, ?> step;");
         nl();
-        out(2, "protected FlowBuilder(FlowBuilder<O1> prev) {");
+        out(2, "protected FlowBuilder0(FlowBuilder0<O1> prev) {");
         out(3, "this.prev = prev;");
         out(2, "}");
         nl();
@@ -102,8 +97,14 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder<O1> {");
-            out(2, "public FlowBuilder" + i + "(FlowBuilder<O1> prev) {");
+            String typeList = typeList("T", i - 1);
+
+            typeList = !typeList.isEmpty() ? ", " + typeList : typeList;
+
+            String parentName = "FlowBuilder" + (i - 1) + "<O1" + typeList + ">";
+
+            out(1, "public static class " + flowMainTypeName("T", i) + " extends " + parentName + " {");
+            out(2, "public FlowBuilder" + i + "(FlowBuilder0<O1> prev) {");
             out(3, "super(prev);");
             out(2, "}");
             nl();
@@ -115,7 +116,7 @@ public class SrcGen {
 
             //Flow methods
             for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
-                for (int j = 1; j <= i; j++) { //Inputs
+                for (int j = i; j <= i; j++) { //Inputs
                     addFlowMethod(writer, k, j, "apply", "StepType.SYNC");
                     nl();
                     addFlowMethod(writer, k, j, "asyncApply", "StepType.ASYNC");
@@ -133,103 +134,6 @@ public class SrcGen {
 
         out(0, "}");
     }
-
-//    private void generateFlow(String name) {
-//        out(0, "package " + PACKAGE + ";");
-//        nl();
-//
-//        out(0, "import java.util.ArrayList;");
-//        out(0, "import java.util.List;");
-//        out(0, "import java.util.function.Consumer;");
-//        nl();
-//        out(0, "import static " + PACKAGE + ".Functions.*;");
-//        out(0, "import static " + PACKAGE + ".Tuples.*;");
-//        nl();
-//
-//        out(0,"public class " + name + "<O extends Tuple, I extends Tuple> {");
-//        out(1, "private final List<Step<? extends Tuple, ? extends Tuple>> steps = new ArrayList<>();");
-//        nl();
-//        out(1, "@SuppressWarnings(\"unchecked\")");
-//        out(1, "public " + name + "(FlowBuilder<O> last) {");
-//        out(2, "//TODO: add grouping steps in batches");
-//        out(2, "last.apply((step) -> steps.add((Step<Tuple, Tuple>) step));");
-//        out(1, "}");
-//        nl();
-//        out(1, "public " + name + "(Step<O, I> step) {");
-//        out(2, "steps.add(step);");
-//        out(1, "}");
-//        nl();
-//
-//        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-//            out(1, "public static<" + typeList("T", i) + "> FlowBuilder" + i + "<"
-//                + tupleName("T", i) + ", "
-//                + typeList("T", i) + "> take(" + inputClassParamList(i) + ") {");
-//            out(2, "return new FlowBuilder" + i + "<>(null);");
-//            out(1, "}");
-//            writeSeparator(writer, i);
-//        }
-//        nl();
-//
-//        out(1, "protected static class FlowBuilder<O1 extends Tuple> {");
-//        out(2, "private final FlowBuilder<O1> prev;");
-//        out(2, "protected Step<?, ?> step;");
-//        nl();
-//        out(2, "protected FlowBuilder(FlowBuilder<O1> prev) {");
-//        out(3, "this.prev = prev;");
-//        out(2, "}");
-//        nl();
-//        out(2, "@SuppressWarnings(\"unchecked\")");
-//        out(2, "public <R1, T1> Step<R1, T1> step() {");
-//        out(3, "return (Step<R1, T1>) step;");
-//        out(2, "}");
-//        nl();
-//        out(2, "public FlowBuilder<O1> prev() {");
-//        out(3, "return prev;");
-//        out(2, "}");
-//        nl();
-//        out(2, "public void apply(Consumer<Step<?, ?>> consumer) {");
-//        out(3, "if (prev != null) {");
-//        out(3, I + "prev.apply(consumer);");
-//        out(3, "}");
-//        nl();
-//        out(3, "if (step != null) {");
-//        out(3, I + "consumer.accept(step);");
-//        out(3, "}");
-//        out(2, "}");
-//        out(1, "}");
-//        nl();
-//
-//        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-//            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder<O1> {");
-//            out(2, "public FlowBuilder" + i + "(FlowBuilder<O1> prev) {");
-//            out(3, "super(prev);");
-//            out(2, "}");
-//            nl();
-//            out(2, "public " + name + "<O1, " + tupleName("T", i) + "> build() {");
-//            out(3, "return new " + name + "<>(this);");
-//            out(2, "}");
-//            nl();
-//
-//            //Flow methods
-//            for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
-//                for (int j = 1; j <= i; j++) { //Inputs
-//                    addFlowMethod(writer, k, j, "apply", "StepType.SYNC");
-//                    nl();
-//                    addFlowMethod(writer, k, j, "asyncApply", "StepType.ASYNC");
-//                    nl();
-//                    addFlowMethod(writer, k, j, "awaitApply", "StepType.AWAIT");
-//                    writeInnerSeparator(writer, i, j);
-//                }
-//                writeSeparator(writer, k);
-//            }
-//
-//            out(1, "}");
-//
-//            writeSeparator(writer, i);
-//        }
-//
-//        out(0, "}");
-//    }
 
     private void nl() {
         writer.println();
@@ -330,27 +234,29 @@ public class SrcGen {
         nl();
         out(0, "public interface " + name + " {");
 
-        for(int j = 1; j <= NUM_PARAMS; j++) { //Outputs
-            for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-                out(1, "interface " + functionTypeName(i, j) + " {");
-                out(2, tupleName("R", j) + " apply(" + inputParamList(i) + ");");
-                out(1, "}");
+        for (int j = 1; j <= NUM_PARAMS; j++) { //Outputs
+            String baseName = "FN" + j + "0";
+            out(1, "public interface " + baseName + typeList(j, 1) + " {");
+            out(2, "R1 apply(" + inputParamList(j) + ");");
+            out(1, "}");
+            nl();
 
-                if (i != NUM_PARAMS || j != NUM_PARAMS) {
-                    nl();
-                }
+            for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+                out(1, "public interface FN" + j + i + typeList(j, i) + " extends " + baseName +
+                    "<Tuple" + i + "<" + typeList("R", i) + ">, " + typeList("T", j) + "> {}");
             }
+            writeSeparator(writer, j);
         }
 
         out(0, "}");
     }
 
     private static String functionTypeName(int inputs, int outputs) {
-        return "FN10" + outputs + inputs + typeList(inputs, outputs);
+        return "FN" + outputs + inputs + typeList(inputs, outputs);
     }
 
     private static String errorHandlerTypeName(int j) {
-        return "FN10" + j + "1<" + typeList("R", j) + SEPARATOR + "Throwable>";
+        return "FN" + j + "1<" + typeList("R", j) + SEPARATOR + "Throwable>";
     }
 
     private static String paramList(int count) {
@@ -406,6 +312,10 @@ public class SrcGen {
     }
 
     private static String typeList(String prefix, int count) {
+        if (count < 1) {
+            return "";
+        }
+        
         StringBuilder builder = new StringBuilder();
 
         for (int i = 1; i <= count; i++) {
