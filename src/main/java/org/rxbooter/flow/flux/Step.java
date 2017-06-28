@@ -1,12 +1,5 @@
 package org.rxbooter.flow.flux;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import org.rxbooter.flow.flux.Functions.FN11;
-import org.rxbooter.flow.flux.Tuples.Tuple;
-import org.rxbooter.flow.flux.Tuples.Tuple1;
-
 public class Step<R1, T1> {
     private final StepType type;
     private final TF<R1, T1> function;
@@ -24,50 +17,83 @@ public class Step<R1, T1> {
         this.errorHandler = errorHandler;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> waiting(FN11<O, I> function) {
-        return new Step<>(StepType.AWAIT, (p) -> function.apply((I) p.get(0)));
+    public static<R, T> Step<R, T> with(StepType type, TF<R, T> function) {
+        return new Step<>(type, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> waiting(Function<I, O> function) {
-        return new Step<>(StepType.AWAIT, (p) -> Tuples.of(function.apply((I) p.get(0))));
+    public static<R, T> Step<R, T> with(StepType type, TF<R, T> function, EH<R> errorHandler) {
+        return new Step<>(type, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O> Step<Tuple1<O>, Tuple> waiting(Supplier<O> function) {
-        return new Step<>(StepType.AWAIT, (p) -> Tuples.of(function.get()));
+    public static<R, T> Step<R, T> sync(TF<R, T> function) {
+        return with(StepType.SYNC, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> async(FN11<O, I> function) {
-        return new Step<>(StepType.ASYNC, (p) -> function.apply((I) p.get(0)));
+    public static<R, T> Step<R, T> sync(TF<R, T> function, EH<R> errorHandler) {
+        return with(StepType.SYNC, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O> Step<Tuple1<O>, Tuple> async(Supplier<O> function) {
-        return new Step<>(StepType.ASYNC, (p) -> Tuples.of(function.get()));
+    public static<R, T> Step<R, T> async(TF<R, T> function) {
+        return with(StepType.ASYNC, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> async(Function<I, O> function) {
-        return new Step<>(StepType.ASYNC, (p) -> Tuples.of(function.apply((I) p.get(0))));
+    public static<R, T> Step<R, T> async(TF<R, T> function, EH<R> errorHandler) {
+        return with(StepType.ASYNC, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> single(FN11<O, I> function) {
-        return new Step<>(StepType.SYNC, (p) -> function.apply((I) p.get(0)));
+    public static<R, T> Step<R, T> await(TF<R, T> function) {
+        return with(StepType.AWAIT, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O> Step<Tuple1<O>, Tuple> single(Supplier<O> function) {
-        return new Step<>(StepType.SYNC, (p) -> Tuples.of(function.get()));
+    public static<R, T> Step<R, T> await(TF<R, T> function, EH<R> errorHandler) {
+        return with(StepType.AWAIT, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> single(Function<I, O> function) {
-        return new Step<>(StepType.SYNC, (p) -> Tuples.of(function.apply((I) p.get(0))));
-    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O, I> Step<Tuple1<O>, Tuple1<I>> await(FN11<O, I> function) {
+//        return new Step<>(StepType.AWAIT, (p) -> function.apply((I) p.get(0)));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O, I> Step<Tuple1<O>, Tuple1<I>> await(Function<I, O> function) {
+//        return new Step<>(StepType.AWAIT, (p) -> Tuples.of(function.apply((I) p.get(0))));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O> Step<Tuple1<O>, Tuple> await(Supplier<O> function) {
+//        return new Step<>(StepType.AWAIT, (p) -> Tuples.of(function.get()));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O, I> Step<Tuple1<O>, Tuple1<I>> async(FN11<O, I> function) {
+//        return new Step<>(StepType.ASYNC, (p) -> function.apply((I) p.get(0)));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O> Step<Tuple1<O>, Tuple> async(Supplier<O> function) {
+//        return new Step<>(StepType.ASYNC, (p) -> Tuples.of(function.get()));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O, I> Step<Tuple1<O>, Tuple1<I>> async(Function<I, O> function) {
+//        return new Step<>(StepType.ASYNC, (p) -> Tuples.of(function.apply((I) p.get(0))));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O, I> Step<Tuple1<O>, Tuple1<I>> sync(FN11<O, I> function) {
+//        return new Step<>(StepType.SYNC, (p) -> function.apply((I) p.get(0)));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O> Step<Tuple1<O>, Tuple> sync(Supplier<O> function) {
+//        return new Step<>(StepType.SYNC, (p) -> Tuples.of(function.get()));
+//    }
+//
+//    @SuppressWarnings("unchecked")
+//    public static <O, I> Step<Tuple1<O>, Tuple1<I>> sync(Function<I, O> function) {
+//        return new Step<>(StepType.SYNC, (p) -> Tuples.of(function.apply((I) p.get(0))));
+//    }
 
     public StepType type() {
         return type;
@@ -90,7 +116,7 @@ public class Step<R1, T1> {
         }
     }
 
-    public R1 profile(T1 param) throws Throwable {
+    public R1 profile(T1 param) {
         long start = System.nanoTime();
         try {
             return apply(param);

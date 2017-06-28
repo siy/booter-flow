@@ -136,11 +136,12 @@ public class Reactor {
         return Math.max(numCores, DEFAULT_MIN_COMPUTING_POOL_SIZE);
     }
 
-    private static enum ReactorHolder {
+    private enum ReactorHolder {
         INSTANCE;
 
         private final Reactor reactor;
-        private ReactorHolder() {
+
+        ReactorHolder() {
             reactor = new Reactor();
         }
 

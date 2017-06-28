@@ -3,9 +3,6 @@ package org.rxbooter.flow;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -162,11 +159,11 @@ public class Flow<O extends Tuple, I extends Tuple> {
         }
 
         public boolean isBlocking() {
-            return canRun() ? currentStep().type() != StepType.SYNC : true;
+            return !canRun() || currentStep().type() != StepType.SYNC;
         }
 
         public boolean isAsync() {
-            return canRun() ? currentStep().type() == StepType.ASYNC : false;
+            return canRun() && currentStep().type() == StepType.ASYNC;
         }
 
         public int group() {
@@ -177,6 +174,7 @@ public class Flow<O extends Tuple, I extends Tuple> {
             return !isReady() && index < steps.size();
         }
 
+        @SuppressWarnings("unchecked")
         public ExecutableFlow<O, I> step() {
             if (canRun()) {
                 try {

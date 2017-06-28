@@ -23,8 +23,8 @@ public class FixedThreadPool {
     }
 
     public FixedThreadPool start() {
-        for (int i = 0; i < threads.length; i++) {
-            threads[i].start();
+        for (Thread thread : threads) {
+            thread.start();
         }
         return this;
     }

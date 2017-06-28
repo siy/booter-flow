@@ -1,5 +1,7 @@
 package org.rxbooter.flow.flux;
 
+// WARNING: Generated file, do not edit, all changes will be lost.
+
 public final class Tuples {
     private Tuples() {}
 
