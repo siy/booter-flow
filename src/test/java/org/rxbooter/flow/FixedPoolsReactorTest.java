@@ -1,12 +1,12 @@
 package org.rxbooter.flow;
 
 import org.junit.Test;
-import org.rxbooter.flow.impl.Reactor;
+import org.rxbooter.flow.impl.FixedPoolsReactor;
 
-public class ReactorTest {
+public class FixedPoolsReactorTest {
     @Test
     public void shouldHandleSupplier() throws Exception {
-        Long value = Reactor.defaultReactor().await(this::slowMethod1);
+        Long value = FixedPoolsReactor.defaultReactor().await(this::slowMethod1);
 
         System.out.println("Slow method returned value = " + value);
     }

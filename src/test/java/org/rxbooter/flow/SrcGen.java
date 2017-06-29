@@ -19,9 +19,10 @@ public class SrcGen {
     }
 
     public static void main(String[] args) {
-        new SrcGen("FlowBuilders").generateFlowBuilders();
-        new SrcGen("Tuples").generateTuples();
-        new SrcGen("Functions").generateFunctions();
+//        new SrcGen("FlowBuilders").generateFlowBuilders();
+//        new SrcGen("Tuples").generateTuples();
+//        new SrcGen("Functions").generateFunctions();
+        new SrcGen("Reactor").generateReactor();
     }
 
     public interface Generator {
@@ -47,6 +48,31 @@ public class SrcGen {
 
     private void generateFunctions() {
         generate(this::generateFunctions);
+    }
+
+    private void generateReactor() {
+        generate(this::generateReactor);
+    }
+
+    private void generateReactor(String name) {
+        out(0, "package " + PACKAGE + ";");
+        nl();
+        out(0, "// WARNING: Generated file, do not edit, all changes will be lost.");
+        nl();
+        out(0, "import java.util.function.Supplier;");
+        nl();
+        out(0, "import static " + PACKAGE + ".Tuples.*;");
+        nl();
+        out(0,"public final interface " + name + " {");
+        out(1,"<T> T await(Supplier<T> supplier);");
+        nl();
+        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+
+            writeSeparator(writer, i);
+        }
+
+        out(0,"}");
+
     }
 
     private void generateFlowBuilder(String name) {

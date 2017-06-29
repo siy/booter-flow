@@ -16,6 +16,6 @@ public class PipelineTest {
 //                                                                   .build();
 //
         //TODO: fix it
-        //assertThat(Reactor.waitFor(flow.cursor(of("abcABC"))).get(0)).isEqualTo("abcABC abcabc");
+        //assertThat(FixedPoolsReactor.waitFor(flow.cursor(of("abcABC"))).get(0)).isEqualTo("abcABC abcabc");
     }
 }

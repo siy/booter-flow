@@ -7,14 +7,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Tuples.Tuple;
 
-public class Reactor {
-    private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 4;
+public class FixedPoolsReactor implements Reactor {
+    private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 8;
     private static final int DEFAULT_COMPUTING_POOL_SIZE = calculateDefaultPoolSize();
-    private static final int DEFAULT_IO_POOL_SIZE = 100;
-    private static final ThreadFactory DEFAULT_COMPUTING_THREAD_FACTORY = new DefaultThreadFactory("Reactor-computing-");
-    private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DefaultThreadFactory("Reactor-io-");
+    private static final int DEFAULT_IO_POOL_SIZE = 1000;
+    private static final ThreadFactory DEFAULT_COMPUTING_THREAD_FACTORY = new DefaultThreadFactory("FixedPoolsReactor-computing-");
+    private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DefaultThreadFactory("FixedPoolsReactor-io-");
     private static final long POLL_INTERVAL = 100;
 
     private final BlockingQueue<ExecutableFlow<?, ?>> computingInput = new LinkedBlockingQueue<>();
@@ -23,25 +24,25 @@ public class Reactor {
     private final FixedThreadPool computingPool;
     private final FixedThreadPool ioPool;
 
-    public Reactor() {
+    public FixedPoolsReactor() {
         this(DEFAULT_COMPUTING_POOL_SIZE, DEFAULT_COMPUTING_THREAD_FACTORY,
             DEFAULT_IO_POOL_SIZE, DEFAULT_IO_THREAD_FACTORY);
     }
 
-    public Reactor(int computingPoolSize, int ioPoolSize) {
+    public FixedPoolsReactor(int computingPoolSize, int ioPoolSize) {
         this(computingPoolSize, DEFAULT_COMPUTING_THREAD_FACTORY,
              ioPoolSize, DEFAULT_IO_THREAD_FACTORY);
     }
 
-    public Reactor(int computingPoolSize, ThreadFactory computingFactory, int ioPoolSize, ThreadFactory ioFactory) {
+    public FixedPoolsReactor(int computingPoolSize, ThreadFactory computingFactory, int ioPoolSize, ThreadFactory ioFactory) {
         computingPool = new FixedThreadPool(computingPoolSize, computingFactory, this::computingHandler);
         ioPool = new FixedThreadPool(ioPoolSize, ioFactory, this::ioHandler);
         computingPool.start();
         ioPool.start();
     }
 
-    public static Reactor defaultReactor() {
-        return ReactorHolder.INSTANCE.reactor();
+    public static FixedPoolsReactor defaultReactor() {
+        return DefaultReactorHolder.INSTANCE.reactor();
     }
 
     public void shutdown() {
@@ -60,7 +61,7 @@ public class Reactor {
     //TODO: fix it
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function) {
-        //return (T) await(Flow.waiting(function).bind(null)).get(0);
+        //return (T) await(Flow.singleWaiting((t) -> Tuples.of(function.get())).bind(null)).get(0);
         return null;
     }
 
@@ -134,19 +135,19 @@ public class Reactor {
 
     private static int calculateDefaultPoolSize() {
         int numCores = Runtime.getRuntime().availableProcessors();
-        return Math.max(numCores, DEFAULT_MIN_COMPUTING_POOL_SIZE);
+        return Math.max(numCores * 2, DEFAULT_MIN_COMPUTING_POOL_SIZE);
     }
 
-    private enum ReactorHolder {
+    private enum DefaultReactorHolder {
         INSTANCE;
 
-        private final Reactor reactor;
+        private final FixedPoolsReactor reactor;
 
-        ReactorHolder() {
-            reactor = new Reactor();
+        DefaultReactorHolder() {
+            reactor = new FixedPoolsReactor();
         }
 
-        public Reactor reactor() {
+        public FixedPoolsReactor reactor() {
             return reactor;
         }
     }
