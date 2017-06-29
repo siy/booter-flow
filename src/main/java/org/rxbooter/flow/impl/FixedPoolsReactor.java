@@ -72,29 +72,40 @@ public class FixedPoolsReactor implements Reactor {
 
     @Override
     public void async(Runnable runnable) {
-        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.empty();}).bind(null));
+        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.empty();}).applyTo(null));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function) {
-        return (T) await(Flow.singleWaiting((t) -> Tuples.of(function.get())).bind(null)).get(0);
+        return await(Flow.singleWaiting((t) -> Tuples.of(function.get())).applyTo(null)).get();
     }
 
     @Override
     public void async(Runnable runnable, EH<Tuple1<Void>> handler) {
-        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.of(null);}, handler).bind(null));
+        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.of(null);}, handler).applyTo(null));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function, EH<Tuple1<T>> handler) {
-        return (T) await(Flow.singleWaiting((t) -> Tuples.of(function.get()), handler).bind(null)).get(0);
+        return await(Flow.singleWaiting((t) -> Tuples.of(function.get()), handler).applyTo(null)).get();
     }
 
     @Override
     public <T> T awaitAny(Supplier<T>... suppliers) {
-        return null;
+        Promise<Tuple1<T>> promise = Promise.with();
+
+        for (Supplier<T> supplier : suppliers) {
+            putTask(Flow.singleWaiting((t) -> Tuples.of(supplier.get())).applyTo(null, promise));
+        }
+
+        return promise.await().get();
+    }
+
+    @Override
+    public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
+        putTask(flowExecutor);
+        return flowExecutor.promise();
     }
 
     private void ioHandler() {

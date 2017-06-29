@@ -2,12 +2,13 @@ package org.rxbooter.flow.impl;
 
 import java.util.function.Supplier;
 
+import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step;
+import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
 
-//TODO: finish it
 public class CurrentThreadReactor implements Reactor {
     public static Reactor instance() {
         return DefaultReactorHolder.INSTANCE.reactor();
@@ -18,13 +19,30 @@ public class CurrentThreadReactor implements Reactor {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
-        return null;
+        runToEnd(flowExecutor);
+        return flowExecutor.isReady() ? (O) flowExecutor.value() : null;
+    }
+
+    private void runToEnd(FlowExecutor<?, ?> flowExecutor) {
+        do {
+            //Intentionally left empty
+        } while (flowExecutor.stepAndAdvance());
     }
 
     @Override
-    public <T> T await(Supplier<T> supplier) {
-        return null;
+    @SuppressWarnings("unchecked")
+    public <T> T await(Supplier<T> function) {
+        FlowExecutor<Tuple1<T>, Tuple> flowExecutor = Flow.singleWaiting((t) -> Tuples.of(function.get())).applyTo(null);
+        runToEnd(flowExecutor);
+        return flowExecutor.isReady() ? ((Tuple1<T>) flowExecutor.value()).get() : null;
+    }
+
+    @Override
+    public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
+        runToEnd(flowExecutor);
+        return flowExecutor.promise();
     }
 
     @Override

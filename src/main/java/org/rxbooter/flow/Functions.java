@@ -11,65 +11,56 @@ public interface Functions {
     }
 
     interface FN11<R1, T1> extends FN10<Tuple1<R1>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple1<R1>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN12<R1, R2, T1> extends FN10<Tuple2<R1, R2>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple2<R1, R2>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN13<R1, R2, R3, T1> extends FN10<Tuple3<R1, R2, R3>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple3<R1, R2, R3>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN14<R1, R2, R3, R4, T1> extends FN10<Tuple4<R1, R2, R3, R4>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple4<R1, R2, R3, R4>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN15<R1, R2, R3, R4, R5, T1> extends FN10<Tuple5<R1, R2, R3, R4, R5>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple5<R1, R2, R3, R4, R5>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN16<R1, R2, R3, R4, R5, R6, T1> extends FN10<Tuple6<R1, R2, R3, R4, R5, R6>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple6<R1, R2, R3, R4, R5, R6>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN17<R1, R2, R3, R4, R5, R6, R7, T1> extends FN10<Tuple7<R1, R2, R3, R4, R5, R6, R7>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple7<R1, R2, R3, R4, R5, R6, R7>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN18<R1, R2, R3, R4, R5, R6, R7, R8, T1> extends FN10<Tuple8<R1, R2, R3, R4, R5, R6, R7, R8>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple8<R1, R2, R3, R4, R5, R6, R7, R8>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 
     interface FN19<R1, R2, R3, R4, R5, R6, R7, R8, R9, T1> extends FN10<Tuple9<R1, R2, R3, R4, R5, R6, R7, R8, R9>, T1> {
-        @SuppressWarnings("unchecked")
         default TF<Tuple9<R1, R2, R3, R4, R5, R6, R7, R8, R9>, Tuple1<T1>> asStepFunction() {
-            return (Tuple1<T1> param) -> apply((T1) param.get(0));
+            return (Tuple1<T1> param) -> apply(param.get());
         }
     }
 

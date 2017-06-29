@@ -6,6 +6,7 @@ import org.rxbooter.flow.impl.CurrentThreadReactor;
 import org.rxbooter.flow.impl.FixedPoolsReactor;
 import org.rxbooter.flow.impl.FlowExecutor;
 import org.rxbooter.flow.Step.EH;
+import org.rxbooter.flow.impl.Promise;
 import org.rxbooter.flow.impl.SingleThreadReactor;
 
 import static org.rxbooter.flow.Tuples.*;
@@ -24,6 +25,9 @@ public interface Reactor {
     <T> T await(Supplier<T> function, EH<Tuple1<T>> handler);
 
     <T> T awaitAny(Supplier<T>... suppliers);
+
+
+    <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
 
     static Reactor single() {
         return new SingleThreadReactor();

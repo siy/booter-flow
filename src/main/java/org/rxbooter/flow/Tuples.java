@@ -91,11 +91,20 @@ public final class Tuples {
         public Object get(int i) {
             return values[i];
         }
+
+        public int size() {
+            return values.length;
+        }
     }
 
     public static class Tuple1<T1> extends Tuple {
         public Tuple1(T1 param1) {
             super(param1);
+        }
+
+        @SuppressWarnings("unchecked")
+        public T1 get() {
+            return (T1) get(0);
         }
     }
 

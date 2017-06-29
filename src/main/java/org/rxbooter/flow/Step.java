@@ -1,14 +1,7 @@
 package org.rxbooter.flow;
 
-import org.rxbooter.flow.Functions.FN11;
-import org.rxbooter.flow.Tuples.Tuple;
-import org.rxbooter.flow.Tuples.Tuple1;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 public class Step<R1, T1> {
-    private final StepType type;
+    private StepType type;
     private final TF<R1, T1> function;
     private final EH<R1> errorHandler;
     private long time = Long.MAX_VALUE;
@@ -58,6 +51,11 @@ public class Step<R1, T1> {
 
     public StepType type() {
         return type;
+    }
+
+    public Step<R1, T1> type(StepType type) {
+        this.type = type;
+        return this;
     }
 
     public long time() {

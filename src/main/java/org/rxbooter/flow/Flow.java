@@ -1,24 +1,16 @@
 package org.rxbooter.flow;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.rxbooter.flow.Step;
-
-
+import org.rxbooter.flow.Step.EH;
+import org.rxbooter.flow.Step.TF;
 import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder0;
 import org.rxbooter.flow.impl.FlowExecutor;
 import org.rxbooter.flow.impl.Promise;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.rxbooter.flow.Tuples.*;
-import org.rxbooter.flow.Step.TF;
-import org.rxbooter.flow.Step.EH;
+import static org.rxbooter.flow.Tuples.Tuple;
 
 public class Flow<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
@@ -27,8 +19,12 @@ public class Flow<O extends Tuple, I extends Tuple> {
         this.steps = steps;
     }
 
-    public FlowExecutor<O, I> bind(I input) {
+    public FlowExecutor<O, I> applyTo(I input) {
         return new FlowExecutor<>(steps, input, Promise.with());
+    }
+
+    public FlowExecutor<O, I> applyTo(I input, Promise<O> promise) {
+        return new FlowExecutor<>(steps, input, promise);
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(FlowBuilder0<O1> builder) {

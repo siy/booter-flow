@@ -18,9 +18,10 @@ public class SrcGen {
         this.name = name;
     }
 
+    //Note: might have issues in generated code
     public static void main(String[] args) {
         //new SrcGen("FlowBuilders").generateFlowBuilders();
-        new SrcGen("Tuples").generateTuples();
+        //new SrcGen("Tuples").generateTuples();
         //new SrcGen("Functions").generateFunctions();
         //new SrcGen("Flows").generateFlows();
         //new SrcGen("Reactor").generateReactor();

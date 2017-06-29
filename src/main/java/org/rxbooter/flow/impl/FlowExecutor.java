@@ -1,5 +1,6 @@
 package org.rxbooter.flow.impl;
 
+import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step;
 import org.rxbooter.flow.StepType;
 import org.rxbooter.flow.Tuples;
@@ -36,12 +37,15 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return intermediate;
     }
 
-    @SuppressWarnings("unchecked")
+    public Promise<O> promise() {
+        return promise;
+    }
+
     public O await() {
         return promise.await();
     }
 
-    private boolean isReady() {
+    public boolean isReady() {
         return promise.isReady();
     }
 
@@ -71,16 +75,9 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
                     promise.notify((O) intermediate);
                 }
             } catch (Throwable t) {
-//                    Tuple res = currentStep().handle(t);
-//
-//                    if (res != null) {
-//                        //Assume error is handled
-//                        if (isLastStep()) {
-//                            promise.notify((O) intermediate);
-//                        }
-//                    } else {
-//                        promise.notifyError(t);
-//                    }
+                //TODO: log unhandled exception?
+                //TODO: might not be necessary?
+                promise.notifyError(t);
             }
         }
 
@@ -101,5 +98,21 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
             index++;
         }
         return canRun();
+    }
+
+    public boolean stepAndAdvance() {
+        if (canRun()) {
+            step();
+        }
+
+        if (canRun()) {
+            advance();
+        }
+
+        return canRun();
+    }
+
+    public Promise<O> in(Reactor reactor) {
+        return reactor.submit(this);
     }
 }
