@@ -20,7 +20,7 @@ public class SrcGen {
 
     //Note: might have issues in generated code
     public static void main(String[] args) {
-        //new SrcGen("FlowBuilders").generateFlowBuilders();
+        new SrcGen("FlowBuilders").generateFlowBuilders();
         //new SrcGen("Tuples").generateTuples();
         //new SrcGen("Functions").generateFunctions();
         //new SrcGen("Flows").generateFlows();
@@ -145,13 +145,14 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            out(1, "public static class " + flowMainTypeName("T", i) + " extends " + parentBuilderName(i) + " {");
+            //out(1, "public static class " + flowMainTypeName("T", i) + " extends " + parentBuilderName(i) + " {");
+            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder0<I1> {");
             out(2, "public FlowBuilder" + i + "(FlowBuilder0<I1> prev) {");
             out(3, "super(prev);");
             out(2, "}");
             nl();
             out(2, "@SuppressWarnings(\"unchecked\")");
-            out(2, "public Flow<I1, Tuple" + i + "<" + typeList("T", i) + ">> thenReturn" + i + "() {");
+            out(2, "public Flow<Tuple" + i + "<" + typeList("T", i) + ">, I1> done() {");
             out(3, "return Flow.of(this);");
             out(2, "}");
             nl();
@@ -299,7 +300,7 @@ public class SrcGen {
                 out(1, "interface FN" + j + i + typeList(j, i) + " extends " + baseName + "<" + resultTypeName + ", " + typeList("T", j) + "> {");
                 out(2, "@SuppressWarnings(\"unchecked\")");
                 out(2, "default TF<" + resultTypeName + ", " + inputTypeName + "> asStepFunction() {");
-                out(3, "return (" + inputTypeName + " param) -> apply(" + tupleToParams("T", j) + ");");
+                out(3, "return (Tuple param) -> apply(" + tupleToParams("T", j) + ");");
                 out(2, "}");
                 out(1, "}");
                 writeSeparator(writer, i);

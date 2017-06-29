@@ -45,7 +45,7 @@ public final class FlowBuilders {
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple1<T1>> thenReturn1() {
+        public Flow<Tuple1<T1>, I1> done() {
             return Flow.of(this);
         }
 
@@ -320,13 +320,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder2<I1 extends Tuple, T1, T2> extends FlowBuilder1<I1, T1> {
+    public static class FlowBuilder2<I1 extends Tuple, T1, T2> extends FlowBuilder0<I1> {
         public FlowBuilder2(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple2<T1, T2>> thenReturn2() {
+        public Flow<Tuple2<T1, T2>, I1> done() {
             return Flow.of(this);
         }
 
@@ -601,13 +601,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder3<I1 extends Tuple, T1, T2, T3> extends FlowBuilder2<I1, T1, T2> {
+    public static class FlowBuilder3<I1 extends Tuple, T1, T2, T3> extends FlowBuilder0<I1> {
         public FlowBuilder3(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple3<T1, T2, T3>> thenReturn3() {
+        public Flow<Tuple3<T1, T2, T3>, I1> done() {
             return Flow.of(this);
         }
 
@@ -882,13 +882,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder4<I1 extends Tuple, T1, T2, T3, T4> extends FlowBuilder3<I1, T1, T2, T3> {
+    public static class FlowBuilder4<I1 extends Tuple, T1, T2, T3, T4> extends FlowBuilder0<I1> {
         public FlowBuilder4(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple4<T1, T2, T3, T4>> thenReturn4() {
+        public Flow<Tuple4<T1, T2, T3, T4>, I1> done() {
             return Flow.of(this);
         }
 
@@ -1163,13 +1163,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder5<I1 extends Tuple, T1, T2, T3, T4, T5> extends FlowBuilder4<I1, T1, T2, T3, T4> {
+    public static class FlowBuilder5<I1 extends Tuple, T1, T2, T3, T4, T5> extends FlowBuilder0<I1> {
         public FlowBuilder5(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple5<T1, T2, T3, T4, T5>> thenReturn5() {
+        public Flow<Tuple5<T1, T2, T3, T4, T5>, I1> done() {
             return Flow.of(this);
         }
 
@@ -1444,13 +1444,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder6<I1 extends Tuple, T1, T2, T3, T4, T5, T6> extends FlowBuilder5<I1, T1, T2, T3, T4, T5> {
+    public static class FlowBuilder6<I1 extends Tuple, T1, T2, T3, T4, T5, T6> extends FlowBuilder0<I1> {
         public FlowBuilder6(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple6<T1, T2, T3, T4, T5, T6>> thenReturn6() {
+        public Flow<Tuple6<T1, T2, T3, T4, T5, T6>, I1> done() {
             return Flow.of(this);
         }
 
@@ -1725,13 +1725,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder7<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7> extends FlowBuilder6<I1, T1, T2, T3, T4, T5, T6> {
+    public static class FlowBuilder7<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7> extends FlowBuilder0<I1> {
         public FlowBuilder7(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple7<T1, T2, T3, T4, T5, T6, T7>> thenReturn7() {
+        public Flow<Tuple7<T1, T2, T3, T4, T5, T6, T7>, I1> done() {
             return Flow.of(this);
         }
 
@@ -2006,13 +2006,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder8<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8> extends FlowBuilder7<I1, T1, T2, T3, T4, T5, T6, T7> {
+    public static class FlowBuilder8<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8> extends FlowBuilder0<I1> {
         public FlowBuilder8(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>> thenReturn8() {
+        public Flow<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>, I1> done() {
             return Flow.of(this);
         }
 
@@ -2287,13 +2287,13 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder9<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends FlowBuilder8<I1, T1, T2, T3, T4, T5, T6, T7, T8> {
+    public static class FlowBuilder9<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends FlowBuilder0<I1> {
         public FlowBuilder9(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         @SuppressWarnings("unchecked")
-        public Flow<I1, Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> thenReturn9() {
+        public Flow<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>, I1> done() {
             return Flow.of(this);
         }
 

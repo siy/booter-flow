@@ -27,10 +27,16 @@ public class Flow<O extends Tuple, I extends Tuple> {
         return new FlowExecutor<>(steps, input, promise);
     }
 
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(FlowBuilder0<O1> builder) {
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(FlowBuilder0<I1> builder) {
         List<Step<?, ?>> steps = new ArrayList<>();
         builder.apply(steps::add);
 
+        return new Flow<>(steps);
+    }
+
+    public static <O extends Tuple, M extends Tuple, I extends Tuple> Flow<O, I> compose(Flow<M, I> flow1, Flow<O, M> flow2) {
+        List<Step<?, ?>> steps = new ArrayList<>(flow1.steps);
+        steps.addAll(flow2.steps);
         return new Flow<>(steps);
     }
 

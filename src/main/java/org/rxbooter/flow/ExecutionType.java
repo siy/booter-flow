@@ -1,5 +1,5 @@
 package org.rxbooter.flow;
 
-public enum StepType {
+public enum ExecutionType {
     SYNC, ASYNC, AWAIT
 }

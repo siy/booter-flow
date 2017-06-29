@@ -2,7 +2,7 @@ package org.rxbooter.flow.impl;
 
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step;
-import org.rxbooter.flow.StepType;
+import org.rxbooter.flow.ExecutionType;
 import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 
@@ -50,11 +50,11 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
     }
 
     public boolean isBlocking() {
-        return !canRun() || currentStep().type() != StepType.SYNC;
+        return !canRun() || currentStep().type() != ExecutionType.SYNC;
     }
 
     public boolean isAsync() {
-        return canRun() && currentStep().type() == StepType.ASYNC;
+        return canRun() && currentStep().type() == ExecutionType.ASYNC;
     }
 
     public int group() {
