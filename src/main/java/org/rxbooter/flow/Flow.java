@@ -1,6 +1,15 @@
 package org.rxbooter.flow;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.rxbooter.flow.Step;
+
+
 import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder0;
+import org.rxbooter.flow.impl.FlowExecutor;
 import org.rxbooter.flow.impl.Promise;
 
 import java.util.ArrayList;
@@ -18,6 +27,10 @@ public class Flow<O extends Tuple, I extends Tuple> {
         this.steps = steps;
     }
 
+    public FlowExecutor<O, I> bind(I input) {
+        return new FlowExecutor<>(steps, input, Promise.with());
+    }
+
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(FlowBuilder0<O1> builder) {
         List<Step<?, ?>> steps = new ArrayList<>();
         builder.apply(steps::add);
@@ -26,26 +39,26 @@ public class Flow<O extends Tuple, I extends Tuple> {
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> single(TF<O1, I1> function) {
-        return new Flow<>(Arrays.asList(Step.sync(function)));
+        return new Flow<>(Collections.singletonList(Step.sync(function)));
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> single(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Arrays.asList(Step.sync(function, errorHandler)));
+        return new Flow<>(Collections.singletonList(Step.sync(function, errorHandler)));
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleWaiting(TF<O1, I1> function) {
-        return new Flow<>(Arrays.asList(Step.await(function)));
+        return new Flow<>(Collections.singletonList(Step.await(function)));
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleWaiting(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Arrays.asList(Step.await(function, errorHandler)));
+        return new Flow<>(Collections.singletonList(Step.await(function, errorHandler)));
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleAsync(TF<O1, I1> function) {
-        return new Flow<>(Arrays.asList(Step.async(function)));
+        return new Flow<>(Collections.singletonList(Step.async(function)));
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleAsync(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Arrays.asList(Step.async(function, errorHandler)));
+        return new Flow<>(Collections.singletonList(Step.async(function, errorHandler)));
     }
 }

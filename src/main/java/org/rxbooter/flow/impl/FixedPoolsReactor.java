@@ -7,9 +7,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Reactor;
+import org.rxbooter.flow.Step.EH;
+import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
+import org.rxbooter.flow.Tuples.Tuple1;
 
+//TODO: rework it!
 public class FixedPoolsReactor implements Reactor {
     private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 8;
     private static final int DEFAULT_COMPUTING_POOL_SIZE = calculateDefaultPoolSize();
@@ -18,8 +23,8 @@ public class FixedPoolsReactor implements Reactor {
     private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DefaultThreadFactory("FixedPoolsReactor-io-");
     private static final long POLL_INTERVAL = 100;
 
-    private final BlockingQueue<ExecutableFlow<?, ?>> computingInput = new LinkedBlockingQueue<>();
-    private final BlockingQueue<ExecutableFlow<?, ?>> blockingInput = new LinkedBlockingQueue<>();
+    private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
+    private final BlockingQueue<FlowExecutor<?, ?>> blockingInput = new LinkedBlockingQueue<>();
     private final AtomicBoolean shutdown = new AtomicBoolean();
     private final FixedThreadPool computingPool;
     private final FixedThreadPool ioPool;
@@ -45,73 +50,100 @@ public class FixedPoolsReactor implements Reactor {
         return DefaultReactorHolder.INSTANCE.reactor();
     }
 
+    public static FixedPoolsReactor with(int computingPoolSize, int ioPoolSize) {
+        return new FixedPoolsReactor(computingPoolSize, ioPoolSize);
+    }
+
+    @Override
     public void shutdown() {
         shutdown.compareAndSet(false, true);
     }
 
-    public static <O extends Tuple, I extends Tuple> O waitFor(ExecutableFlow<O, I> executableFlow) {
-        return defaultReactor().await(executableFlow);
+    @Override
+    public <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
+        putTask(flowExecutor);
+        return flowExecutor.await();
     }
 
-    public <O extends Tuple, I extends Tuple> O await(ExecutableFlow<O, I> executableFlow) {
-        putTask(executableFlow);
-        return executableFlow.await();
+    @Override
+    public <O extends Tuple, I extends Tuple> void async(FlowExecutor<O, I> flowExecutor) {
+        putTask(flowExecutor);
     }
 
-    //TODO: fix it
+    @Override
+    public void async(Runnable runnable) {
+        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.empty();}).bind(null));
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function) {
-        //return (T) await(Flow.singleWaiting((t) -> Tuples.of(function.get())).bind(null)).get(0);
+        return (T) await(Flow.singleWaiting((t) -> Tuples.of(function.get())).bind(null)).get(0);
+    }
+
+    @Override
+    public void async(Runnable runnable, EH<Tuple1<Void>> handler) {
+        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.of(null);}, handler).bind(null));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T await(Supplier<T> function, EH<Tuple1<T>> handler) {
+        return (T) await(Flow.singleWaiting((t) -> Tuples.of(function.get()), handler).bind(null)).get(0);
+    }
+
+    @Override
+    public <T> T awaitAny(Supplier<T>... suppliers) {
         return null;
     }
 
     private void ioHandler() {
         while (!shutdown.get()) {
-            ExecutableFlow<?, ?> executableFlow = pollQueue(computingInput);
+            FlowExecutor<?, ?> flowExecutor = pollQueue(computingInput);
 
-            if (executableFlow == null) {
+            if (flowExecutor == null) {
                 continue;
             }
 
-            runStep(executableFlow);
-            putTask(executableFlow);
+            runStep(flowExecutor);
+            putTask(flowExecutor);
         }
     }
 
     private void computingHandler() {
         while (!shutdown.get()) {
-            ExecutableFlow<?, ?> executableFlow = pollQueue(blockingInput);
+            FlowExecutor<?, ?> flowExecutor = pollQueue(blockingInput);
 
-            if (executableFlow == null) {
+            if (flowExecutor == null) {
                 continue;
             }
 
-            if (executableFlow.isAsync()) {
-                ExecutableFlow<?, ?> subtask = executableFlow.forCurrent();
+            if (flowExecutor.isAsync()) {
+                FlowExecutor<?, ?> subtask = flowExecutor.forCurrent();
                 putTask(subtask);
-                executableFlow.advance();
+                flowExecutor.advance();
 
-                if (executableFlow.canRun()) {
-                    putTask(executableFlow);
+                if (flowExecutor.canRun()) {
+                    putTask(flowExecutor);
                 }
                 continue;
             }
 
             //TODO: execute groups of steps
-            runStep(executableFlow);
-            putTask(executableFlow);
+            runStep(flowExecutor);
+            putTask(flowExecutor);
         }
     }
 
-    private void runStep(ExecutableFlow<?, ?> executableFlow) {
+    private void runStep(FlowExecutor<?, ?> flowExecutor) {
         try {
-            executableFlow.step().advance();
+            flowExecutor.step().advance();
         } catch (Throwable t) {
             //TODO: how take report exception?
         }
     }
 
-    private ExecutableFlow<?, ?> pollQueue(BlockingQueue<ExecutableFlow<?, ?>> queue) {
+    private FlowExecutor<?, ?> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {
         try {
             return queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -120,14 +152,14 @@ public class FixedPoolsReactor implements Reactor {
         }
     }
 
-    private void putTask(ExecutableFlow<?, ?> executableFlow) {
-        if (!executableFlow.canRun()) {
+    private void putTask(FlowExecutor<?, ?> flowExecutor) {
+        if (!flowExecutor.canRun()) {
             //TODO: signal end of processing somehow
             return;
         }
 
         try {
-            (executableFlow.isBlocking() ? blockingInput : computingInput).put(executableFlow);
+            (flowExecutor.isBlocking() ? blockingInput : computingInput).put(flowExecutor);
         } catch (InterruptedException e) {
             //TODO: how take handle it correctly? can we just ignore it?
         }

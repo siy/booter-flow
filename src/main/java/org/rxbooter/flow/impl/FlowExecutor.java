@@ -2,41 +2,34 @@ package org.rxbooter.flow.impl;
 
 import org.rxbooter.flow.Step;
 import org.rxbooter.flow.StepType;
+import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 
 import java.util.Collections;
 import java.util.List;
 
 //TODO: rework it!!!
-public class ExecutableFlow<O extends Tuple, I extends Tuple> {
-    private final List<Step<? extends Tuple, ? extends Tuple>> steps;
+public class FlowExecutor<O extends Tuple, I extends Tuple> {
+    private final List<Step<?, ?>> steps;
     private final Promise<O> promise;
 
     private int index = 0;
     private Tuple intermediate;
     private Throwable error = null;
 
-    private ExecutableFlow(List<Step<? extends Tuple, ? extends Tuple>> steps, I input, Promise<O> promise) {
+    public FlowExecutor(List<Step<?, ?>> steps, I input, Promise<O> promise) {
         this.steps = steps;
-        this.intermediate = input;
+        this.intermediate = input == null ? Tuples.empty() : input;
         this.promise = promise;
     }
 
-    public static <O extends Tuple, I extends Tuple> ExecutableFlow<O, I> with(List<Step<? extends Tuple, ? extends Tuple>> steps, I input) {
-        return new ExecutableFlow<>(steps, input, Promise.with());
-    }
-
-    public static <O extends Tuple, I extends Tuple> ExecutableFlow<O, I> with(List<Step<? extends Tuple, ? extends Tuple>> steps, I input, Promise<O> promise) {
-        return new ExecutableFlow<>(steps, input, promise);
-    }
-
-    public ExecutableFlow<O, ?> forCurrent() {
+    public FlowExecutor<O, ?> forCurrent() {
         if (!canRun()) {
             //TODO: use other exception?
             throw new IllegalStateException("No active executable steps in cursor");
         }
 
-        return ExecutableFlow.with(Collections.singletonList(currentStep()), intermediate);
+        return new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.with());
     }
 
     public Tuple value() {
@@ -69,7 +62,7 @@ public class ExecutableFlow<O extends Tuple, I extends Tuple> {
     }
 
     @SuppressWarnings("unchecked")
-    public ExecutableFlow<O, I> step() {
+    public FlowExecutor<O, I> step() {
         if (canRun()) {
             try {
                 intermediate = currentStep().apply(intermediate);

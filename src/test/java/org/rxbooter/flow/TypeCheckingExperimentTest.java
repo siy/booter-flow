@@ -9,11 +9,11 @@ public class TypeCheckingExperimentTest {
                 .apply2((s1) -> Tuple2.of(s1, s1 + " "))
                 .apply2((s1, s2) -> Tuple2.of(s2, s1 + " "))
                 .apply1((ss1, ss2) -> Tuple1.of(ss1))
-                .apply1((ss1) -> Tuple1.of(ss1))
+                .apply1(Tuple1::of)
                 .apply2((ss1) -> Tuple2.of(ss1, ss1))
-                .apply2((ss1, ss2) -> Tuple2.of(ss1, ss2))
+                .apply2(Tuple2::of)
                 .apply2((ss1) -> Tuple2.of(ss1, ss1))
-                .apply1((ss1) -> Tuple1.of(ss1))
+                .apply1(Tuple1::of)
                 ;
     }
 

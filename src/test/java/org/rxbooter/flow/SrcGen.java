@@ -19,10 +19,11 @@ public class SrcGen {
     }
 
     public static void main(String[] args) {
-//        new SrcGen("FlowBuilders").generateFlowBuilders();
-//        new SrcGen("Tuples").generateTuples();
-//        new SrcGen("Functions").generateFunctions();
-        new SrcGen("Reactor").generateReactor();
+        //new SrcGen("FlowBuilders").generateFlowBuilders();
+        new SrcGen("Tuples").generateTuples();
+        //new SrcGen("Functions").generateFunctions();
+        //new SrcGen("Flows").generateFlows();
+        //new SrcGen("Reactor").generateReactor();
     }
 
     public interface Generator {
@@ -63,16 +64,38 @@ public class SrcGen {
         nl();
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
-        out(0,"public final interface " + name + " {");
+        out(0,"public interface " + name + " {");
+        out(1,"void async(Runnable runnable);");
+        nl();
         out(1,"<T> T await(Supplier<T> supplier);");
         nl();
-        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+        out(1,"<T> T awaitAny(Supplier<T>... suppliers);");
+        nl();
 
+        for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
+            declareReactorMethod(i, "awaitAll");
             writeSeparator(writer, i);
         }
 
         out(0,"}");
 
+    }
+
+    private void declareReactorMethod(int i, String fucntionName) {
+        out(1, "default <" + typeList("T", i) + "> " + tupleName("T", i) + " " + fucntionName + "(" + inputSupplierList(i) + ") {");
+
+        out(2, "return Tuples.of(" + awaitParameters(i) + ");");
+        out(1, "}");
+    }
+
+    private String awaitParameters(int count) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 1; i <= count; i++) {
+            builder.append("await(param").append(i).append(")").append(SEPARATOR);
+        }
+
+        builder.setLength(builder.length() - SEPARATOR.length());
+        return builder.toString();
     }
 
     private void generateFlowBuilder(String name) {
@@ -209,6 +232,10 @@ public class SrcGen {
         out(0, "public final class " + name + " {");
         out(1, "private " + name + "() {}");
         nl();
+        out(1, "public static<T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> empty() {");
+        out(2, "return new Tuple9<>(null, null, null, null, null, null, null, null, null);");
+        out(1, "}");
+        nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
             out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> of(" + inputParamList(i) + ") {");
@@ -317,6 +344,17 @@ public class SrcGen {
 
         for (int i = 1; i <= count; i++) {
             builder.append("T").append(i).append(' ').append("param").append(i).append(SEPARATOR);
+        }
+
+        builder.setLength(builder.length() - SEPARATOR.length());
+        return builder.toString();
+    }
+
+    private static String inputSupplierList(int count) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 1; i <= count; i++) {
+            builder.append("Supplier<T").append(i).append("> ").append("param").append(i).append(SEPARATOR);
         }
 
         builder.setLength(builder.length() - SEPARATOR.length());
