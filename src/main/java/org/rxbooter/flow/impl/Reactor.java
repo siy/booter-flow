@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.impl;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.rxbooter.flow.Tuples.Tuple;
-import org.rxbooter.flow.Flow.ExecutableFlow;
 
 public class Reactor {
     private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 4;
@@ -58,9 +57,11 @@ public class Reactor {
         return executableFlow.await();
     }
 
+    //TODO: fix it
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function) {
-        return (T) await(Flow.waiting(function).bind(null)).get(0);
+        //return (T) await(Flow.waiting(function).bind(null)).get(0);
+        return null;
     }
 
     private void ioHandler() {

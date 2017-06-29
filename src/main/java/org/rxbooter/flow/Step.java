@@ -10,63 +10,50 @@ import java.util.function.Supplier;
 public class Step<R1, T1> {
     private final StepType type;
     private final TF<R1, T1> function;
-    private final EH<R1> handler;
+    private final EH<R1> errorHandler;
     private long time = Long.MAX_VALUE;
     private int group = 0;
 
-    public Step(StepType type, TF<R1, T1> function) {
+    private Step(StepType type, TF<R1, T1> function) {
         this(type, function, (t) -> null);
     }
 
-    public Step(StepType type, TF<R1, T1> function, EH<R1> handler) {
+    private Step(StepType type, TF<R1, T1> function, EH<R1> errorHandler) {
         this.type = type;
         this.function = function;
-        this.handler = handler;
+        this.errorHandler = errorHandler;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> waiting(FN11<O, I> function) {
-        return new Step<>(StepType.AWAIT, (p) -> function.apply((I) p.get(0)));
+    public static<R, T> Step<R, T> with(StepType type, TF<R, T> function) {
+        return new Step<>(type, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> waiting(Function<I, O> function) {
-        return new Step<>(StepType.AWAIT, (p) -> Tuples.of(function.apply((I) p.get(0))));
+    public static<R, T> Step<R, T> with(StepType type, TF<R, T> function, EH<R> errorHandler) {
+        return new Step<>(type, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O> Step<Tuple1<O>, Tuple> waiting(Supplier<O> function) {
-        return new Step<>(StepType.AWAIT, (p) -> Tuples.of(function.get()));
+    public static<R, T> Step<R, T> sync(TF<R, T> function) {
+        return with(StepType.SYNC, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> async(FN11<O, I> function) {
-        return new Step<>(StepType.ASYNC, (p) -> function.apply((I) p.get(0)));
+    public static<R, T> Step<R, T> sync(TF<R, T> function, EH<R> errorHandler) {
+        return with(StepType.SYNC, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O> Step<Tuple1<O>, Tuple> async(Supplier<O> function) {
-        return new Step<>(StepType.ASYNC, (p) -> Tuples.of(function.get()));
+    public static<R, T> Step<R, T> async(TF<R, T> function) {
+        return with(StepType.ASYNC, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> async(Function<I, O> function) {
-        return new Step<>(StepType.ASYNC, (p) -> Tuples.of(function.apply((I) p.get(0))));
+    public static<R, T> Step<R, T> async(TF<R, T> function, EH<R> errorHandler) {
+        return with(StepType.ASYNC, function, errorHandler);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> single(FN11<O, I> function) {
-        return new Step<>(StepType.SYNC, (p) -> function.apply((I) p.get(0)));
+    public static<R, T> Step<R, T> await(TF<R, T> function) {
+        return with(StepType.AWAIT, function);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <O> Step<Tuple1<O>, Tuple> single(Supplier<O> function) {
-        return new Step<>(StepType.SYNC, (p) -> Tuples.of(function.get()));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <O, I> Step<Tuple1<O>, Tuple1<I>> single(Function<I, O> function) {
-        return new Step<>(StepType.SYNC, (p) -> Tuples.of(function.apply((I) p.get(0))));
+    public static<R, T> Step<R, T> await(TF<R, T> function, EH<R> errorHandler) {
+        return with(StepType.AWAIT, function, errorHandler);
     }
 
     public StepType type() {
@@ -77,18 +64,23 @@ public class Step<R1, T1> {
         return time;
     }
 
-    public R1 apply(T1 param) throws Throwable {
-        return function.apply(param);
-    }
-
-    public R1 handle(Throwable param) {
-        return handler.handle(param);
-    }
-
-    public R1 profile(T1 param) throws Throwable {
-        long start = System.nanoTime();
+    public R1 apply(T1 param) {
         try {
             return function.apply(param);
+        } catch (Throwable t) {
+            R1 res = errorHandler.handle(t);
+
+            if (res == null) {
+                throw new FlowException("User code threw an unhandled exception ", t);
+            }
+            return res;
+        }
+    }
+
+    public R1 profile(T1 param) {
+        long start = System.nanoTime();
+        try {
+            return apply(param);
         } finally {
             time = System.nanoTime() - start;
         }

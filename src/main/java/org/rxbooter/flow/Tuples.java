@@ -1,5 +1,7 @@
 package org.rxbooter.flow;
 
+// WARNING: Generated file, do not edit, all changes will be lost.
+
 public final class Tuples {
     private Tuples() {}
 
@@ -59,6 +61,22 @@ public final class Tuples {
         return new Tuple7<>(param1, param2, param3, param4, param5, param6, param7);
     }
 
+    public static<T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> of(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8) {
+        return new Tuple8<>(param1, param2, param3, param4, param5, param6, param7, param8);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> with(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8) {
+        return new Tuple8<>(param1, param2, param3, param4, param5, param6, param7, param8);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> of(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8, T9 param9) {
+        return new Tuple9<>(param1, param2, param3, param4, param5, param6, param7, param8, param9);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> with(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8, T9 param9) {
+        return new Tuple9<>(param1, param2, param3, param4, param5, param6, param7, param8, param9);
+    }
+
     public static class Tuple {
         private final Object[] values;
 
@@ -110,6 +128,18 @@ public final class Tuples {
     public static class Tuple7<T1, T2, T3, T4, T5, T6, T7> extends Tuple {
         public Tuple7(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7) {
             super(param1, param2, param3, param4, param5, param6, param7);
+        }
+    }
+
+    public static class Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> extends Tuple {
+        public Tuple8(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8) {
+            super(param1, param2, param3, param4, param5, param6, param7, param8);
+        }
+    }
+
+    public static class Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> extends Tuple {
+        public Tuple9(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8, T9 param9) {
+            super(param1, param2, param3, param4, param5, param6, param7, param8, param9);
         }
     }
 }

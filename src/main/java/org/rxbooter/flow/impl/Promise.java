@@ -1,11 +1,11 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.impl;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class NotificationHolder<T> {
+public class Promise<T> {
     private final AtomicMarkableReference<T> value = new AtomicMarkableReference<>(null, false);
     private final AtomicMarkableReference<Throwable> errValue = new AtomicMarkableReference<>(null, false);
 
@@ -13,21 +13,21 @@ public class NotificationHolder<T> {
     private final Consumer<T> onReady;
     private final Function<Throwable, T> onError;
 
-    private NotificationHolder(Consumer<T> onReady, Function<Throwable, T> onError) {
+    private Promise(Consumer<T> onReady, Function<Throwable, T> onError) {
         this.onReady = onReady;
         this.onError = onError;
     }
 
-    public static <T> NotificationHolder<T> with() {
-        return new NotificationHolder<>((v) -> {}, (t) -> null);
+    public static <T> Promise<T> with() {
+        return new Promise<>((v) -> {}, (t) -> null);
     }
 
-    public static <T> NotificationHolder<T> with(Consumer<T> onReady) {
-        return new NotificationHolder<>(onReady, (t) -> null);
+    public static <T> Promise<T> with(Consumer<T> onReady) {
+        return new Promise<>(onReady, (t) -> null);
     }
 
-    public static <T> NotificationHolder<T> with(Consumer<T> onReady, Function<Throwable, T> onError) {
-        return new NotificationHolder<>(onReady, onError);
+    public static <T> Promise<T> with(Consumer<T> onReady, Function<Throwable, T> onError) {
+        return new Promise<>(onReady, onError);
     }
 
     public boolean notify(T value) {

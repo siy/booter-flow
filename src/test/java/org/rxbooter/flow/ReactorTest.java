@@ -1,8 +1,7 @@
 package org.rxbooter.flow;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.rxbooter.flow.impl.Reactor;
 
 public class ReactorTest {
     @Test

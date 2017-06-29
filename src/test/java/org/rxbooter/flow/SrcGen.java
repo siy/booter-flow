@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 public class SrcGen {
     private static final String EXT = ".java";
     private static final String I = "    ";
-    private static final String PACKAGE = SrcGen.class.getPackage().getName() + ".flux";
+    private static final String PACKAGE = SrcGen.class.getPackage().getName();
     private static final int NUM_PARAMS = 9;
     private static final String SEPARATOR = ", ";
 
@@ -67,7 +67,7 @@ public class SrcGen {
         nl();
 
         out(1, "/** I1 - holds original input tuple. */");
-        out(1, "protected static class FlowBuilder0<I1 extends Tuple> {");
+        out(1, "public static class FlowBuilder0<I1 extends Tuple> {");
         out(2, "private final FlowBuilder0<I1> prev;");
         out(2, "Step<?, ?> step;");
         nl();
