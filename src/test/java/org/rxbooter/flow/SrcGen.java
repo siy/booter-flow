@@ -50,15 +50,17 @@ public class SrcGen {
     }
 
     private void generateFlowBuilder(String name) {
-        out(0, "package " + PACKAGE + ";");
+        out(0, "package " + PACKAGE + ".impl" + ";");
         nl();
         out(0, "// WARNING: Generated file, do not edit, all changes will be lost.");
         nl();
-
+        out(0, "import " + PACKAGE + ".Flow;");
+        out(0, "import " + PACKAGE + ".Step;");
+        nl();
         out(0, "import java.util.function.Consumer;");
         nl();
         out(0, "import static " + PACKAGE + ".Functions.*;");
-        out(0, "import static " + PACKAGE + ".Step.*;");
+        out(0, "import static " + PACKAGE + ".Step.EH;");
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
 
@@ -241,6 +243,7 @@ public class SrcGen {
                 String resultTypeName = "Tuple" + i + "<" + typeList("R", i) + ">";
                 String inputTypeName = "Tuple" + j + "<" + typeList("T", j) + ">";
                 out(1, "interface FN" + j + i + typeList(j, i) + " extends " + baseName + "<" + resultTypeName + ", " + typeList("T", j) + "> {");
+                out(2, "@SuppressWarnings(\"unchecked\")");
                 out(2, "default TF<" + resultTypeName + ", " + inputTypeName + "> asStepFunction() {");
                 out(3, "return (" + inputTypeName + " param) -> apply(" + tupleToParams("T", j) + ");");
                 out(2, "}");
