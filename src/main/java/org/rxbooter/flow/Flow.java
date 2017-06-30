@@ -20,7 +20,7 @@ public class Flow<O extends Tuple, I extends Tuple> {
     }
 
     public FlowExecutor<O, I> applyTo(I input) {
-        return new FlowExecutor<>(steps, input, Promise.with());
+        return new FlowExecutor<>(steps, input, Promise.empty());
     }
 
     public FlowExecutor<O, I> applyTo(I input, Promise<O> promise) {
@@ -40,27 +40,27 @@ public class Flow<O extends Tuple, I extends Tuple> {
         return new Flow<>(steps);
     }
 
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> single(TF<O1, I1> function) {
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> sync(TF<O1, I1> function) {
         return new Flow<>(Collections.singletonList(Step.sync(function)));
     }
 
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> single(TF<O1, I1> function, EH<O1> errorHandler) {
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> sync(TF<O1, I1> function, EH<O1> errorHandler) {
         return new Flow<>(Collections.singletonList(Step.sync(function, errorHandler)));
     }
 
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleWaiting(TF<O1, I1> function) {
-        return new Flow<>(Collections.singletonList(Step.await(function)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleWaiting(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Collections.singletonList(Step.await(function, errorHandler)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleAsync(TF<O1, I1> function) {
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> async(TF<O1, I1> function) {
         return new Flow<>(Collections.singletonList(Step.async(function)));
     }
 
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> singleAsync(TF<O1, I1> function, EH<O1> errorHandler) {
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> async(TF<O1, I1> function, EH<O1> errorHandler) {
         return new Flow<>(Collections.singletonList(Step.async(function, errorHandler)));
+    }
+
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> await(TF<O1, I1> function) {
+        return new Flow<>(Collections.singletonList(Step.await(function)));
+    }
+
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> await(TF<O1, I1> function, EH<O1> errorHandler) {
+        return new Flow<>(Collections.singletonList(Step.await(function, errorHandler)));
     }
 }

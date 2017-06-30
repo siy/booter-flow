@@ -2,6 +2,14 @@ package org.rxbooter.flow.impl;
 
 import java.util.concurrent.ThreadFactory;
 
+/**
+ * Extremely simple thread poos. It has no thread restart capabilities, so users of this thread pool
+ * should make sure that passed @{@link Runnable} does not leak any exceptions during execution.
+ * Also, this thread pool has no way to stop running threads, so it is up to application how (and if)
+ * to stop threads. Basically exiting from passed runnable should be enough for graceful shutdown of
+ * thread.
+ */
+//TODO: extract interface, generalize approach and rework pool instantiation
 public class FixedThreadPool {
     private final Thread[] threads;
 

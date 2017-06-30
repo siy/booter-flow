@@ -37,7 +37,7 @@ public class SingleThreadReactor implements Reactor {
     @Override
     public <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
         putTask(flowExecutor);
-        return flowExecutor.await();
+        return flowExecutor.promise().await();
     }
 
     @Override
@@ -47,30 +47,30 @@ public class SingleThreadReactor implements Reactor {
 
     @Override
     public void async(Runnable runnable) {
-        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.empty();}).applyTo(null));
+        putTask(Flow.async((a) -> {runnable.run(); return Tuples.empty();}).applyTo(null));
     }
 
     @Override
     public <T> T await(Supplier<T> function) {
-        return await(Flow.singleWaiting((t) -> Tuples.of(function.get())).applyTo(null)).get();
+        return await(Flow.await((t) -> Tuples.of(function.get())).applyTo(null)).get();
     }
 
     @Override
     public void async(Runnable runnable, EH<Tuple1<Void>> handler) {
-        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.of(null);}, handler).applyTo(null));
+        putTask(Flow.async((a) -> {runnable.run(); return Tuples.of(null);}, handler).applyTo(null));
     }
 
     @Override
     public <T> T await(Supplier<T> function, EH<Tuple1<T>> handler) {
-        return await(Flow.singleWaiting((t) -> Tuples.of(function.get()), handler).applyTo(null)).get();
+        return await(Flow.await((t) -> Tuples.of(function.get()), handler).applyTo(null)).get();
     }
 
     @Override
     public <T> T awaitAny(Supplier<T>... suppliers) {
-        Promise<Tuple1<T>> promise = Promise.with();
+        Promise<Tuple1<T>> promise = Promise.empty();
 
         for (Supplier<T> supplier : suppliers) {
-            putTask(Flow.singleWaiting((t) -> Tuples.of(supplier.get())).applyTo(null, promise));
+            putTask(Flow.await((t) -> Tuples.of(supplier.get())).applyTo(null, promise));
         }
 
         return promise.await().get();

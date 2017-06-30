@@ -244,7 +244,7 @@ public class SrcGen {
             out(2, "return new Tuple" + i + "<>(" + paramList(i) + ");");
             out(1, "}");
             nl();
-            out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> with(" + inputParamList(i) + ") {");
+            out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> empty(" + inputParamList(i) + ") {");
             out(2, "return new Tuple" + i + "<>(" + paramList(i) + ");");
             out(1, "}");
             writeSeparator(writer, i);

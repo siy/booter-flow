@@ -21,28 +21,21 @@ public class CurrentThreadReactor implements Reactor {
     @Override
     @SuppressWarnings("unchecked")
     public <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
-        runToEnd(flowExecutor);
-        return flowExecutor.isReady() ? (O) flowExecutor.value() : null;
-    }
-
-    private void runToEnd(FlowExecutor<?, ?> flowExecutor) {
-        do {
-            //Intentionally left empty
-        } while (flowExecutor.stepAndAdvance());
+        return runToEnd(flowExecutor).promise().await();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function) {
-        FlowExecutor<Tuple1<T>, Tuple> flowExecutor = Flow.singleWaiting((t) -> Tuples.of(function.get())).applyTo(null);
-        runToEnd(flowExecutor);
-        return flowExecutor.isReady() ? ((Tuple1<T>) flowExecutor.value()).get() : null;
+        return runToEnd(Flow.await((t) -> Tuples.of(function.get())).applyTo(null))
+            .promise()
+            .await()
+            .get();
     }
 
     @Override
     public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
-        runToEnd(flowExecutor);
-        return flowExecutor.promise();
+        return runToEnd(flowExecutor).promise();
     }
 
     @Override
@@ -68,6 +61,13 @@ public class CurrentThreadReactor implements Reactor {
     @Override
     public <T> T awaitAny(Supplier<T>... suppliers) {
         throw new UnsupportedOperationException("CurrentThreadReactor does not support asynchronous execution");
+    }
+
+    private<O extends Tuple, I extends Tuple> FlowExecutor<O, I> runToEnd(FlowExecutor<O, I> flowExecutor) {
+        do {
+            //Intentionally left empty
+        } while (flowExecutor.stepAndAdvance());
+        return flowExecutor;
     }
 
     private enum DefaultReactorHolder {

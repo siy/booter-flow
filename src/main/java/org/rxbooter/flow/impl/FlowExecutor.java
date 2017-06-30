@@ -1,5 +1,6 @@
 package org.rxbooter.flow.impl;
 
+import org.rxbooter.flow.FlowException;
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step;
 import org.rxbooter.flow.ExecutionType;
@@ -9,7 +10,6 @@ import org.rxbooter.flow.Tuples.Tuple;
 import java.util.Collections;
 import java.util.List;
 
-//TODO: rework it!!!
 public class FlowExecutor<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
     private final Promise<O> promise;
@@ -26,11 +26,10 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
 
     public FlowExecutor<O, ?> forCurrent() {
         if (!canRun()) {
-            //TODO: use other exception?
-            throw new IllegalStateException("No active executable steps in cursor");
+            throw new FlowException("No active executable steps in cursor");
         }
 
-        return new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.with());
+        return new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.empty());
     }
 
     public Tuple value() {
@@ -39,10 +38,6 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
 
     public Promise<O> promise() {
         return promise;
-    }
-
-    public O await() {
-        return promise.await();
     }
 
     public boolean isReady() {
@@ -61,28 +56,24 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return canRun() && currentStep().type() == ExecutionType.ASYNC;
     }
 
-    public int group() {
-        return canRun() ? currentStep().group() : -1;
-    }
-
     public boolean canRun() {
         return !isReady() && index < steps.size();
     }
 
     @SuppressWarnings("unchecked")
-    public FlowExecutor<O, I> step() {
-        if (canRun()) {
-            try {
-                intermediate = currentStep().apply(intermediate);
+    public FlowExecutor<O, I> run() {
+        if (!canRun()) {
+            return this;
+        }
 
-                if (isLastStep()) {
-                    promise.notify((O) intermediate);
-                }
-            } catch (Throwable t) {
-                //TODO: log unhandled exception?
-                //TODO: might not be necessary?
-                promise.notifyError(t);
+        try {
+            intermediate = currentStep().apply(intermediate);
+
+            if (isLastStep()) {
+                promise.notify((O) intermediate);
             }
+        } catch (Throwable t) {
+            promise.notifyError(t);
         }
 
         return this;
@@ -114,8 +105,6 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
                 return advance();
             }
         } catch (Throwable t) {
-            //TODO: log unhandled exception?
-            //TODO: might not be necessary?
             promise.notifyError(t);
         }
 

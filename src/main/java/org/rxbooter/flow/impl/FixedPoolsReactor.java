@@ -22,8 +22,8 @@ public class FixedPoolsReactor implements Reactor {
     private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 8;
     private static final int DEFAULT_COMPUTING_POOL_SIZE = calculateDefaultPoolSize();
     private static final int DEFAULT_IO_POOL_SIZE = 1000;
-    private static final ThreadFactory DEFAULT_COMPUTING_THREAD_FACTORY = new DefaultThreadFactory("FixedPoolsReactor-computing-");
-    private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DefaultThreadFactory("FixedPoolsReactor-io-");
+    private static final ThreadFactory DEFAULT_COMPUTING_THREAD_FACTORY = new DaemonThreadFactory("FixedPoolsReactor-computing-");
+    private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DaemonThreadFactory("FixedPoolsReactor-io-");
     private static final long POLL_INTERVAL = 100;
 
     private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
@@ -64,8 +64,7 @@ public class FixedPoolsReactor implements Reactor {
 
     @Override
     public <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
-        putTask(flowExecutor);
-        return flowExecutor.await();
+        return putTask(flowExecutor).promise().await();
     }
 
     @Override
@@ -75,31 +74,31 @@ public class FixedPoolsReactor implements Reactor {
 
     @Override
     public void async(Runnable runnable) {
-        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.empty();}).applyTo(null));
+        putTask(Flow.async((a) -> {runnable.run(); return Tuples.empty();}).applyTo(null));
     }
 
     @Override
     public <T> T await(Supplier<T> function) {
-        return await(Flow.singleWaiting((t) -> Tuples.of(function.get())).applyTo(null)).get();
+        return await(Flow.await((t) -> Tuples.of(function.get())).applyTo(null)).get();
     }
 
     @Override
     public void async(Runnable runnable, EH<Tuple1<Void>> handler) {
-        putTask(Flow.singleAsync((a) -> {runnable.run(); return Tuples.of(null);}, handler).applyTo(null));
+        putTask(Flow.async((a) -> {runnable.run(); return Tuples.of(null);}, handler).applyTo(null));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T await(Supplier<T> function, EH<Tuple1<T>> handler) {
-        return await(Flow.singleWaiting((t) -> Tuples.of(function.get()), handler).applyTo(null)).get();
+        return await(Flow.await((t) -> Tuples.of(function.get()), handler).applyTo(null)).get();
     }
 
     @Override
     public <T> T awaitAny(Supplier<T>... suppliers) {
-        Promise<Tuple1<T>> promise = Promise.with();
+        Promise<Tuple1<T>> promise = Promise.empty();
 
         for (Supplier<T> supplier : suppliers) {
-            putTask(Flow.singleWaiting((t) -> Tuples.of(supplier.get())).applyTo(null, promise));
+            putTask(Flow.await((t) -> Tuples.of(supplier.get())).applyTo(null, promise));
         }
 
         return promise.await().get();
@@ -107,8 +106,7 @@ public class FixedPoolsReactor implements Reactor {
 
     @Override
     public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
-        putTask(flowExecutor);
-        return flowExecutor.promise();
+        return putTask(flowExecutor).promise();
     }
 
     private void ioHandler() {
@@ -180,16 +178,15 @@ public class FixedPoolsReactor implements Reactor {
     private FlowExecutor<?, ?> pollQueueForSingle(BlockingQueue<FlowExecutor<?, ?>> queue) {
         try {
             return queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
-
         } catch (InterruptedException e) {
             // Ignore it and return null
             return null;
         }
     }
 
-    private void putTask(FlowExecutor<?, ?> flowExecutor) {
+    private<O extends Tuple, I extends Tuple> FlowExecutor<O, I> putTask(FlowExecutor<O, I> flowExecutor) {
         if(flowExecutor.isReady()) {
-            return;
+            return flowExecutor;
         }
 
         try {
@@ -197,6 +194,7 @@ public class FixedPoolsReactor implements Reactor {
         } catch (InterruptedException e) {
             //TODO: how take handle it correctly? can we just ignore it?
         }
+        return flowExecutor;
     }
 
     private static int calculateDefaultPoolSize() {
