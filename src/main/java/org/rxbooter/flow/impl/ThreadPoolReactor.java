@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -18,25 +17,25 @@ import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
 
-public class FixedPoolsReactor implements Reactor {
+public class ThreadPoolReactor implements Reactor {
     private static final long POLL_INTERVAL = 100;
 
     private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
     private final BlockingQueue<FlowExecutor<?, ?>> blockingInput = new LinkedBlockingQueue<>();
     private final AtomicBoolean shutdown = new AtomicBoolean();
 
-    public FixedPoolsReactor(int computingPoolSize, ThreadFactory computingFactory, int ioPoolSize, ThreadFactory ioFactory) {
-        new FixedThreadPool(computingPoolSize, computingFactory, this::computingHandler).start();
-        new FixedThreadPool(ioPoolSize, ioFactory, this::ioHandler).start();
+    public ThreadPoolReactor(ThreadPool computingPool, ThreadPool ioPool) {
+        computingPool.start(this::computingHandler);
+        ioPool.start(this::ioHandler);
     }
 
-    public static FixedPoolsReactor defaultReactor() {
+    public static ThreadPoolReactor defaultReactor() {
         return DefaultReactorHolder.INSTANCE.reactor();
     }
 
-//    public static FixedPoolsReactor with(int computingPoolSize, int ioPoolSize) {
-//        return new FixedPoolsReactor(computingPoolSize, ioPoolSize);
-//    }
+    public static ThreadPoolReactor with(ThreadPool computingPool, ThreadPool ioPool) {
+        return new ThreadPoolReactor(computingPool, ioPool);
+    }
 
     @Override
     public void shutdown() {
@@ -181,15 +180,13 @@ public class FixedPoolsReactor implements Reactor {
     private enum DefaultReactorHolder {
         INSTANCE;
 
-        private final FixedPoolsReactor reactor;
+        private final ThreadPoolReactor reactor;
 
         DefaultReactorHolder() {
-            //TODO: fix it!!!
-            //reactor = new FixedPoolsReactor();
-            reactor = null;
+            reactor = new ThreadPoolReactor(ThreadPool.defaultComputing(), ThreadPool.defaultIo());
         }
 
-        public FixedPoolsReactor reactor() {
+        public ThreadPoolReactor reactor() {
             return reactor;
         }
     }

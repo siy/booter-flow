@@ -3,11 +3,12 @@ package org.rxbooter.flow;
 import java.util.function.Supplier;
 
 import org.rxbooter.flow.impl.CurrentThreadReactor;
-import org.rxbooter.flow.impl.FixedPoolsReactor;
+import org.rxbooter.flow.impl.ThreadPoolReactor;
 import org.rxbooter.flow.impl.FlowExecutor;
 import org.rxbooter.flow.Step.EH;
 import org.rxbooter.flow.impl.Promise;
 import org.rxbooter.flow.impl.SingleThreadReactor;
+import org.rxbooter.flow.impl.ThreadPool;
 
 import static org.rxbooter.flow.Tuples.*;
 
@@ -26,25 +27,23 @@ public interface Reactor {
 
     <T> T awaitAny(Supplier<T>... suppliers);
 
-
     <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
 
     static Reactor single() {
         return new SingleThreadReactor();
     }
 
-    static Reactor current() {
+    static Reactor thisThread() {
         return CurrentThreadReactor.instance();
     }
 
-    static Reactor fixed() {
-        return FixedPoolsReactor.defaultReactor();
+    static Reactor defaultFixed() {
+        return ThreadPoolReactor.defaultReactor();
     }
 
-    //TODO: fix it
-//    static Reactor fixed(int computingPoolSize, int ioPoolSize) {
-//        return FixedPoolsReactor.with(computingPoolSize, ioPoolSize);
-//    }
+    static Reactor pooled(ThreadPool computingPool, ThreadPool ioPool) {
+        return ThreadPoolReactor.with(computingPool, ioPool);
+    }
 
     default <T1> Tuple1<T1> awaitAll(Supplier<T1> param1) {
         return Tuples.of(await(param1));

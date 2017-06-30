@@ -1,6 +1,7 @@
 package org.rxbooter.flow.impl;
 
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Extremely simple thread poos. It has no thread restart capabilities, so users of this thread pool
@@ -20,26 +21,28 @@ public class FixedThreadPool implements ThreadPool {
     }
 
     private final Thread[] threads;
+    private final ThreadFactory factory;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
-    public FixedThreadPool(int poolSize, ThreadFactory factory, Runnable handler) {
+    public FixedThreadPool(int poolSize, ThreadFactory factory) {
         if (poolSize < 1) {
             throw new IllegalArgumentException("Number of threads must be greater than 0");
         }
 
-        threads = createPool(poolSize, factory, handler);
-    }
-
-    private static Thread[] createPool(int size, ThreadFactory factory, Runnable handler) {
-        Thread[] result = new Thread[size];
-
-        for (int i = 0; i < size; i++) {
-            result[i] = factory.newThread(handler);
-        }
-        return result;
+        this.factory = factory;
+        threads = new Thread[poolSize];
     }
 
     @Override
-    public FixedThreadPool start() {
+    public FixedThreadPool start(Runnable target) {
+        if (!started.compareAndSet(false, true)) {
+            throw new IllegalStateException("Thread pool is already started.");
+        }
+
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = factory.newThread(target);
+        }
+
         for (Thread thread : threads) {
             thread.start();
         }
