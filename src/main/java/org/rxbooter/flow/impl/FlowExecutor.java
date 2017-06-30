@@ -49,6 +49,10 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return promise.isReady();
     }
 
+    public ExecutionType type() {
+        return (index < steps.size()) ? currentStep().type() : null;
+    }
+
     public boolean isBlocking() {
         return !canRun() || currentStep().type() != ExecutionType.SYNC;
     }
@@ -101,12 +105,18 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
     }
 
     public boolean stepAndAdvance() {
-        if (canRun()) {
-            step();
-        }
+        try {
+            intermediate = currentStep().apply(intermediate);
 
-        if (canRun()) {
-            advance();
+            if (isLastStep()) {
+                promise.notify((O) intermediate);
+            } else {
+                return advance();
+            }
+        } catch (Throwable t) {
+            //TODO: log unhandled exception?
+            //TODO: might not be necessary?
+            promise.notifyError(t);
         }
 
         return canRun();

@@ -21,7 +21,7 @@ public class FlowTest {
             .then1((s1, s2) -> of(s1 + " " + s2))
             .done();
 
-        String result = flow.applyTo(Tuples.of("abcABC")).in(CurrentThreadReactor.instance()).await().get();
+        String result = flow.applyTo(Tuples.of("abcABC")).in(Reactor.current()).await().get();
         assertThat(result).isEqualTo("abcABC abcabc");
     }
     
@@ -32,7 +32,7 @@ public class FlowTest {
             .then1((s1, s2, i) -> of(s1 + " " + i + " " + s2))
             .done();
 
-        String result = flow.applyTo(Tuples.of("abcABC", 1L)).in(CurrentThreadReactor.instance()).await().get();
+        String result = flow.applyTo(Tuples.of("abcABC", 1L)).in(Reactor.current()).await().get();
         assertThat(result).isEqualTo("abcABC 1 abcabc");
     }
 
@@ -50,7 +50,7 @@ public class FlowTest {
 
         Flow<Tuple1<String>, Tuple3<String, Long, Integer>> flow = Flow.compose(flow1, flow2);
 
-        String result = flow.applyTo(Tuples.of("abcABC", 1L, 33)).in(CurrentThreadReactor.instance()).await().get();
+        String result = flow.applyTo(Tuples.of("abcABC", 1L, 33)).in(Reactor.current()).await().get();
         assertThat(result).isEqualTo("<abcABC-suffix 43>, <18>, <refix-abcABC-suffix 43>, <34>, <16>");
     }
 }

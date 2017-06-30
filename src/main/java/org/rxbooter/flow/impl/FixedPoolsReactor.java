@@ -1,5 +1,8 @@
 package org.rxbooter.flow.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -7,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import org.rxbooter.flow.ExecutionType;
 import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step.EH;
@@ -14,7 +18,6 @@ import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
 
-//TODO: rework it!
 public class FixedPoolsReactor implements Reactor {
     private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 8;
     private static final int DEFAULT_COMPUTING_POOL_SIZE = calculateDefaultPoolSize();
@@ -110,62 +113,82 @@ public class FixedPoolsReactor implements Reactor {
 
     private void ioHandler() {
         while (!shutdown.get()) {
-            FlowExecutor<?, ?> flowExecutor = pollQueue(computingInput);
-
-            if (flowExecutor == null) {
-                continue;
-            }
-
-            runStep(flowExecutor);
-            putTask(flowExecutor);
-        }
-    }
-
-    private void computingHandler() {
-        while (!shutdown.get()) {
-            FlowExecutor<?, ?> flowExecutor = pollQueue(blockingInput);
+            FlowExecutor<?, ?> flowExecutor = pollQueueForSingle(blockingInput);
 
             if (flowExecutor == null) {
                 continue;
             }
 
             if (flowExecutor.isAsync()) {
-                FlowExecutor<?, ?> subtask = flowExecutor.forCurrent();
-                putTask(subtask);
+                putTask(flowExecutor.forCurrent());
                 flowExecutor.advance();
-
-                if (flowExecutor.canRun()) {
-                    putTask(flowExecutor);
-                }
-                continue;
             }
 
-            //TODO: execute groups of steps
-            runStep(flowExecutor);
+            flowExecutor.stepAndAdvance();
             putTask(flowExecutor);
         }
     }
 
-    private void runStep(FlowExecutor<?, ?> flowExecutor) {
-        try {
-            flowExecutor.step().advance();
-        } catch (Throwable t) {
-            //TODO: how take report exception?
+    private void computingHandler() {
+        while (!shutdown.get()) {
+            List<FlowExecutor<?, ?>> flowExecutors = pollQueue(computingInput);
+
+            if (flowExecutors.isEmpty()) {
+                continue;
+            }
+
+            flowExecutors.forEach(this::executeSingle);
         }
     }
 
-    private FlowExecutor<?, ?> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {
+    private void executeSingle(FlowExecutor<?, ?> flowExecutor) {
+        if (flowExecutor.isAsync()) {
+            putTask(flowExecutor.forCurrent());
+            flowExecutor.advance();
+        }
+
+        ExecutionType type = flowExecutor.type();
+
+        if (type == null) {
+            return;
+        }
+
+        while (type == flowExecutor.type()) {
+            flowExecutor.stepAndAdvance();
+        }
+
+        putTask(flowExecutor);
+    }
+
+    private List<FlowExecutor<?, ?>> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {
+        try {
+            FlowExecutor<?, ?> element = queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
+            if (element == null) {
+                return Collections.emptyList();
+            }
+            List<FlowExecutor<?, ?>> result = new ArrayList<>();
+            result.add(element);
+            queue.drainTo(result);
+            return result;
+
+        } catch (InterruptedException e) {
+            // Ignore it and return empty collection
+            return Collections.emptyList();
+        }
+    }
+
+    private FlowExecutor<?, ?> pollQueueForSingle(BlockingQueue<FlowExecutor<?, ?>> queue) {
         try {
             return queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
+
         } catch (InterruptedException e) {
-            // Ignore it and return null. if shutdown is requested, then we'll handle it upon exit
+            // Ignore it and return null
             return null;
         }
     }
 
     private void putTask(FlowExecutor<?, ?> flowExecutor) {
-        if (!flowExecutor.canRun()) {
-            //TODO: signal end of processing somehow
+        if(flowExecutor.isReady()) {
             return;
         }
 
