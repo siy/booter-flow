@@ -1,7 +1,11 @@
 package org.rxbooter.flow;
 
-// WARNING: Generated file, do not edit, all changes will be lost.
-
+/**
+ * Static factories and implementations of basic typed tuples. Depending on number of stored elements, tuples are
+ * named @{@link Tuple1} to @{@link Tuple9}. Note that all elements of tuple may be of different type, so it's
+ * impossible to use single tuple class for all use cases. There is no versions for more than 9 elements, so if
+ * one needs more elements, then use data objects as elements of tuples.
+ */
 public final class Tuples {
     private Tuples() {}
 

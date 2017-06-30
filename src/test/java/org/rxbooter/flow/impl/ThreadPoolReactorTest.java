@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.impl;
 
 import org.junit.Test;
 import org.rxbooter.flow.impl.ThreadPoolReactor;

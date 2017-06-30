@@ -37,7 +37,7 @@ public interface Reactor {
         return CurrentThreadReactor.instance();
     }
 
-    static Reactor defaultFixed() {
+    static Reactor pooled() {
         return ThreadPoolReactor.defaultReactor();
     }
 
