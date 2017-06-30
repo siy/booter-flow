@@ -19,43 +19,24 @@ import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
 
 public class FixedPoolsReactor implements Reactor {
-    private static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 8;
-    private static final int DEFAULT_COMPUTING_POOL_SIZE = calculateDefaultPoolSize();
-    private static final int DEFAULT_IO_POOL_SIZE = 1000;
-    private static final ThreadFactory DEFAULT_COMPUTING_THREAD_FACTORY = new DaemonThreadFactory("FixedPoolsReactor-computing-");
-    private static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DaemonThreadFactory("FixedPoolsReactor-io-");
     private static final long POLL_INTERVAL = 100;
 
     private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
     private final BlockingQueue<FlowExecutor<?, ?>> blockingInput = new LinkedBlockingQueue<>();
     private final AtomicBoolean shutdown = new AtomicBoolean();
-    private final FixedThreadPool computingPool;
-    private final FixedThreadPool ioPool;
-
-    public FixedPoolsReactor() {
-        this(DEFAULT_COMPUTING_POOL_SIZE, DEFAULT_COMPUTING_THREAD_FACTORY,
-            DEFAULT_IO_POOL_SIZE, DEFAULT_IO_THREAD_FACTORY);
-    }
-
-    public FixedPoolsReactor(int computingPoolSize, int ioPoolSize) {
-        this(computingPoolSize, DEFAULT_COMPUTING_THREAD_FACTORY,
-             ioPoolSize, DEFAULT_IO_THREAD_FACTORY);
-    }
 
     public FixedPoolsReactor(int computingPoolSize, ThreadFactory computingFactory, int ioPoolSize, ThreadFactory ioFactory) {
-        computingPool = new FixedThreadPool(computingPoolSize, computingFactory, this::computingHandler);
-        ioPool = new FixedThreadPool(ioPoolSize, ioFactory, this::ioHandler);
-        computingPool.start();
-        ioPool.start();
+        new FixedThreadPool(computingPoolSize, computingFactory, this::computingHandler).start();
+        new FixedThreadPool(ioPoolSize, ioFactory, this::ioHandler).start();
     }
 
     public static FixedPoolsReactor defaultReactor() {
         return DefaultReactorHolder.INSTANCE.reactor();
     }
 
-    public static FixedPoolsReactor with(int computingPoolSize, int ioPoolSize) {
-        return new FixedPoolsReactor(computingPoolSize, ioPoolSize);
-    }
+//    public static FixedPoolsReactor with(int computingPoolSize, int ioPoolSize) {
+//        return new FixedPoolsReactor(computingPoolSize, ioPoolSize);
+//    }
 
     @Override
     public void shutdown() {
@@ -197,18 +178,15 @@ public class FixedPoolsReactor implements Reactor {
         return flowExecutor;
     }
 
-    private static int calculateDefaultPoolSize() {
-        int numCores = Runtime.getRuntime().availableProcessors();
-        return Math.max(numCores * 2, DEFAULT_MIN_COMPUTING_POOL_SIZE);
-    }
-
     private enum DefaultReactorHolder {
         INSTANCE;
 
         private final FixedPoolsReactor reactor;
 
         DefaultReactorHolder() {
-            reactor = new FixedPoolsReactor();
+            //TODO: fix it!!!
+            //reactor = new FixedPoolsReactor();
+            reactor = null;
         }
 
         public FixedPoolsReactor reactor() {

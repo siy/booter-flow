@@ -9,8 +9,16 @@ import java.util.concurrent.ThreadFactory;
  * to stop threads. Basically exiting from passed runnable should be enough for graceful shutdown of
  * thread.
  */
-//TODO: extract interface, generalize approach and rework pool instantiation
-public class FixedThreadPool {
+public class FixedThreadPool implements ThreadPool {
+    public static final int DEFAULT_COMPUTING_POOL_SIZE;
+    public static final int DEFAULT_IO_POOL_SIZE = 1000;
+    public static final int DEFAULT_MIN_COMPUTING_POOL_SIZE = 8;
+
+    static {
+        DEFAULT_COMPUTING_POOL_SIZE = Math.max(Runtime.getRuntime().availableProcessors() * 2,
+                                               DEFAULT_MIN_COMPUTING_POOL_SIZE);
+    }
+
     private final Thread[] threads;
 
     public FixedThreadPool(int poolSize, ThreadFactory factory, Runnable handler) {
@@ -30,6 +38,7 @@ public class FixedThreadPool {
         return result;
     }
 
+    @Override
     public FixedThreadPool start() {
         for (Thread thread : threads) {
             thread.start();

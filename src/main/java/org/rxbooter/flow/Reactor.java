@@ -41,9 +41,10 @@ public interface Reactor {
         return FixedPoolsReactor.defaultReactor();
     }
 
-    static Reactor fixed(int computingPoolSize, int ioPoolSize) {
-        return FixedPoolsReactor.with(computingPoolSize, ioPoolSize);
-    }
+    //TODO: fix it
+//    static Reactor fixed(int computingPoolSize, int ioPoolSize) {
+//        return FixedPoolsReactor.with(computingPoolSize, ioPoolSize);
+//    }
 
     default <T1> Tuple1<T1> awaitAll(Supplier<T1> param1) {
         return Tuples.of(await(param1));
