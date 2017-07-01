@@ -17,16 +17,21 @@ import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
 
-public class ThreadPoolReactor implements Reactor {
+public class ThreadPoolReactor extends AbstractReactor {
     private static final long POLL_INTERVAL = 100;
 
     private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
     private final BlockingQueue<FlowExecutor<?, ?>> blockingInput = new LinkedBlockingQueue<>();
     private final AtomicBoolean shutdown = new AtomicBoolean();
+    private final ThreadPool computingPool;
+    private final ThreadPool ioPool;
 
     public ThreadPoolReactor(ThreadPool computingPool, ThreadPool ioPool) {
-        computingPool.start(this::computingHandler);
-        ioPool.start(this::ioHandler);
+        this.computingPool = computingPool;
+        this.ioPool = ioPool;
+
+        this.computingPool.start(this::computingHandler);
+        this.ioPool.start(this::ioHandler);
     }
 
     public static ThreadPoolReactor defaultReactor() {
@@ -40,53 +45,22 @@ public class ThreadPoolReactor implements Reactor {
     @Override
     public void shutdown() {
         shutdown.compareAndSet(false, true);
-    }
-
-    @Override
-    public <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
-        return putTask(flowExecutor).promise().await();
-    }
-
-    @Override
-    public <O extends Tuple, I extends Tuple> void async(FlowExecutor<O, I> flowExecutor) {
-        putTask(flowExecutor);
-    }
-
-    @Override
-    public void async(Runnable runnable) {
-        putTask(Flow.async((a) -> {runnable.run(); return Tuples.empty();}).applyTo(null));
-    }
-
-    @Override
-    public <T> T await(Supplier<T> function) {
-        return await(Flow.await((t) -> Tuples.of(function.get())).applyTo(null)).get();
-    }
-
-    @Override
-    public void async(Runnable runnable, EH<Tuple1<Void>> handler) {
-        putTask(Flow.async((a) -> {runnable.run(); return Tuples.of(null);}, handler).applyTo(null));
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T await(Supplier<T> function, EH<Tuple1<T>> handler) {
-        return await(Flow.await((t) -> Tuples.of(function.get()), handler).applyTo(null)).get();
-    }
-
-    @Override
-    public <T> T awaitAny(Supplier<T>... suppliers) {
-        Promise<Tuple1<T>> promise = Promise.empty();
-
-        for (Supplier<T> supplier : suppliers) {
-            putTask(Flow.await((t) -> Tuples.of(supplier.get())).applyTo(null, promise));
-        }
-
-        return promise.await().get();
+        computingPool.shutdown();
+        ioPool.shutdown();
     }
 
     @Override
     public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
-        return putTask(flowExecutor).promise();
+        if(flowExecutor.isReady()) {
+            return flowExecutor.promise();
+        }
+
+        try {
+            (flowExecutor.isBlocking() ? blockingInput : computingInput).put(flowExecutor);
+        } catch (InterruptedException e) {
+            //TODO: how take handle it correctly? can we just ignore it?
+        }
+        return flowExecutor.promise();
     }
 
     private void ioHandler() {
@@ -97,13 +71,9 @@ public class ThreadPoolReactor implements Reactor {
                 continue;
             }
 
-            if (flowExecutor.isAsync()) {
-                putTask(flowExecutor.forCurrent());
-                flowExecutor.advance();
-            }
-
-            flowExecutor.stepAndAdvance();
-            putTask(flowExecutor);
+            runAllAsync(flowExecutor);
+            flowExecutor.run().advance();
+            submit(flowExecutor);
         }
     }
 
@@ -120,22 +90,13 @@ public class ThreadPoolReactor implements Reactor {
     }
 
     private void executeSingle(FlowExecutor<?, ?> flowExecutor) {
-        if (flowExecutor.isAsync()) {
-            putTask(flowExecutor.forCurrent());
-            flowExecutor.advance();
+        runAllAsync(flowExecutor);
+
+        while (ExecutionType.SYNC == flowExecutor.type()) {
+            flowExecutor.run().advance();
         }
 
-        ExecutionType type = flowExecutor.type();
-
-        if (type == null) {
-            return;
-        }
-
-        while (type == flowExecutor.type()) {
-            flowExecutor.stepAndAdvance();
-        }
-
-        putTask(flowExecutor);
+        submit(flowExecutor);
     }
 
     private List<FlowExecutor<?, ?>> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {
@@ -162,19 +123,6 @@ public class ThreadPoolReactor implements Reactor {
             // Ignore it and return null
             return null;
         }
-    }
-
-    private<O extends Tuple, I extends Tuple> FlowExecutor<O, I> putTask(FlowExecutor<O, I> flowExecutor) {
-        if(flowExecutor.isReady()) {
-            return flowExecutor;
-        }
-
-        try {
-            (flowExecutor.isBlocking() ? blockingInput : computingInput).put(flowExecutor);
-        } catch (InterruptedException e) {
-            //TODO: how take handle it correctly? can we just ignore it?
-        }
-        return flowExecutor;
     }
 
     private enum DefaultReactorHolder {

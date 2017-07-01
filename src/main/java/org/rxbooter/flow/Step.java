@@ -1,5 +1,10 @@
 package org.rxbooter.flow;
 
+import org.rxbooter.flow.Tuples.Tuple;
+import org.rxbooter.flow.Tuples.Tuple1;
+
+import java.util.function.Supplier;
+
 public class Step<R1, T1> {
     private final ExecutionType type;
     private final TF<R1, T1> function;
@@ -37,6 +42,14 @@ public class Step<R1, T1> {
 
     public static<R, T> Step<R, T> await(TF<R, T> function, EH<R> errorHandler) {
         return new Step<>(ExecutionType.AWAIT, function, errorHandler);
+    }
+
+    public static TF<Tuple1<Void>, Tuple> from(Runnable runnable) {
+        return (a) -> {runnable.run(); return Tuples.of(null);};
+    }
+
+    public static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
+        return (t) -> Tuples.of(supplier.get());
     }
 
     public ExecutionType type() {

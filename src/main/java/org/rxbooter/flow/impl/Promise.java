@@ -1,11 +1,13 @@
 package org.rxbooter.flow.impl;
 
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.rxbooter.flow.FlowException;
+import org.rxbooter.flow.FlowWrappedException;
 
 /**
  * Tiny lightweight implementation of Promise pattern.
@@ -13,7 +15,19 @@ import org.rxbooter.flow.FlowException;
 public class Promise<T> {
     private final AtomicMarkableReference<T> value = new AtomicMarkableReference<>(null, false);
     private final AtomicMarkableReference<Throwable> errValue = new AtomicMarkableReference<>(null, false);
-    private final CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch latch;
+
+    private Promise() {
+        this(1);
+    }
+
+    private Promise(int count) {
+        latch = new CountDownLatch(count);
+    }
+
+    public static <T> Promise<T> waifFor(int count) {
+        return new Promise<>(count);
+    }
 
     public static <T> Promise<T> empty() {
         return new Promise<>();
@@ -28,7 +42,12 @@ public class Promise<T> {
     }
 
     public Promise<T> notify(T value) {
-        if (this.value.compareAndSet(null, value, false, true)) {
+        if(this.value.compareAndSet(null, value, false, true)) {
+            // successful completion will stop waiting
+            while(latch.getCount() > 0) {
+                latch.countDown();
+            }
+        } else {
             latch.countDown();
         }
 
@@ -36,9 +55,8 @@ public class Promise<T> {
     }
 
     public Promise<T> notifyError(Throwable value) {
-        if(this.errValue.compareAndSet(null, value, false, true)) {
-            latch.countDown();
-        }
+        this.errValue.compareAndSet(null, value, false, true);
+        latch.countDown();
 
         return this;
     }
@@ -52,18 +70,44 @@ public class Promise<T> {
     }
 
     public T await() {
+        doWait();
+
+        if (value.isMarked()) {
+            return value.getReference();
+        }
+
+        throw wrapUnwrapAsNecessary(errValue.getReference());
+    }
+
+    private RuntimeException wrapUnwrapAsNecessary(Throwable reference) {
+        if(reference instanceof FlowException) {
+            if (reference.getCause() instanceof RuntimeException) {
+                return (RuntimeException) reference.getCause();
+            }
+
+            return new FlowWrappedException(reference.getCause());
+        }
+
+        if (reference instanceof RuntimeException) {
+            return (RuntimeException) reference;
+        }
+
+        return new FlowWrappedException(reference);
+    }
+
+    public Optional<T> awaitSafe() {
+        doWait();
+
+        return Optional.ofNullable(value.getReference());
+    }
+
+    private void doWait() {
         do {
             try {
                 latch.await();
             } catch (InterruptedException e) {
                 // Ignore exceptions here
             }
-        } while (latch.getCount() != 0 && isReady());
-
-        if (value.isMarked()) {
-            return value.getReference();
-        }
-
-        throw new FlowException(errValue.getReference());
+        } while (latch.getCount() != 0 && !isReady());
     }
 }

@@ -10,6 +10,7 @@ public interface ThreadPool {
     public static final ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DaemonThreadFactory("ThreadPoolReactor-io-");
 
     ThreadPool start(Runnable target);
+    void shutdown();
 
     static ThreadPool defaultIo() {
         return new FixedThreadPool(DEFAULT_IO_POOL_SIZE, DEFAULT_IO_THREAD_FACTORY);

@@ -1,15 +1,12 @@
 package org.rxbooter.flow.impl;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-/**
- * Extremely simple thread poos. It has no thread restart capabilities, so users of this thread pool
- * should make sure that passed @{@link Runnable} does not leak any exceptions during execution.
- * Also, this thread pool has no way to stop running threads, so it is up to application how (and if)
- * to stop threads. Basically exiting from passed runnable should be enough for graceful shutdown of
- * thread.
- */
 public class FixedThreadPool implements ThreadPool {
     public static final int DEFAULT_COMPUTING_POOL_SIZE;
     public static final int DEFAULT_IO_POOL_SIZE = 1000;
@@ -20,17 +17,13 @@ public class FixedThreadPool implements ThreadPool {
                                                DEFAULT_MIN_COMPUTING_POOL_SIZE);
     }
 
-    private final Thread[] threads;
-    private final ThreadFactory factory;
     private final AtomicBoolean started = new AtomicBoolean(false);
+    private final ExecutorService service;
+    private final int poolSize;
 
     public FixedThreadPool(int poolSize, ThreadFactory factory) {
-        if (poolSize < 1) {
-            throw new IllegalArgumentException("Number of threads must be greater than 0");
-        }
-
-        this.factory = factory;
-        threads = new Thread[poolSize];
+        this.poolSize = poolSize;
+        this.service = Executors.newFixedThreadPool(poolSize, factory);
     }
 
     @Override
@@ -39,13 +32,13 @@ public class FixedThreadPool implements ThreadPool {
             throw new IllegalStateException("Thread pool is already started.");
         }
 
-        for (int i = 0; i < threads.length; i++) {
-            threads[i] = factory.newThread(target);
-        }
+        IntStream.range(0, poolSize).mapToObj(i -> service.submit(target)).collect(Collectors.toList());
 
-        for (Thread thread : threads) {
-            thread.start();
-        }
         return this;
+    }
+
+    @Override
+    public void shutdown() {
+        service.shutdown();
     }
 }

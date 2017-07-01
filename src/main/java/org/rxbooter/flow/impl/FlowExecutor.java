@@ -95,22 +95,6 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return canRun();
     }
 
-    public boolean stepAndAdvance() {
-        try {
-            intermediate = currentStep().apply(intermediate);
-
-            if (isLastStep()) {
-                promise.notify((O) intermediate);
-            } else {
-                return advance();
-            }
-        } catch (Throwable t) {
-            promise.notifyError(t);
-        }
-
-        return canRun();
-    }
-
     public Promise<O> in(Reactor reactor) {
         return reactor.submit(this);
     }
