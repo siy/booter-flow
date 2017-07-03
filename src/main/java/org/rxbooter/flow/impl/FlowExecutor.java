@@ -10,6 +10,10 @@ import org.rxbooter.flow.Tuples.Tuple;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Representation of the @{@link org.rxbooter.flow.Flow} in active state, i.e. when flow is bound to input
+ * and can be executed.
+ */
 public class FlowExecutor<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
     private final Promise<O> promise;
@@ -24,16 +28,20 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         this.promise = promise;
     }
 
+    /**
+     * Creates new {@link FlowExecutor} from current {@link Step} in the flow. Created flow consists of only one step
+     * and shares the same intermediate calculated value as original flow at the moment when all previous steps in the
+     * flow are executed.
+     *
+     * @return new {@link org.rxbooter.flow.Flow} consisting of single current step.
+     */
     public FlowExecutor<O, ?> forCurrent() {
         if (!canRun()) {
             throw new FlowException("No active executable steps in cursor");
         }
 
+        //TODO: add call to advance()
         return new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.empty());
-    }
-
-    public Tuple value() {
-        return intermediate;
     }
 
     public Promise<O> promise() {
@@ -76,6 +84,7 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
             promise.notifyError(t);
         }
 
+        //TODO: add call to advance()
         return this;
     }
 

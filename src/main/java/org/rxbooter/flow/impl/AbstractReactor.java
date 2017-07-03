@@ -12,6 +12,10 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * Base class for @{@link Reactor} implementations. In expresses most of the convenience methods via remaining ones
+ * and therefore reduces number of methods which need to be implemented.
+ */
 public abstract class AbstractReactor implements Reactor {
     @Override
     public final <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor) {
