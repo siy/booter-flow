@@ -69,9 +69,9 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
     }
 
     @SuppressWarnings("unchecked")
-    public FlowExecutor<O, I> run() {
+    public boolean run() {
         if (!canRun()) {
-            return this;
+            return false;
         }
 
         try {
@@ -85,7 +85,7 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         }
 
         //TODO: add call to advance()
-        return this;
+        return advance();
     }
 
     private boolean isLastStep() {

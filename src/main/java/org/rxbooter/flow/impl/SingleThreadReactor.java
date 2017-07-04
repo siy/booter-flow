@@ -51,7 +51,7 @@ public class SingleThreadReactor extends AbstractReactor {
     private void runSingle(FlowExecutor<?, ?> flowExecutor) {
         do {
             runAllAsync(flowExecutor);
-        } while (flowExecutor.run().advance());
+        } while (flowExecutor.run());
     }
 
     private FlowExecutor<?, ?> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {

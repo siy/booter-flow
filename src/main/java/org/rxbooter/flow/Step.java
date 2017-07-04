@@ -20,6 +20,10 @@ public class Step<R1, T1> {
         this.errorHandler = errorHandler;
     }
 
+    public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
+        return new Step<>(type, function, errorHandler);
+    }
+
     public static<R, T> Step<R, T> sync(TF<R, T> function) {
         return new Step<>(ExecutionType.SYNC, function);
     }

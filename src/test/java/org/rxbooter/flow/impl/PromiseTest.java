@@ -2,6 +2,7 @@ package org.rxbooter.flow.impl;
 
 import org.junit.Test;
 import org.rxbooter.flow.FlowException;
+import org.rxbooter.flow.FlowWrappedException;
 
 import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.*;
@@ -37,7 +38,7 @@ public class PromiseTest {
         try {
             promise.await();
         } catch (Throwable e) {
-            assertThat(e).isInstanceOf(FlowException.class);
+            assertThat(e).isInstanceOf(FlowWrappedException.class);
             assertThat(e.getMessage()).endsWith("oops!");
         }
         assertThat(promise.isReady()).isTrue();
@@ -53,7 +54,7 @@ public class PromiseTest {
         try {
             promise.await();
         } catch (Throwable e) {
-            assertThat(e).isInstanceOf(FlowException.class);
+            assertThat(e).isInstanceOf(FlowWrappedException.class);
             assertThat(e.getMessage()).endsWith("oops!");
         }
         assertThat(promise.isReady()).isTrue();
@@ -67,7 +68,7 @@ public class PromiseTest {
         assertThat(promise.await()).isEqualTo(42);
     }
 
-    @Test(expected = FlowException.class)
+    @Test(expected = FlowWrappedException.class)
     public void shouldHaveErrorSetIfReady() throws Exception {
         Promise<Integer> promise = Promise.error(new FlowException("oops!"));
         assertThat(promise.isReady()).isTrue();

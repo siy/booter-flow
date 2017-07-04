@@ -72,7 +72,7 @@ public class ThreadPoolReactor extends AbstractReactor {
             }
 
             runAllAsync(flowExecutor);
-            flowExecutor.run().advance();
+            flowExecutor.run();
             submit(flowExecutor);
         }
     }
@@ -93,7 +93,7 @@ public class ThreadPoolReactor extends AbstractReactor {
         runAllAsync(flowExecutor);
 
         while (ExecutionType.SYNC == flowExecutor.type()) {
-            flowExecutor.run().advance();
+            flowExecutor.run();
         }
 
         submit(flowExecutor);

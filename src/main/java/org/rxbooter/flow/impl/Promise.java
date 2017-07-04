@@ -85,7 +85,7 @@ public class Promise<T> {
                 return (RuntimeException) reference.getCause();
             }
 
-            return new FlowWrappedException(reference.getCause());
+            return new FlowWrappedException(reference.getMessage(), reference.getCause());
         }
 
         if (reference instanceof RuntimeException) {

@@ -6,4 +6,8 @@ public class FlowWrappedException extends RuntimeException {
     public FlowWrappedException(Throwable throwable) {
         super("Wrapped exception", throwable);
     }
+
+    public FlowWrappedException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 }

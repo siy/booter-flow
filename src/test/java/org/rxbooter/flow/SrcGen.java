@@ -75,7 +75,7 @@ public class SrcGen {
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
             declareReactorMethod(i, "awaitAll");
-            writeSeparator(writer, i);
+            writeSeparator(i);
         }
 
         out(0,"}");
@@ -104,13 +104,14 @@ public class SrcGen {
         nl();
         out(0, "// WARNING: Generated file, do not edit, all changes will be lost.");
         nl();
+        out(0, "import " + PACKAGE + ".ExecutionType;");
         out(0, "import " + PACKAGE + ".Flow;");
         out(0, "import " + PACKAGE + ".Step;");
         nl();
         out(0, "import java.util.function.Consumer;");
         nl();
         out(0, "import static " + PACKAGE + ".Functions.*;");
-        out(0, "import static " + PACKAGE + ".Step.EH;");
+        out(0, "import static " + PACKAGE + ".Step.*;");
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
 
@@ -137,8 +138,8 @@ public class SrcGen {
         out(3, "}");
         out(2, "}");
         nl();
-        out(2, "public FlowBuilder0<I1> step(Step<?, ?> step) {");
-        out(3, "this.step = step;");
+        out(2, "public<R, T> FlowBuilder0<I1> step(ExecutionType type, TF<R, T> function, EH<R> handler) {");
+        out(3, "this.step = Step.of(type, function, handler);");
         out(3, "return this;");
         out(2, "}");
         out(1, "}");
@@ -147,8 +148,20 @@ public class SrcGen {
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
             //out(1, "public static class " + flowMainTypeName("T", i) + " extends " + parentBuilderName(i) + " {");
             out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder0<I1> {");
+            out(2, "private ExecutionType type = ExecutionType.SYNC;");
+            nl();
             out(2, "public FlowBuilder" + i + "(FlowBuilder0<I1> prev) {");
             out(3, "super(prev);");
+            out(2, "}");
+            nl();
+            out(2, "public " + flowTypeName("T", i) + " async() {");
+            out(3, "type = ExecutionType.ASYNC;");
+            out(3, "return this;");
+            out(2, "}");
+            nl();
+            out(2, "public " + flowTypeName("T", i) + " await() {");
+            out(3, "type = ExecutionType.AWAIT;");
+            out(3, "return this;");
             out(2, "}");
             nl();
             out(2, "@SuppressWarnings(\"unchecked\")");
@@ -156,20 +169,21 @@ public class SrcGen {
             out(3, "return Flow.of(this);");
             out(2, "}");
             nl();
+            addFlowMethod(i, i, "map", false);
+            nl();
 
             //Flow methods
             for (int k = 1; k <= NUM_PARAMS; k++) { //Outputs
-                addFlowMethod(writer, k, i, "then", "sync");
-                nl();
-                addFlowMethod(writer, k, i, "thenAsync", "async");
-                nl();
-                addFlowMethod(writer, k, i, "thenAwait", "await");
-                writeSeparator(writer, k);
+                if (k == i) {
+                    continue;
+                }
+                addFlowMethod(k, i, "mapTo");
+                writeSeparator(k);
             }
 
             out(1, "}");
 
-            writeSeparator(writer, i);
+            writeSeparator(i);
         }
 
         out(0, "}");
@@ -196,25 +210,32 @@ public class SrcGen {
         writer.println(text);
     }
 
-    private void writeInnerSeparator(PrintWriter writer, int i, int j) {
+    private void writeInnerSeparator(int i, int j) {
         if (j != i) {
             nl();
         }
     }
 
-    private void writeSeparator(PrintWriter writer, int i) {
-        writeInnerSeparator(writer, NUM_PARAMS, i);
+    private void writeSeparator(int i) {
+        writeInnerSeparator(NUM_PARAMS, i);
     }
 
-    private void addFlowMethod(PrintWriter writer, int k, int j, String name, String stepType) {
+    private void addFlowMethod(int k, int j, String name) {
+        addFlowMethod(k, j, name, true);
+    }
+
+    private void addFlowMethod(int k, int j, String inputName, boolean ordered) {
+        String name = inputName + (ordered ? k : "");
+        String methodStart = "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + "(" + functionTypeName(j, k) + " function";
+
         out(2, "@SuppressWarnings(\"unchecked\")");
-        out(2, "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + k + "(" + functionTypeName(j, k) + " function) {");
-        out(3, "return new FlowBuilder" + k + "<>(step(Step." + stepType + "(function.asStepFunction())));");
+        out(2, methodStart + ") {");
+        out(3, "return new FlowBuilder" + k + "<>(step(type, function.asStepFunction(), (t) -> null));");
         out(2, "}");
         nl();
         out(2, "@SuppressWarnings(\"unchecked\")");
-        out(2, "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + k + "(" + functionTypeName(j, k) + " function, " + errorHandlerTypeName(k) + " handler) {");
-        out(3, "return new FlowBuilder" + k + "<>(step(Step." + stepType  + "(function.asStepFunction(), handler)));");
+        out(2, methodStart + ", " + errorHandlerTypeName(k) + " handler) {");
+        out(3, "return new FlowBuilder" + k + "<>(step(type, function.asStepFunction(), handler));");
         out(2, "}");
     }
 
@@ -247,7 +268,7 @@ public class SrcGen {
             out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> empty(" + inputParamList(i) + ") {");
             out(2, "return new Tuple" + i + "<>(" + paramList(i) + ");");
             out(1, "}");
-            writeSeparator(writer, i);
+            writeSeparator(i);
         }
 
         nl();
@@ -271,7 +292,7 @@ public class SrcGen {
                 out(2, "}");
                 out(1, "}");
 
-            writeSeparator(writer, i);
+            writeSeparator(i);
         }
 
         out(0, "}");
@@ -303,9 +324,9 @@ public class SrcGen {
                 out(3, "return (Tuple param) -> apply(" + tupleToParams("T", j) + ");");
                 out(2, "}");
                 out(1, "}");
-                writeSeparator(writer, i);
+                writeSeparator(i);
             }
-            writeSeparator(writer, j);
+            writeSeparator(j);
         }
 
         out(0, "}");
