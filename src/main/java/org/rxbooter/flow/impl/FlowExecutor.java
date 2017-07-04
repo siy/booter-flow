@@ -9,6 +9,7 @@ import org.rxbooter.flow.Tuples.Tuple;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Representation of the @{@link org.rxbooter.flow.Flow} in active state, i.e. when flow is bound to input

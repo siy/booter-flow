@@ -35,6 +35,7 @@ public interface Reactor {
      *          Error handler
      */
     void async(Runnable runnable, EH<Tuple1<Void>> handler);
+
     <O extends Tuple, I extends Tuple> void async(FlowExecutor<O, I> flowExecutor);
 
     /**
