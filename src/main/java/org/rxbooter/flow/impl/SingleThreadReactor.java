@@ -1,12 +1,12 @@
 package org.rxbooter.flow.impl;
 
+import org.rxbooter.flow.Tuples.Tuple;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.rxbooter.flow.Tuples.Tuple;
 
 public class SingleThreadReactor extends AbstractReactor {
     private static final long POLL_INTERVAL = 100;

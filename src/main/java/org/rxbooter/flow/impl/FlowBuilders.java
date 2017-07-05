@@ -9,7 +9,8 @@ import org.rxbooter.flow.Step;
 import java.util.function.Consumer;
 
 import static org.rxbooter.flow.Functions.*;
-import static org.rxbooter.flow.Step.*;
+import static org.rxbooter.flow.Step.EH;
+import static org.rxbooter.flow.Step.TF;
 import static org.rxbooter.flow.Tuples.*;
 
 public final class FlowBuilders {

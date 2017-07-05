@@ -1,5 +1,8 @@
 package org.rxbooter.flow.impl;
 
+import org.rxbooter.flow.ExecutionType;
+import org.rxbooter.flow.Tuples.Tuple;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,15 +10,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
-import org.rxbooter.flow.ExecutionType;
-import org.rxbooter.flow.Flow;
-import org.rxbooter.flow.Reactor;
-import org.rxbooter.flow.Step.EH;
-import org.rxbooter.flow.Tuples;
-import org.rxbooter.flow.Tuples.Tuple;
-import org.rxbooter.flow.Tuples.Tuple1;
 
 public class ThreadPoolReactor extends AbstractReactor {
     private static final long POLL_INTERVAL = 100;

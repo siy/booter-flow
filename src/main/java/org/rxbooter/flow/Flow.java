@@ -1,34 +1,17 @@
 package org.rxbooter.flow;
 
+import org.rxbooter.flow.Step.EH;
+import org.rxbooter.flow.Step.TF;
+import org.rxbooter.flow.Tuples.*;
+import org.rxbooter.flow.impl.FlowBuilders.*;
+import org.rxbooter.flow.impl.FlowExecutor;
+import org.rxbooter.flow.impl.Promise;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.rxbooter.flow.Step.EH;
-import org.rxbooter.flow.Step.TF;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder0;
-import org.rxbooter.flow.impl.FlowExecutor;
-import org.rxbooter.flow.impl.Promise;
-import org.rxbooter.flow.Tuples.Tuple1;
-import org.rxbooter.flow.Tuples.Tuple2;
-import org.rxbooter.flow.Tuples.Tuple3;
-import org.rxbooter.flow.Tuples.Tuple4;
-import org.rxbooter.flow.Tuples.Tuple5;
-import org.rxbooter.flow.Tuples.Tuple6;
-import org.rxbooter.flow.Tuples.Tuple7;
-import org.rxbooter.flow.Tuples.Tuple8;
-import org.rxbooter.flow.Tuples.Tuple9;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder1;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder2;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder3;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder4;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder5;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder6;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder7;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder8;
-import org.rxbooter.flow.impl.FlowBuilders.FlowBuilder9;
-
-import static org.rxbooter.flow.Tuples.Tuple;
+import static org.rxbooter.flow.Tuples.*;
 
 public class Flow<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;

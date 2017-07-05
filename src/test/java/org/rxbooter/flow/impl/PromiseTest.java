@@ -4,8 +4,7 @@ import org.junit.Test;
 import org.rxbooter.flow.FlowException;
 import org.rxbooter.flow.FlowWrappedException;
 
-import static org.junit.Assert.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PromiseTest {
     @Test

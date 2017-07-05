@@ -1,7 +1,6 @@
 package org.rxbooter.flow.impl;
 
 import org.junit.Test;
-import org.rxbooter.flow.impl.ThreadPoolReactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

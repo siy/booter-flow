@@ -1,13 +1,11 @@
 package org.rxbooter.flow.impl;
 
+import org.rxbooter.flow.FlowException;
+import org.rxbooter.flow.FlowWrappedException;
+
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicMarkableReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import org.rxbooter.flow.FlowException;
-import org.rxbooter.flow.FlowWrappedException;
 
 /**
  * Tiny lightweight implementation of Promise pattern.

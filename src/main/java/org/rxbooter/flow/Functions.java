@@ -2,7 +2,7 @@ package org.rxbooter.flow;
 
 // WARNING: Generated file, do not edit, all changes will be lost.
 
-import static org.rxbooter.flow.Step.*;
+import static org.rxbooter.flow.Step.TF;
 import static org.rxbooter.flow.Tuples.*;
 
 public interface Functions {

@@ -1,11 +1,10 @@
 package org.rxbooter.flow;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.assertj.core.api.Assertions.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StepTest {
     // Sync

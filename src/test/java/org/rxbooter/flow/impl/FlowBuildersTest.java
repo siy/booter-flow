@@ -6,8 +6,7 @@ import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple1;
 
-import static org.junit.Assert.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 //TODO: do we need it?
 public class FlowBuildersTest {
