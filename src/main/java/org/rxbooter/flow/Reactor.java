@@ -23,7 +23,9 @@ public interface Reactor {
      * @param runnable
      *          Task to execute
      */
-    void async(Runnable runnable);
+    default void async(Runnable runnable) {
+        submit(Flow.async(Step.from(runnable)).applyTo(null));
+    }
 
     /**
      * Schedule asynchronous execution of task provided as a {@link Runnable}.
@@ -34,9 +36,9 @@ public interface Reactor {
      * @param handler
      *          Error handler
      */
-    void async(Runnable runnable, EH<Tuple1<Void>> handler);
-
-    <O extends Tuple, I extends Tuple> void async(FlowExecutor<O, I> flowExecutor);
+    default void async(Runnable runnable, EH<Tuple1<Void>> handler) {
+        submit(Flow.async(Step.from(runnable), handler).applyTo(null));
+    }
 
     /**
      * Submit task for execution and wait for task completion.
@@ -49,7 +51,9 @@ public interface Reactor {
      * @throws FlowWrappedException if task threw checked (i.e. subclass of @{@link Exception}) exception and original
      * task exception if task threw unchecked exception (i.e. subclass of @{@link RuntimeException}).
      */
-    <T> T await(Supplier<T> supplier);
+    default <T> T await(Supplier<T> supplier) {
+        return submit(Flow.await(Step.from(supplier)).applyTo(null)).await().get();
+    }
 
     /**
      * Submit task for execution and wait for task completion.
@@ -64,9 +68,9 @@ public interface Reactor {
      * @return value returned by supplier
      * @throws FlowException if task threw exception
      */
-    <T> T await(Supplier<T> supplier, EH<Tuple1<T>> handler);
-
-    <O extends Tuple, I extends Tuple> O await(FlowExecutor<O, I> flowExecutor);
+    default <T> T await(Supplier<T> supplier, EH<Tuple1<T>> handler) {
+        return submit(Flow.await(Step.from(supplier), handler).applyTo(null)).await().get();
+    }
 
     /**
      * Execute provided suppliers as independent tasks and wait successful completion of any of them or failute

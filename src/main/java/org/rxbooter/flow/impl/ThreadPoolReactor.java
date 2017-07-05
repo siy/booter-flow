@@ -26,7 +26,7 @@ public class ThreadPoolReactor extends AbstractReactor {
     private final ThreadPool computingPool;
     private final ThreadPool ioPool;
 
-    public ThreadPoolReactor(ThreadPool computingPool, ThreadPool ioPool) {
+    private ThreadPoolReactor(ThreadPool computingPool, ThreadPool ioPool) {
         this.computingPool = computingPool;
         this.ioPool = ioPool;
 

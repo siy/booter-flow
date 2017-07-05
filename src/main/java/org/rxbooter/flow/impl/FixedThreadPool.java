@@ -28,11 +28,15 @@ public class FixedThreadPool implements ThreadPool {
 
     @Override
     public FixedThreadPool start(Runnable target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Passed runnable should not be null.");
+        }
+
         if (!started.compareAndSet(false, true)) {
             throw new IllegalStateException("Thread pool is already started.");
         }
 
-        IntStream.range(0, poolSize).mapToObj(i -> service.submit(target)).collect(Collectors.toList());
+        IntStream.range(0, poolSize).forEach(i -> service.submit(target));
 
         return this;
     }
