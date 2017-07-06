@@ -82,8 +82,8 @@ public class SrcGen {
 
     }
 
-    private void declareReactorMethod(int i, String fucntionName) {
-        out(1, "default <" + typeList("T", i) + "> " + tupleName("T", i) + " " + fucntionName + "(" + inputSupplierList(i) + ") {");
+    private void declareReactorMethod(int i, String functionName) {
+        out(1, "default <" + typeList("T", i) + "> " + tupleName("T", i) + " " + functionName + "(" + inputSupplierList(i) + ") {");
 
         out(2, "return Tuples.of(" + awaitParameters(i) + ");");
         out(1, "}");
@@ -121,7 +121,7 @@ public class SrcGen {
 
         out(1, "/** I1 - holds original input tuple. */");
         out(1, "public static class FlowBuilder0<I1 extends Tuple> {");
-        out(2, "private final FlowBuilder0<I1> prev;");
+        out(2, "protected final FlowBuilder0<I1> prev;");
         out(2, "Step<?, ?> step;");
         nl();
         out(2, "FlowBuilder0(FlowBuilder0<I1> prev) {");
@@ -146,7 +146,6 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            //out(1, "public static class " + flowMainTypeName("T", i) + " extends " + parentBuilderName(i) + " {");
             out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder0<I1> {");
             out(2, "private ExecutionType type = ExecutionType.SYNC;");
             nl();
@@ -161,6 +160,14 @@ public class SrcGen {
             nl();
             out(2, "public " + flowTypeName("T", i) + " await() {");
             out(3, "type = ExecutionType.AWAIT;");
+            out(3, "return this;");
+            out(2, "}");
+            nl();
+            out(2, "@SuppressWarnings({\"rawtypes\", \"unchecked\"})");
+            out(2, "public " + flowTypeName("T", i) + " onError(" + errorHandlerTypeName("T", i) + " handler) {");
+            out(3, "if (prev != null) {");
+            out(4, "prev.step.handler((EH) handler);");
+            out(3, "}");
             out(3, "return this;");
             out(2, "}");
             nl();
@@ -231,11 +238,6 @@ public class SrcGen {
         out(2, "@SuppressWarnings(\"unchecked\")");
         out(2, methodStart + ") {");
         out(3, "return new FlowBuilder" + k + "<>(step(type, function.asStepFunction(), (t) -> null));");
-        out(2, "}");
-        nl();
-        out(2, "@SuppressWarnings(\"unchecked\")");
-        out(2, methodStart + ", " + errorHandlerTypeName(k) + " handler) {");
-        out(3, "return new FlowBuilder" + k + "<>(step(type, function.asStepFunction(), handler));");
         out(2, "}");
     }
 
@@ -336,8 +338,12 @@ public class SrcGen {
         return "FN" + inputs + outputs + typeList(inputs, outputs);
     }
 
+    private static String errorHandlerTypeName(String prefix, int j) {
+        return "EH<Tuple" + j + "<" + typeList(prefix, j) + ">>";
+    }
+
     private static String errorHandlerTypeName(int j) {
-        return "EH<Tuple" + j + "<" + typeList("R", j) + ">>";
+        return errorHandlerTypeName("R", j);
     }
 
     private static String paramList(int count) {

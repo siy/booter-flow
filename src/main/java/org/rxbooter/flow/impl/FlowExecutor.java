@@ -29,15 +29,16 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
      * and shares the same intermediate calculated value as original flow at the moment when all previous steps in the
      * flow are executed.
      *
-     * @return new {@link org.rxbooter.flow.Flow} consisting of single current step.
+     * @return new {@link Flow} consisting of single current step.
      */
     public FlowExecutor<O, ?> forCurrent() {
         if (!canRun()) {
             throw new FlowException("No active executable steps in cursor");
         }
 
-        //TODO: add call to advance()
-        return new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.empty());
+        FlowExecutor<O, Tuple> result = new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.empty());
+        advance();
+        return result;
     }
 
     public Promise<O> promise() {

@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.rxbooter.flow.Tuples.*;
-
 public class Flow<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
 

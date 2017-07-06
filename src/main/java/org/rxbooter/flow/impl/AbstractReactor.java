@@ -20,15 +20,14 @@ public abstract class AbstractReactor implements Reactor {
         Arrays.stream(suppliers)
               .map(s -> Flow.await(Step.from(s)))
               .map(f -> f.applyTo(null, promise))
-              .forEach(f -> submit(f));
+              .forEach(this::submit);
 
-        return promise.awaitSafe().map(t -> t.get());
+        return promise.awaitSafe().map(Tuple1::get);
     }
 
     protected void runAllAsync(FlowExecutor<?, ?> flowExecutor) {
         while (flowExecutor.isAsync()) {
             submit(flowExecutor.forCurrent());
-            flowExecutor.advance();
         }
     }
 }

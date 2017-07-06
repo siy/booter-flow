@@ -34,7 +34,7 @@ public class FixedThreadPoolTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowNullTarged() throws Exception {
+    public void shouldNotAllowNullTarget() throws Exception {
         FixedThreadPool pool = new FixedThreadPool(3, new DaemonThreadFactory("test-"));
 
         pool.start(null);

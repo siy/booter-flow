@@ -73,11 +73,12 @@ public interface Reactor {
     }
 
     /**
-     * Execute provided suppliers as independent tasks and wait successful completion of any of them or failute
+     * Execute provided suppliers as independent tasks and wait successful completion of any of them or failure
      * completion of all of them.
      * Note that failures (exceptions thrown by suppliers) are ignored by this method.
      *
      * @param suppliers
+     *          Suppliers to execute
      * @return @{@link Optional} which holds result of execution - non-null value if at least one call was successful or
      * {@code null} if all of them failed.
      */
