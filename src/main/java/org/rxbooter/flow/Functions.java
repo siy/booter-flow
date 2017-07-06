@@ -1,11 +1,95 @@
 package org.rxbooter.flow;
 
 // WARNING: Generated file, do not edit, all changes will be lost.
+// WARNING: File is updated, do not generate it again!!!
 
-import static org.rxbooter.flow.Step.TF;
+import static org.rxbooter.flow.Step.*;
 import static org.rxbooter.flow.Tuples.*;
 
 public interface Functions {
+
+    //----------------------------------- Condition functions
+    interface CF1<T1> {
+        boolean test(T1 param);
+
+        default CF<Tuple1<T1>> asConditionFunction() {
+            return (Tuple1<T1> param) -> test(param.get());
+        }
+    }
+
+    interface CF2<T1, T2> {
+        boolean test(T1 param1, T2 param2);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple2<T1, T2>> asConditionFunction() {
+            return (Tuple2<T1, T2> param) -> test((T1) param.get(0), (T2) param.get(1));
+        }
+    }
+
+    interface CF3<T1, T2, T3> {
+        boolean test(T1 param1, T2 param2, T3 param3);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple3<T1, T2, T3>> asConditionFunction() {
+            return (Tuple3<T1, T2, T3> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2));
+        }
+    }
+
+    interface CF4<T1, T2, T3, T4> {
+        boolean test(T1 param1, T2 param2, T3 param3, T4 param4);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple4<T1, T2, T3, T4>> asConditionFunction() {
+            return (Tuple4<T1, T2, T3, T4> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2), (T4) param.get(3));
+        }
+    }
+
+    interface CF5<T1, T2, T3, T4, T5> {
+        boolean test(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple5<T1, T2, T3, T4, T5>> asConditionFunction() {
+            return (Tuple5<T1, T2, T3, T4, T5> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2), (T4) param.get(3), (T5) param.get(4));
+        }
+    }
+
+    interface CF6<T1, T2, T3, T4, T5, T6> {
+        boolean test(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple6<T1, T2, T3, T4, T5, T6>> asConditionFunction() {
+            return (Tuple6<T1, T2, T3, T4, T5, T6> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2), (T4) param.get(3), (T5) param.get(4), (T6) param.get(5));
+        }
+    }
+
+    interface CF7<T1, T2, T3, T4, T5, T6, T7> {
+        boolean test(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple7<T1, T2, T3, T4, T5, T6, T7>> asConditionFunction() {
+            return (Tuple7<T1, T2, T3, T4, T5, T6, T7> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2), (T4) param.get(3), (T5) param.get(4), (T6) param.get(5), (T7) param.get(6));
+        }
+    }
+
+    interface CF8<T1, T2, T3, T4, T5, T6, T7, T8> {
+        boolean test(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>> asConditionFunction() {
+            return (Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2), (T4) param.get(3), (T5) param.get(4), (T6) param.get(5), (T7) param.get(6), (T8) param.get(7));
+        }
+    }
+
+    interface CF9<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+        boolean test(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8, T9 param9);
+
+        @SuppressWarnings("unchecked")
+        default CF<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> asConditionFunction() {
+            return (Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> param) -> test((T1) param.get(0), (T2) param.get(1), (T3) param.get(2), (T4) param.get(3), (T5) param.get(4), (T6) param.get(5), (T7) param.get(6), (T8) param.get(7), (T9) param.get(8));
+        }
+    }
+
+    //----------------------------------- Map functions
     interface FN10<R1, T1> {
         R1 apply(T1 param1);
     }

@@ -171,7 +171,6 @@ public class SrcGen {
             out(3, "return this;");
             out(2, "}");
             nl();
-            out(2, "@SuppressWarnings(\"unchecked\")");
             out(2, "public Flow<Tuple" + i + "<" + typeList("T", i) + ">, I1> done() {");
             out(3, "return Flow.of(this);");
             out(2, "}");
@@ -235,7 +234,6 @@ public class SrcGen {
         String name = inputName + (ordered ? k : "");
         String methodStart = "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + "(" + functionTypeName(j, k) + " function";
 
-        out(2, "@SuppressWarnings(\"unchecked\")");
         out(2, methodStart + ") {");
         out(3, "return new FlowBuilder" + k + "<>(step(type, function.asStepFunction(), (t) -> null));");
         out(2, "}");

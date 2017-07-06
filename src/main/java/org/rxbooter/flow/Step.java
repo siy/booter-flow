@@ -43,6 +43,10 @@ public class Step<R1, T1> {
         }
     }
 
+    public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function) {
+        return new Step<>(type, function, (t) -> null);
+    }
+
     public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
         return new Step<>(type, function, errorHandler);
     }
@@ -85,5 +89,9 @@ public class Step<R1, T1> {
 
     public interface EH<R1> {
         R1 handle(Throwable err);
+    }
+
+    public interface CF<T1> {
+        boolean test(T1 param);
     }
 }
