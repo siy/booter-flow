@@ -61,7 +61,12 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilder1<I1 extends Tuple, T1> extends FlowBuilder0<I1> {
+    public interface FlowBuilderBase1<I1 extends Tuple, T1> {
+        <R1> FlowBuilder1<I1, R1> map(FN11<R1, T1> function);
+        FlowBuilderBase1<I1, T1> when(CF1<T1> function);
+    }
+
+    public static class FlowBuilder1<I1 extends Tuple, T1> extends FlowBuilder0<I1> implements FlowBuilderBase1<I1, T1> {
 
         public FlowBuilder1(FlowBuilder0<I1> prev) {
             super(prev);
@@ -87,8 +92,15 @@ public final class FlowBuilders {
             return Flow.of(this);
         }
 
+        @Override
         public <R1> FlowBuilder1<I1, R1> map(FN11<R1, T1> function) {
             return new FlowBuilder1<>(step(function.asStepFunction()));
+        }
+
+        @Override
+        public FlowBuilderBase1<I1, T1> when(CF1<T1> function) {
+            setCondition(function.asConditionFunction());
+            return this;
         }
 
         public <R1, R2> FlowBuilder2<I1, R1, R2> mapTo2(FN12<R1, R2, T1> function) {
