@@ -20,8 +20,8 @@ public class SrcGen {
 
     //Note: might have issues in generated code
     public static void main(String[] args) {
-        new SrcGen("FlowBuilders").generateFlowBuilders();
-        //new SrcGen("Tuples").generateTuples();
+        //new SrcGen("FlowBuilders").generateFlowBuilders();
+        new SrcGen("Tuples").generateTuples();
         //new SrcGen("Functions").generateFunctions();
         //new SrcGen("Flows").generateFlows();
         //new SrcGen("Reactor").generateReactor();
@@ -363,7 +363,7 @@ public class SrcGen {
                 for(int j = 1; j <= i; j++) { //Getters
                     out(2, "@SuppressWarnings(\"unchecked\")");
                     out(2, "public T" + j + " get" + j + "() {");
-                    out(3, "return (T" + j + ") get(" + j+ ");");
+                    out(3, "return (T" + j + ") get(" + (j - 1) + ");");
                     out(2, "}");
                     writeInnerSeparator(j, i);
                 }

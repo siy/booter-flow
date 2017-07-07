@@ -68,7 +68,7 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
     }
 
@@ -79,12 +79,12 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
     }
 
@@ -95,17 +95,17 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
     }
 
@@ -116,22 +116,22 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
 
         @SuppressWarnings("unchecked")
         public T4 get4() {
-            return (T4) get(4);
+            return (T4) get(3);
         }
     }
 
@@ -142,27 +142,27 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
 
         @SuppressWarnings("unchecked")
         public T4 get4() {
-            return (T4) get(4);
+            return (T4) get(3);
         }
 
         @SuppressWarnings("unchecked")
         public T5 get5() {
-            return (T5) get(5);
+            return (T5) get(4);
         }
     }
 
@@ -173,32 +173,32 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
 
         @SuppressWarnings("unchecked")
         public T4 get4() {
-            return (T4) get(4);
+            return (T4) get(3);
         }
 
         @SuppressWarnings("unchecked")
         public T5 get5() {
-            return (T5) get(5);
+            return (T5) get(4);
         }
 
         @SuppressWarnings("unchecked")
         public T6 get6() {
-            return (T6) get(6);
+            return (T6) get(5);
         }
     }
 
@@ -209,37 +209,37 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
 
         @SuppressWarnings("unchecked")
         public T4 get4() {
-            return (T4) get(4);
+            return (T4) get(3);
         }
 
         @SuppressWarnings("unchecked")
         public T5 get5() {
-            return (T5) get(5);
+            return (T5) get(4);
         }
 
         @SuppressWarnings("unchecked")
         public T6 get6() {
-            return (T6) get(6);
+            return (T6) get(5);
         }
 
         @SuppressWarnings("unchecked")
         public T7 get7() {
-            return (T7) get(7);
+            return (T7) get(6);
         }
     }
 
@@ -250,42 +250,42 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
 
         @SuppressWarnings("unchecked")
         public T4 get4() {
-            return (T4) get(4);
+            return (T4) get(3);
         }
 
         @SuppressWarnings("unchecked")
         public T5 get5() {
-            return (T5) get(5);
+            return (T5) get(4);
         }
 
         @SuppressWarnings("unchecked")
         public T6 get6() {
-            return (T6) get(6);
+            return (T6) get(5);
         }
 
         @SuppressWarnings("unchecked")
         public T7 get7() {
-            return (T7) get(7);
+            return (T7) get(6);
         }
 
         @SuppressWarnings("unchecked")
         public T8 get8() {
-            return (T8) get(8);
+            return (T8) get(7);
         }
     }
 
@@ -296,47 +296,47 @@ public final class Tuples {
 
         @SuppressWarnings("unchecked")
         public T1 get1() {
-            return (T1) get(1);
+            return (T1) get(0);
         }
 
         @SuppressWarnings("unchecked")
         public T2 get2() {
-            return (T2) get(2);
+            return (T2) get(1);
         }
 
         @SuppressWarnings("unchecked")
         public T3 get3() {
-            return (T3) get(3);
+            return (T3) get(2);
         }
 
         @SuppressWarnings("unchecked")
         public T4 get4() {
-            return (T4) get(4);
+            return (T4) get(3);
         }
 
         @SuppressWarnings("unchecked")
         public T5 get5() {
-            return (T5) get(5);
+            return (T5) get(4);
         }
 
         @SuppressWarnings("unchecked")
         public T6 get6() {
-            return (T6) get(6);
+            return (T6) get(5);
         }
 
         @SuppressWarnings("unchecked")
         public T7 get7() {
-            return (T7) get(7);
+            return (T7) get(6);
         }
 
         @SuppressWarnings("unchecked")
         public T8 get8() {
-            return (T8) get(8);
+            return (T8) get(7);
         }
 
         @SuppressWarnings("unchecked")
         public T9 get9() {
-            return (T9) get(9);
+            return (T9) get(8);
         }
     }
 }

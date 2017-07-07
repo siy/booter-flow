@@ -9,12 +9,15 @@ public class Step<R1, T1> {
     private final ExecutionType type;
     private final TF<R1, T1> function;
 
-    private EH<R1> handler;
+    private EH<R1> handler = (t) -> null;
 
     private Step(ExecutionType type, TF<R1, T1> function, EH<R1> handler) {
         this.type = type;
         this.function = function;
-        this.handler = handler == null ? this.handler : (t) -> null;
+
+        if (handler != null) {
+            this.handler = handler;
+        }
     }
 
     public EH<R1> handler() {
