@@ -167,7 +167,12 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder0<I1> {");
+            out(1, "public interface " + flowFullBaseTypeName("T", i) + " {");
+            addFlowMethodDeclaration(i, i, "map");
+            addFlowConditionalMethodDeclaration(i, "when");
+            out(1, "}");
+            nl();
+            out(1, "public static class " + flowMainTypeName("T", i) + " extends FlowBuilder0<I1> implements " + flowBaseTypeName("T", i) + " {");
             nl();
             out(2, "public FlowBuilder" + i + "(FlowBuilder0<I1> prev) {");
             out(3, "super(prev);");
@@ -193,7 +198,11 @@ public class SrcGen {
             out(3, "return Flow.of(this);");
             out(2, "}");
             nl();
+            out(2, "@Override");
             addFlowMethod(i, i, "map", false);
+            nl();
+            out(2, "@Override");
+            addFlowConditionalMethod(i, "when");
             nl();
 
             //Flow methods
@@ -248,6 +257,23 @@ public class SrcGen {
         addFlowMethod(k, j, name, true);
     }
 
+    private void addFlowConditionalMethodDeclaration(int k, String name) {
+        out(2, flowBaseTypeName("T", k) + " " + name + "(" + conditionFunctionTypeName(k) + " condition);");
+    }
+
+    private void addFlowConditionalMethod(int k, String name) {
+        String methodStart = "public " + flowBaseTypeName("T", k) + " " + name + "(" + conditionFunctionTypeName(k) + " condition";
+
+        out(2, methodStart + ") {");
+        out(3, "setCondition(condition.asConditionFunction());");
+        out(3, "return this;");
+        out(2, "}");
+    }
+
+    private void addFlowMethodDeclaration(int k, int j, String name) {
+        out(2, "<" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + "(" + functionTypeName(j, k) + " function);");
+    }
+
     private void addFlowMethod(int k, int j, String inputName, boolean ordered) {
         String name = inputName + (ordered ? k : "");
         String methodStart = "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + "(" + functionTypeName(j, k) + " function";
@@ -263,6 +289,14 @@ public class SrcGen {
 
     private String flowTypeName(String prefix, int i) {
         return "FlowBuilder" + i + "<" + "I1, " + typeList(prefix, i) + ">";
+    }
+
+    private String flowBaseTypeName(String prefix, int i) {
+        return "FlowBuilderBase" + i + "<" + "I1, " + typeList(prefix, i) + ">";
+    }
+
+    private String flowFullBaseTypeName(String prefix, int i) {
+        return "FlowBuilderBase" + i + "<" + "I1 extends Tuple, " + typeList(prefix, i) + ">";
     }
 
     private void generateTuples(String name) {
@@ -376,6 +410,10 @@ public class SrcGen {
 
     private static String functionTypeName(int inputs, int outputs) {
         return "FN" + inputs + outputs + typeList(inputs, outputs);
+    }
+
+    private static String conditionFunctionTypeName(int inputs) {
+        return "CF" + inputs + "<" + typeList("T", inputs) + ">";
     }
 
     private static String errorHandlerTypeName(String prefix, int j) {

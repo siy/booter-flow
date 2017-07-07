@@ -9,20 +9,20 @@ public class Step<R1, T1> {
     private final ExecutionType type;
     private final TF<R1, T1> function;
 
-    private EH<R1> handler = (t) -> null;
+    private EH<R1> handler;
 
     private Step(ExecutionType type, TF<R1, T1> function, EH<R1> handler) {
         this.type = type;
         this.function = function;
-        this.handler = handler == null ? this.handler : handler;
+        this.handler = handler == null ? this.handler : (t) -> null;
     }
 
     public EH<R1> handler() {
         return handler;
     }
 
-    public Step handler(EH<R1> errorHandler) {
-        this.handler = errorHandler;
+    public Step handler(EH<R1> handler) {
+        this.handler = handler;
         return this;
     }
 
@@ -47,9 +47,9 @@ public class Step<R1, T1> {
         return new Step<>(type, function, (t) -> null);
     }
 
-    public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
-        return new Step<>(type, function, errorHandler);
-    }
+//    public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
+//        return new Step<>(type, function, errorHandler);
+//    }
 
     public static<R, T> Step<R, T> sync(TF<R, T> function) {
         return new Step<>(ExecutionType.SYNC, function, null);
