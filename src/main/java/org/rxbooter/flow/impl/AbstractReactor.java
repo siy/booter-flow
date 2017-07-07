@@ -22,7 +22,7 @@ public abstract class AbstractReactor implements Reactor {
               .map(f -> f.applyTo(null, promise))
               .forEach(this::submit);
 
-        return promise.awaitSafe().map(Tuple1::get);
+        return promise.awaitSafe().map(Tuple1::get1);
     }
 
     protected void runAllAsync(FlowExecutor<?, ?> flowExecutor) {

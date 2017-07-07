@@ -17,7 +17,7 @@ public class FlowBuildersTest {
                                                         .map((s, l) -> Tuples.of(s.toLowerCase(), l * 2))
                                                         .mapTo1((s, l) -> Tuples.of(s + " - " + l))
                                                         .done();
-        String result = flow.applyTo(Tuples.of("AbCdEf")).in(Reactor.pooled()).await().get();
+        String result = flow.applyTo(Tuples.of("AbCdEf")).in(Reactor.pooled()).await().get1();
         assertThat(result).isEqualTo("abcdef - 12");
     }
 }

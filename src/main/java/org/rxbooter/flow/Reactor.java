@@ -52,7 +52,7 @@ public interface Reactor {
      * task exception if task threw unchecked exception (i.e. subclass of @{@link RuntimeException}).
      */
     default <T> T await(Supplier<T> supplier) {
-        return submit(Flow.await(Step.from(supplier)).applyTo(null)).await().get();
+        return submit(Flow.await(Step.from(supplier)).applyTo(null)).await().get1();
     }
 
     /**
@@ -69,7 +69,7 @@ public interface Reactor {
      * @throws FlowException if task threw exception
      */
     default <T> T await(Supplier<T> supplier, EH<Tuple1<T>> handler) {
-        return submit(Flow.await(Step.from(supplier), handler).applyTo(null)).await().get();
+        return submit(Flow.await(Step.from(supplier), handler).applyTo(null)).await().get1();
     }
 
     /**

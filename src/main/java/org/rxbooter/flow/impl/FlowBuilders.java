@@ -15,10 +15,9 @@ import static org.rxbooter.flow.Tuples.*;
 public final class FlowBuilders {
     private FlowBuilders() {}
 
-    /** I1 - holds original input tuple. */
+    /** The type {@code I1} holds original input tuple. */
     public static class FlowBuilder0<I1 extends Tuple> {
         protected final FlowBuilder0<I1> prev;
-
         private ExecutionType type = ExecutionType.SYNC;
         protected Step<?, ?> step;
         private CF<?> condition;
@@ -62,58 +61,30 @@ public final class FlowBuilders {
         }
     }
 
-    public static class FlowBuilderBase1<I1 extends Tuple, T1> extends FlowBuilder0<I1> {
-        public FlowBuilderBase1(FlowBuilder0<I1> prev) {
-            super(prev);
-        }
+    public static class FlowBuilder1<I1 extends Tuple, T1> extends FlowBuilder0<I1> {
 
-        public FlowBuilderBase1<I1, T1> async() {
-            setAsync();
-            return this;
-        }
-
-        public FlowBuilderBase1<I1, T1> await() {
-            setAwait();
-            return this;
-        }
-
-        public FlowBuilderBase1<I1, T1> onError(EH<Tuple1<T1>> handler) {
-            setOnError(handler);
-            return this;
-        }
-
-        public <R1> FlowBuilder1<I1, R1> map(FN11<R1, T1> function) {
-            return new FlowBuilder1<>(step(function.asStepFunction()));
-        }
-
-        public Flow<Tuple1<T1>, I1> done() {
-            return Flow.of(this);
-        }
-    }
-
-    public static class FlowBuilder1<I1 extends Tuple, T1> extends FlowBuilderBase1<I1, T1> {
         public FlowBuilder1(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder1<I1, T1> async() {
-            super.async();
+            setAsync();
             return this;
         }
 
         public FlowBuilder1<I1, T1> await() {
-            super.await();
+            setAwait();
             return this;
         }
 
+        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder1<I1, T1> onError(EH<Tuple1<T1>> handler) {
             setOnError(handler);
             return this;
         }
 
-        public FlowBuilder1<I1, T1> when(CF1<T1> tester) {
-            setCondition(tester.asConditionFunction());
-            return this;
+        public Flow<Tuple1<T1>, I1> done() {
+            return Flow.of(this);
         }
 
         public <R1> FlowBuilder1<I1, R1> map(FN11<R1, T1> function) {
@@ -154,27 +125,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder2<I1 extends Tuple, T1, T2> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder2(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder2<I1, T1, T2> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder2<I1, T1, T2> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder2<I1, T1, T2> onError(EH<Tuple2<T1, T2>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -220,27 +188,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder3<I1 extends Tuple, T1, T2, T3> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder3(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder3<I1, T1, T2, T3> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder3<I1, T1, T2, T3> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder3<I1, T1, T2, T3> onError(EH<Tuple3<T1, T2, T3>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -286,27 +251,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder4<I1 extends Tuple, T1, T2, T3, T4> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder4(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder4<I1, T1, T2, T3, T4> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder4<I1, T1, T2, T3, T4> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder4<I1, T1, T2, T3, T4> onError(EH<Tuple4<T1, T2, T3, T4>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -352,27 +314,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder5<I1 extends Tuple, T1, T2, T3, T4, T5> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder5(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder5<I1, T1, T2, T3, T4, T5> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder5<I1, T1, T2, T3, T4, T5> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder5<I1, T1, T2, T3, T4, T5> onError(EH<Tuple5<T1, T2, T3, T4, T5>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -418,27 +377,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder6<I1 extends Tuple, T1, T2, T3, T4, T5, T6> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder6(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder6<I1, T1, T2, T3, T4, T5, T6> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder6<I1, T1, T2, T3, T4, T5, T6> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder6<I1, T1, T2, T3, T4, T5, T6> onError(EH<Tuple6<T1, T2, T3, T4, T5, T6>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -484,27 +440,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder7<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder7(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder7<I1, T1, T2, T3, T4, T5, T6, T7> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder7<I1, T1, T2, T3, T4, T5, T6, T7> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder7<I1, T1, T2, T3, T4, T5, T6, T7> onError(EH<Tuple7<T1, T2, T3, T4, T5, T6, T7>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -550,27 +503,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder8<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder8(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder8<I1, T1, T2, T3, T4, T5, T6, T7, T8> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder8<I1, T1, T2, T3, T4, T5, T6, T7, T8> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder8<I1, T1, T2, T3, T4, T5, T6, T7, T8> onError(EH<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
@@ -616,27 +566,24 @@ public final class FlowBuilders {
     }
 
     public static class FlowBuilder9<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends FlowBuilder0<I1> {
-        private ExecutionType type = ExecutionType.SYNC;
 
         public FlowBuilder9(FlowBuilder0<I1> prev) {
             super(prev);
         }
 
         public FlowBuilder9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9> async() {
-            type = ExecutionType.ASYNC;
+            setAsync();
             return this;
         }
 
         public FlowBuilder9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9> await() {
-            type = ExecutionType.AWAIT;
+            setAwait();
             return this;
         }
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9> onError(EH<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> handler) {
-            if (prev != null) {
-                prev.step.handler((EH) handler);
-            }
+            setOnError(handler);
             return this;
         }
 
