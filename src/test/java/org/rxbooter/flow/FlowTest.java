@@ -11,8 +11,6 @@ import static org.rxbooter.flow.Tuples.of;
 
 //TODO: finish it
 public class FlowTest {
-    private String field = "";
-
     @Test
     public void shouldCompileAndRunSimpleFlow() throws Exception {
         Flow<Tuple1<String>, Tuple1<String>> flow = take(new Type<String>(){})

@@ -82,7 +82,8 @@ public interface Reactor {
      * @return @{@link Optional} which holds result of execution - non-null value if at least one call was successful or
      * {@code null} if all of them failed.
      */
-    <T> Optional<T> awaitAny(Supplier<T>... suppliers);
+    @SuppressWarnings({ "unchecked"})
+	<T> Optional<T> awaitAny(Supplier<T>... suppliers);
 
     <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
 

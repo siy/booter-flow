@@ -21,10 +21,10 @@ public class SrcGen {
     //Note: might have issues in generated code
     public static void main(String[] args) {
         new SrcGen("FlowBuilders").generateFlowBuilders();
-        //new SrcGen("Tuples").generateTuples();
-        //new SrcGen("Functions").generateFunctions();
+        new SrcGen("Tuples").generateTuples();
+        new SrcGen("Functions").generateFunctions();
         //new SrcGen("Flows").generateFlows();
-        //new SrcGen("Reactor").generateReactor();
+        new SrcGen("Reactor").generateReactor();
     }
 
     public interface Generator {
@@ -223,18 +223,8 @@ public class SrcGen {
         out(0, "}");
     }
 
-    private String parentBuilderName(int i) {
-        String baseTypeList = typeList("T", i - 1);
-        String typeList = !baseTypeList.isEmpty() ? ", " + baseTypeList : baseTypeList;
-        return "FlowBuilder" + (i - 1) + "<I1" + typeList + ">";
-    }
-
     private void nl() {
         writer.println();
-    }
-
-    private void out(String text) {
-        writer.println(text);
     }
 
     private void out(int n, String text) {
@@ -421,10 +411,6 @@ public class SrcGen {
         return "EH<Tuple" + j + "<" + typeList(prefix, j) + ">>";
     }
 
-    private static String errorHandlerTypeName(int j) {
-        return errorHandlerTypeName("R", j);
-    }
-
     private static String paramList(int count) {
         StringBuilder builder = new StringBuilder();
 
@@ -469,17 +455,6 @@ public class SrcGen {
         return builder.toString();
     }
 
-    private static String inputClassParamList(int count) {
-        StringBuilder builder = new StringBuilder();
-
-        for (int i = 1; i <= count; i++) {
-            builder.append("Class<T").append(i).append("> ").append("param").append(i).append(SEPARATOR);
-        }
-
-        builder.setLength(builder.length() - SEPARATOR.length());
-        return builder.toString();
-    }
-
     private static String tupleName(String prefix, int j) {
         return "Tuple" + j + "<" + typeList(prefix, j) + ">";
     }
@@ -492,7 +467,7 @@ public class SrcGen {
         if (count < 1) {
             return "";
         }
-        
+
         StringBuilder builder = new StringBuilder();
 
         for (int i = 1; i <= count; i++) {

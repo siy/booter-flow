@@ -13,7 +13,8 @@ import java.util.function.Supplier;
  * Base class for @{@link Reactor} implementations.
  */
 public abstract class AbstractReactor implements Reactor {
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public final <T> Optional<T> awaitAny(Supplier<T>... suppliers) {
         Promise<Tuple1<T>> promise = Promise.waifFor(suppliers.length);
 

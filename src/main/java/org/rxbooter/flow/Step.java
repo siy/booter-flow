@@ -21,7 +21,7 @@ public class Step<R1, T1> {
         return handler;
     }
 
-    public Step handler(EH<R1> handler) {
+    public Step<R1, T1> handler(EH<R1> handler) {
         this.handler = handler;
         return this;
     }

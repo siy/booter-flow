@@ -16,7 +16,6 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
 
     private int index = 0;
     private Tuple intermediate;
-    private Throwable error = null;
 
     public FlowExecutor(List<Step<?, ?>> steps, I input, Promise<O> promise) {
         this.steps = steps;
@@ -81,7 +80,6 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
             promise.notifyError(t);
         }
 
-        //TODO: add call to advance()
         return advance();
     }
 
