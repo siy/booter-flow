@@ -7,6 +7,81 @@ import static org.rxbooter.flow.Tuples.*;
 
 public interface Functions {
 
+    //----------------------------------- Acceptor functions
+
+    interface AF1<T1> {
+        void accept(T1 param1);
+
+        default AF<Tuple1<T1>> asAcceptorFunction() {
+            return (Tuple1<T1> param) -> accept(param.get1());
+        }
+    }
+
+    interface AF2<T1, T2> {
+        void accept(T1 param1, T2 param2);
+
+        default AF<Tuple2<T1, T2>> asAcceptorFunction() {
+            return (Tuple2<T1, T2> param) -> accept(param.get1(), param.get2());
+        }
+    }
+
+    interface AF3<T1, T2, T3> {
+        void accept(T1 param1, T2 param2, T3 param3);
+
+        default AF<Tuple3<T1, T2, T3>> asAcceptorFunction() {
+            return (Tuple3<T1, T2, T3> param) -> accept(param.get1(), param.get2(), param.get3());
+        }
+    }
+
+    interface AF4<T1, T2, T3, T4> {
+        void accept(T1 param1, T2 param2, T3 param3, T4 param4);
+
+        default AF<Tuple4<T1, T2, T3, T4>> asAcceptorFunction() {
+            return (Tuple4<T1, T2, T3, T4> param) -> accept(param.get1(), param.get2(), param.get3(), param.get4());
+        }
+    }
+
+    interface AF5<T1, T2, T3, T4, T5> {
+        void accept(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5);
+
+        default AF<Tuple5<T1, T2, T3, T4, T5>> asAcceptorFunction() {
+            return (Tuple5<T1, T2, T3, T4, T5> param) -> accept(param.get1(), param.get2(), param.get3(), param.get4(), param.get5());
+        }
+    }
+
+    interface AF6<T1, T2, T3, T4, T5, T6> {
+        void accept(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6);
+
+        default AF<Tuple6<T1, T2, T3, T4, T5, T6>> asAcceptorFunction() {
+            return (Tuple6<T1, T2, T3, T4, T5, T6> param) -> accept(param.get1(), param.get2(), param.get3(), param.get4(), param.get5(), param.get6());
+        }
+    }
+
+    interface AF7<T1, T2, T3, T4, T5, T6, T7> {
+        void accept(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7);
+
+        default AF<Tuple7<T1, T2, T3, T4, T5, T6, T7>> asAcceptorFunction() {
+            return (Tuple7<T1, T2, T3, T4, T5, T6, T7> param) -> accept(param.get1(), param.get2(), param.get3(), param.get4(), param.get5(), param.get6(), param.get7());
+        }
+    }
+
+    interface AF8<T1, T2, T3, T4, T5, T6, T7, T8> {
+        void accept(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8);
+
+        default AF<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>> asAcceptorFunction() {
+            return (Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> param) -> accept(param.get1(), param.get2(), param.get3(), param.get4(), param.get5(), param.get6(), param.get7(), param.get8());
+        }
+    }
+
+    interface AF9<T1, T2, T3, T4, T5, T6, T7, T8, T9> {
+        void accept(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7, T8 param8, T9 param9);
+
+        default AF<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> asAcceptorFunction() {
+            return (Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> param) -> accept(param.get1(), param.get2(), param.get3(), param.get4(), param.get5(), param.get6(), param.get7(), param.get8(), param.get9());
+        }
+    }
+
+
     //----------------------------------- Condition functions
 
     interface CF1<T1> {

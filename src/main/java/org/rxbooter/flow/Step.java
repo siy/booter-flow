@@ -94,4 +94,8 @@ public class Step<R1, T1> {
     public interface CF<T1> {
         boolean test(T1 param);
     }
+
+    public interface AF<T1> {
+        void accept(T1 param);
+    }
 }
