@@ -20,7 +20,8 @@ public final class FlowBuilders {
         protected final FlowBuilder0<I1> prev;
         private ExecutionType type = ExecutionType.SYNC;
         protected Step<?, ?> step;
-        private CF<?> condition;
+        @SuppressWarnings("rawtypes")
+        private CF condition;
 
         FlowBuilder0(FlowBuilder0<I1> prev) {
             this.prev = prev;
@@ -48,8 +49,9 @@ public final class FlowBuilders {
             }
         }
 
+        @SuppressWarnings("unchecked")
         protected<R, T> FlowBuilder0<I1> step(TF<R, T> function) {
-            this.step = Step.of(type, function);
+            this.step = condition != null ? Step.of(type, (input) -> condition.test(input) ? function.apply((T) input) : input) : Step.of(type, function);
             return this;
         }
 
@@ -82,7 +84,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder1<I1, T1> onError(EH<Tuple1<T1>> handler) {
             setOnError(handler);
             return this;
@@ -157,7 +158,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder2<I1, T1, T2> onError(EH<Tuple2<T1, T2>> handler) {
             setOnError(handler);
             return this;
@@ -232,7 +232,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder3<I1, T1, T2, T3> onError(EH<Tuple3<T1, T2, T3>> handler) {
             setOnError(handler);
             return this;
@@ -307,7 +306,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder4<I1, T1, T2, T3, T4> onError(EH<Tuple4<T1, T2, T3, T4>> handler) {
             setOnError(handler);
             return this;
@@ -382,7 +380,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder5<I1, T1, T2, T3, T4, T5> onError(EH<Tuple5<T1, T2, T3, T4, T5>> handler) {
             setOnError(handler);
             return this;
@@ -457,7 +454,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder6<I1, T1, T2, T3, T4, T5, T6> onError(EH<Tuple6<T1, T2, T3, T4, T5, T6>> handler) {
             setOnError(handler);
             return this;
@@ -532,7 +528,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder7<I1, T1, T2, T3, T4, T5, T6, T7> onError(EH<Tuple7<T1, T2, T3, T4, T5, T6, T7>> handler) {
             setOnError(handler);
             return this;
@@ -607,7 +602,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder8<I1, T1, T2, T3, T4, T5, T6, T7, T8> onError(EH<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>> handler) {
             setOnError(handler);
             return this;
@@ -682,7 +676,6 @@ public final class FlowBuilders {
             return this;
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
         public FlowBuilder9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9> onError(EH<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>> handler) {
             setOnError(handler);
             return this;

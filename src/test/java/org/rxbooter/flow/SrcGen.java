@@ -124,7 +124,8 @@ public class SrcGen {
         out(2, "protected final FlowBuilder0<I1> prev;");
         out(2, "private ExecutionType type = ExecutionType.SYNC;");
         out(2, "protected Step<?, ?> step;");
-        out(2, "private CF<?> condition;");
+        out(2, "@SuppressWarnings(\"rawtypes\")");
+        out(2, "private CF condition;");
         nl();
         out(2, "FlowBuilder0(FlowBuilder0<I1> prev) {");
         out(3, "this.prev = prev;");
@@ -152,8 +153,9 @@ public class SrcGen {
         out(3, "}");
         out(2, "}");
         nl();
+        out(2, "@SuppressWarnings(\"unchecked\")");
         out(2, "protected<R, T> FlowBuilder0<I1> step(TF<R, T> function) {");
-        out(3, "this.step = Step.of(type, function);");
+        out(3, "this.step = condition != null ? Step.of(type, (input) -> condition.test(input) ? function.apply((T) input) : input) : Step.of(type, function);");
         out(3, "return this;");
         out(2, "}");
         nl();
@@ -188,7 +190,6 @@ public class SrcGen {
             out(3, "return this;");
             out(2, "}");
             nl();
-            out(2, "@SuppressWarnings({\"rawtypes\", \"unchecked\"})");
             out(2, "public " + flowTypeName("T", i) + " onError(" + errorHandlerTypeName("T", i) + " handler) {");
             out(3, "setOnError(handler);");
             out(3, "return this;");
