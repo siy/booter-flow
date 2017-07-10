@@ -30,20 +30,28 @@ public class SingleThreadReactor extends AbstractReactor {
 
     @Override
     public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
-        input.add(flowExecutor);
+        if (shutdown.get()) {
+            throw new IllegalStateException("Reactor is shutdown()");
+        }
+
+        if(flowExecutor.isReady()) {
+            return flowExecutor.promise();
+        }
+
+        if(!flowExecutor.canRun()) {
+            return flowExecutor.promise();
+        }
+
+        input.offer(flowExecutor);  // unbound queue, always succeed
         return flowExecutor.promise();
     }
 
     private void stepper() {
         while (!shutdown.get()) {
-            try {
-                FlowExecutor<?, ?> flowExecutor = pollQueue(input);
+            FlowExecutor<?, ?> flowExecutor = pollQueue(input);
 
-                if (flowExecutor != null) {
-                    runSingle(flowExecutor);
-                }
-            } catch (Throwable t) {
-                //TODO: log issue somehow? flows should not leak exceptions, but this need to be verified
+            if (flowExecutor != null) {
+                runSingle(flowExecutor);
             }
         }
     }

@@ -3,6 +3,7 @@ package org.rxbooter.flow.impl;
 import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step;
+import org.rxbooter.flow.Step.TF;
 import org.rxbooter.flow.Tuples.Tuple1;
 
 import java.util.Arrays;
@@ -14,16 +15,16 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractReactor implements Reactor {
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public final <T> Optional<T> awaitAny(Supplier<T>... suppliers) {
         Promise<Tuple1<T>> promise = Promise.waifFor(suppliers.length);
 
         Arrays.stream(suppliers)
-              .map(s -> Flow.await(Step.from(s)))
+              .map(s -> Flow.of(Step.await(TF.from(s))))
               .map(f -> f.applyTo(null, promise))
               .forEach(this::submit);
 
-        return promise.awaitSafe().map(Tuple1::get1);
+        return promise.safeAwait().map(Tuple1::get1);
     }
 
     protected void runAllAsync(FlowExecutor<?, ?> flowExecutor) {

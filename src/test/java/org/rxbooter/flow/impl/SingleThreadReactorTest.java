@@ -1,6 +1,253 @@
 package org.rxbooter.flow.impl;
 
-//TODO: finish it
-public class SingleThreadReactorTest {
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.Ignore;
+import org.junit.Test;
+import org.rxbooter.flow.Reactor;
+import org.rxbooter.flow.Tuples;
+import static org.rxbooter.flow.Tuples.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class SingleThreadReactorTest {
+    private Reactor reactor() {
+        return new SingleThreadReactor();
+    }
+
+    @Test
+    public void shouldHandleSlowSupplier() throws Exception {
+        Long value = reactor().await(this::slowMethod1);
+        assertThat(value).isEqualTo(42L);
+    }
+
+    //TODO: fix it
+    @Test
+    @Ignore
+    public void shouldRunAsyncTask() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        Promise<Tuple1<Void>> promise = reactor().async(() -> latch.countDown());
+        promise.await();
+        assertThat(latch.getCount()).isEqualTo(0);
+    }
+
+    //TODO: fix it
+    @Test
+    @Ignore
+    public void shouldInterceptExceptionInAsyncTask() throws Exception {
+        AtomicReference<Throwable> reference = new AtomicReference<>();
+        Promise<Tuple1<Void>> promise = reactor().async(() -> {throw new RuntimeException();}, (t) -> {reference.set(t); return Tuples.of(null);});
+        promise.safeAwait();
+        assertThat(promise.isReady()).isTrue();
+        assertThat(reference.get()).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    public void shouldWaitForAwaitTask() throws Exception {
+        String result = reactor().await(() -> "abc");
+        assertThat(result).isEqualTo("abc");
+    }
+
+    @Test
+    public void shouldInterceptExceptionForAwaitTask() throws Exception {
+        String result = reactor().await(() -> {throw new RuntimeException();}, (t) -> Tuples.of("bca"));
+        assertThat(result).isEqualTo("bca");
+    }
+
+    @Test
+    public void shouldWaitForAllTasks1() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple1<Long> result = reactor().awaitAll(() -> slowMethod1());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        System.out.println("Time 1: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks2() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple2<Long, Long> result = reactor().awaitAll(() -> slowMethod1(), () -> slowMethod2());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        System.out.println("Time 2: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks3() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple3<Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        System.out.println("Time 3: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks4() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple4<Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        assertThat(result.get4()).isEqualTo(24L);
+        System.out.println("Time 4: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks5() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple5<Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        assertThat(result.get4()).isEqualTo(24L);
+        assertThat(result.get5()).isEqualTo(42L);
+        System.out.println("Time 5: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks6() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple6<Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        assertThat(result.get4()).isEqualTo(24L);
+        assertThat(result.get5()).isEqualTo(42L);
+        assertThat(result.get6()).isEqualTo(24L);
+        System.out.println("Time 6: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks7() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple7<Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        assertThat(result.get4()).isEqualTo(24L);
+        assertThat(result.get5()).isEqualTo(42L);
+        assertThat(result.get6()).isEqualTo(24L);
+        assertThat(result.get7()).isEqualTo(42L);
+        System.out.println("Time 7: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks8() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple8<Long, Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        assertThat(result.get4()).isEqualTo(24L);
+        assertThat(result.get5()).isEqualTo(42L);
+        assertThat(result.get6()).isEqualTo(24L);
+        assertThat(result.get7()).isEqualTo(42L);
+        assertThat(result.get8()).isEqualTo(24L);
+        System.out.println("Time 8: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAllTasks9() throws Exception {
+        long start = System.currentTimeMillis();
+        Tuple9<Long, Long, Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1(),
+            () -> slowMethod2(),
+            () -> slowMethod1());
+
+        assertThat(result.get1()).isEqualTo(42L);
+        assertThat(result.get2()).isEqualTo(24L);
+        assertThat(result.get3()).isEqualTo(42L);
+        assertThat(result.get4()).isEqualTo(24L);
+        assertThat(result.get5()).isEqualTo(42L);
+        assertThat(result.get6()).isEqualTo(24L);
+        assertThat(result.get7()).isEqualTo(42L);
+        assertThat(result.get8()).isEqualTo(24L);
+        assertThat(result.get9()).isEqualTo(42L);
+        System.out.println("Time 9: " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void shouldWaitForAnyTask() throws Exception {
+        // Single thread executor runs tasks sequentially, so it will wait for slowMethod1, although slowMethod2 has shorter delay
+        Optional<Long> result = reactor().awaitAny(() -> slowMethod1(), () -> slowMethod2());
+
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(42L);
+    }
+
+    @Test
+    public void shouldStartAndShutdownNewReactor() throws Exception {
+        Reactor reactor = Reactor.pooled(ThreadPool.fixedComputing(2), ThreadPool.fixedIo(5));
+
+        String result = reactor.await(() -> "12345");
+        assertThat(result).isEqualTo("12345");
+        reactor.shutdown();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldNotAcceptNewTasksAfterShutdown() throws Exception {
+        Reactor reactor = Reactor.pooled(ThreadPool.fixedComputing(2), ThreadPool.fixedIo(5));
+        reactor.shutdown();
+        reactor.await(() -> "12345");
+    }
+
+    private long slowMethod1() {
+        sleep(30);
+        return 42L;
+    }
+
+    private long slowMethod2() {
+        sleep(15);
+        return 24L;
+    }
+
+    private static void sleep(long delay) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            //Ignore
+        }
+    }
 }

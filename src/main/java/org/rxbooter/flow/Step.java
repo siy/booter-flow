@@ -50,10 +50,6 @@ public class Step<R1, T1> {
         return new Step<>(type, function, (t) -> null);
     }
 
-//    public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
-//        return new Step<>(type, function, errorHandler);
-//    }
-
     public static<R, T> Step<R, T> sync(TF<R, T> function) {
         return new Step<>(ExecutionType.SYNC, function, null);
     }
@@ -78,16 +74,16 @@ public class Step<R1, T1> {
         return new Step<>(ExecutionType.AWAIT, function, errorHandler);
     }
 
-    public static TF<Tuple1<Void>, Tuple> from(Runnable runnable) {
-        return (a) -> {runnable.run(); return Tuples.of(null);};
-    }
-
-    public static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
-        return (t) -> Tuples.of(supplier.get());
-    }
-
     public interface TF<R1, T1> {
         R1 apply(T1 param) throws Throwable;
+
+        static TF<Tuple1<Void>, Tuple> from(Runnable runnable) {
+            return (a) -> {runnable.run(); return Tuples.of(null);};
+        }
+
+        static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
+            return (t) -> Tuples.of(supplier.get());
+        }
     }
 
     public interface EH<R1> {

@@ -33,34 +33,14 @@ public class Flow<O extends Tuple, I extends Tuple> {
         return new Flow<>(steps);
     }
 
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(Step<O1, I1> step) {
+        return new Flow<>(Collections.singletonList(step));
+    }
+
     public static <O extends Tuple, M extends Tuple, I extends Tuple> Flow<O, I> compose(Flow<M, I> flow1, Flow<O, M> flow2) {
         List<Step<?, ?>> steps = new ArrayList<>(flow1.steps);
         steps.addAll(flow2.steps);
         return new Flow<>(steps);
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> sync(TF<O1, I1> function) {
-        return new Flow<>(Collections.singletonList(Step.sync(function)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> sync(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Collections.singletonList(Step.sync(function, errorHandler)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> async(TF<O1, I1> function) {
-        return new Flow<>(Collections.singletonList(Step.async(function)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> async(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Collections.singletonList(Step.async(function, errorHandler)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> await(TF<O1, I1> function) {
-        return new Flow<>(Collections.singletonList(Step.await(function)));
-    }
-
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> await(TF<O1, I1> function, EH<O1> errorHandler) {
-        return new Flow<>(Collections.singletonList(Step.await(function, errorHandler)));
     }
 
     public static<T1> FlowBuilder1<Tuple1<T1>, T1> take(Class<T1> param1) {

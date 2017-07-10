@@ -63,8 +63,16 @@ public class Promise<T> {
         return value.isMarked() || errValue.isMarked();
     }
 
+    public boolean isError() {
+        return errValue.isMarked();
+    }
+
     public T get() {
         return value.getReference();
+    }
+
+    public Throwable getError() {
+        return errValue.getReference();
     }
 
     public T await() {
@@ -93,7 +101,7 @@ public class Promise<T> {
         return new FlowWrappedException(reference);
     }
 
-    public Optional<T> awaitSafe() {
+    public Optional<T> safeAwait() {
         doWait();
 
         return Optional.ofNullable(value.getReference());

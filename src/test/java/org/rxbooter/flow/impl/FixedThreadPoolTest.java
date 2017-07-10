@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-//TODO: finish it
 public class FixedThreadPoolTest {
     @Test
     public void shouldStartPool() throws Exception {
@@ -20,7 +19,7 @@ public class FixedThreadPoolTest {
 
         latch.countDown();
 
-        safe(() -> Thread.sleep(100));
+        safe(() -> Thread.sleep(20));
         assertThat(counter.get()).isEqualTo(3);
         pool.shutdown();
     }

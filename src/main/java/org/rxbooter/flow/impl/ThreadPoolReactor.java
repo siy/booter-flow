@@ -45,15 +45,20 @@ public class ThreadPoolReactor extends AbstractReactor {
 
     @Override
     public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
+        if (shutdown.get()) {
+            throw new IllegalStateException("Reactor is shutdown()");
+        }
+
         if(flowExecutor.isReady()) {
             return flowExecutor.promise();
         }
 
-        try {
-            (flowExecutor.isBlocking() ? blockingInput : computingInput).put(flowExecutor);
-        } catch (InterruptedException e) {
-            //TODO: how take handle it correctly? can we just ignore it?
+        if(!flowExecutor.canRun()) {
+            return flowExecutor.promise();
         }
+
+        (flowExecutor.isBlocking() ? blockingInput : computingInput).offer(flowExecutor);
+
         return flowExecutor.promise();
     }
 
@@ -65,7 +70,6 @@ public class ThreadPoolReactor extends AbstractReactor {
                 continue;
             }
 
-            runAllAsync(flowExecutor);
             flowExecutor.run();
             submit(flowExecutor);
         }
