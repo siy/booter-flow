@@ -21,8 +21,10 @@ package org.rxbooter.flow.impl;
 import org.rxbooter.flow.ExecutionType;
 import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Step;
+import org.rxbooter.flow.Tuples;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static org.rxbooter.flow.Functions.*;
 import static org.rxbooter.flow.Tuples.*;
@@ -37,9 +39,11 @@ public final class FlowBuilders {
         protected Step<?, ?> step;
         @SuppressWarnings("rawtypes")
         private CF condition;
+        private final Tuple empty;
 
-        FlowBuilder0(FlowBuilder0<I1> prev) {
+        FlowBuilder0(FlowBuilder0<I1> prev, Tuple empty) {
             this.prev = prev;
+            this.empty = empty;
         }
 
         void setAsync() {
@@ -62,6 +66,10 @@ public final class FlowBuilders {
             if (step != null) {
                 consumer.accept(step);
             }
+        }
+
+        public Tuple empty() {
+            return (prev == null) ? empty : prev.empty();
         }
 
         @SuppressWarnings("unchecked")
@@ -96,7 +104,7 @@ public final class FlowBuilders {
     public static class FlowBuilder1<I1 extends Tuple, T1> extends FlowBuilder0<I1> implements FlowBuilderBase1<I1, T1>, FlowBuilderAsyncBase1<I1, T1> {
 
         public FlowBuilder1(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty1());
         }
 
         public FlowBuilderAsyncBase1<I1, T1> async() {
@@ -115,6 +123,11 @@ public final class FlowBuilders {
         }
 
         public Flow<Tuple1<T1>, I1> done() {
+            return Flow.of(this);
+        }
+
+        public Flow<Tuple1<Void>, I1> to(Consumer<T1> consumer) {
+            step(TF.from(consumer));
             return Flow.of(this);
         }
 
@@ -179,7 +192,7 @@ public final class FlowBuilders {
     public static class FlowBuilder2<I1 extends Tuple, T1, T2> extends FlowBuilder0<I1> implements FlowBuilderBase2<I1, T1, T2>, FlowBuilderAsyncBase2<I1, T1, T2> {
 
         public FlowBuilder2(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty2());
         }
 
         public FlowBuilderAsyncBase2<I1, T1, T2> async() {
@@ -262,7 +275,7 @@ public final class FlowBuilders {
     public static class FlowBuilder3<I1 extends Tuple, T1, T2, T3> extends FlowBuilder0<I1> implements FlowBuilderBase3<I1, T1, T2, T3>, FlowBuilderAsyncBase3<I1, T1, T2, T3> {
 
         public FlowBuilder3(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty3());
         }
 
         public FlowBuilderAsyncBase3<I1, T1, T2, T3> async() {
@@ -345,7 +358,7 @@ public final class FlowBuilders {
     public static class FlowBuilder4<I1 extends Tuple, T1, T2, T3, T4> extends FlowBuilder0<I1> implements FlowBuilderBase4<I1, T1, T2, T3, T4>, FlowBuilderAsyncBase4<I1, T1, T2, T3, T4> {
 
         public FlowBuilder4(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty4());
         }
 
         public FlowBuilderAsyncBase4<I1, T1, T2, T3, T4> async() {
@@ -428,7 +441,7 @@ public final class FlowBuilders {
     public static class FlowBuilder5<I1 extends Tuple, T1, T2, T3, T4, T5> extends FlowBuilder0<I1> implements FlowBuilderBase5<I1, T1, T2, T3, T4, T5>, FlowBuilderAsyncBase5<I1, T1, T2, T3, T4, T5> {
 
         public FlowBuilder5(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty5());
         }
 
         public FlowBuilderAsyncBase5<I1, T1, T2, T3, T4, T5> async() {
@@ -511,7 +524,7 @@ public final class FlowBuilders {
     public static class FlowBuilder6<I1 extends Tuple, T1, T2, T3, T4, T5, T6> extends FlowBuilder0<I1> implements FlowBuilderBase6<I1, T1, T2, T3, T4, T5, T6>, FlowBuilderAsyncBase6<I1, T1, T2, T3, T4, T5, T6> {
 
         public FlowBuilder6(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty6());
         }
 
         public FlowBuilderAsyncBase6<I1, T1, T2, T3, T4, T5, T6> async() {
@@ -594,7 +607,7 @@ public final class FlowBuilders {
     public static class FlowBuilder7<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7> extends FlowBuilder0<I1> implements FlowBuilderBase7<I1, T1, T2, T3, T4, T5, T6, T7>, FlowBuilderAsyncBase7<I1, T1, T2, T3, T4, T5, T6, T7> {
 
         public FlowBuilder7(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty6());
         }
 
         public FlowBuilderAsyncBase7<I1, T1, T2, T3, T4, T5, T6, T7> async() {
@@ -677,7 +690,7 @@ public final class FlowBuilders {
     public static class FlowBuilder8<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8> extends FlowBuilder0<I1> implements FlowBuilderBase8<I1, T1, T2, T3, T4, T5, T6, T7, T8>, FlowBuilderAsyncBase8<I1, T1, T2, T3, T4, T5, T6, T7, T8> {
 
         public FlowBuilder8(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty8());
         }
 
         public FlowBuilderAsyncBase8<I1, T1, T2, T3, T4, T5, T6, T7, T8> async() {
@@ -760,7 +773,7 @@ public final class FlowBuilders {
     public static class FlowBuilder9<I1 extends Tuple, T1, T2, T3, T4, T5, T6, T7, T8, T9> extends FlowBuilder0<I1> implements FlowBuilderBase9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9>, FlowBuilderAsyncBase9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
 
         public FlowBuilder9(FlowBuilder0<I1> prev) {
-            super(prev);
+            super(prev, Tuples.empty9());
         }
 
         public FlowBuilderAsyncBase9<I1, T1, T2, T3, T4, T5, T6, T7, T8, T9> async() {

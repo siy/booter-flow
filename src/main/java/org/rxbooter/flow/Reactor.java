@@ -24,6 +24,7 @@ import org.rxbooter.flow.impl.*;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static org.rxbooter.flow.Functions.*;
 import static org.rxbooter.flow.Tuples.*;
 
 /**
@@ -36,7 +37,7 @@ public interface Reactor {
      * @param runnable Task to execute
      */
     default Promise<Tuple1<Void>> async(Runnable runnable) {
-        return submit(Flow.of(Step.async(Functions.TF.from(runnable))).applyTo(null));
+        return submit(Flow.of(Step.async(TF.from(runnable)), empty1()).applyTo(null));
     }
 
     /**
@@ -47,7 +48,7 @@ public interface Reactor {
      * @param handler
      */
     default Promise<Tuple1<Void>> async(Runnable runnable, EH<Tuple1<Void>> handler) {
-        return submit(Flow.of(Step.async(Functions.TF.from(runnable), handler)).applyTo(null));
+        return submit(Flow.of(Step.async(TF.from(runnable), handler), empty1()).applyTo(null));
     }
 
     /**
@@ -77,7 +78,7 @@ public interface Reactor {
      * @throws FlowException if task threw exception
      */
     default <T> T await(Supplier<T> supplier, EH<Tuple1<T>> handler) {
-        return submit(Flow.of(Step.await(Functions.TF.from(supplier), handler)).applyTo(null)).await().get1();
+        return submit(Flow.of(Step.await(TF.from(supplier), handler), empty1()).applyTo(null)).await().get1();
     }
 
     /**
@@ -95,7 +96,7 @@ public interface Reactor {
     <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
 
     default <T> Promise<Tuple1<T>> submit(Supplier<T> supplier) {
-        return submit(Flow.of(Step.await(Functions.TF.from(supplier))).applyTo(null));
+        return submit(Flow.of(Step.await(TF.from(supplier)), empty1()).applyTo(null));
     }
 
     default <T1> Tuple1<T1> awaitAll(Supplier<T1> param1) {

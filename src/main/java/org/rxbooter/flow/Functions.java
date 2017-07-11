@@ -18,6 +18,7 @@ package org.rxbooter.flow;
  *
  */
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.rxbooter.flow.Tuples.*;
@@ -32,6 +33,10 @@ public interface Functions {
 
         static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
             return (t) -> of(supplier.get());
+        }
+
+        static <T> TF<Tuple, Tuple1<T>> from(Consumer<T> consumer) {
+            return (t) -> { consumer.accept(t.get1()); return Tuples.empty1();};
         }
     }
 

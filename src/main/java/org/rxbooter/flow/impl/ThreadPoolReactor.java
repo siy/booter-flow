@@ -60,7 +60,7 @@ public class ThreadPoolReactor implements Reactor {
         Promise<Tuple1<T>> promise = Promise.waifFor(suppliers.length);
 
         Arrays.stream(suppliers)
-              .map(s -> Flow.of(Step.await(Functions.TF.from(s))))
+              .map(s -> Flow.of(Step.await(Functions.TF.from(s)), Tuples.empty1()))
               .map(f -> f.applyTo(null, promise))
               .forEach(this::submit);
 

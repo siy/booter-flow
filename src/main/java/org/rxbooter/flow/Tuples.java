@@ -21,7 +21,39 @@ package org.rxbooter.flow;
 public final class Tuples {
     private Tuples() {}
 
-    public static<T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> empty() {
+    public static<T1> Tuple1<T1> empty1() {
+        return new Tuple1<>(null);
+    }
+
+    public static<T1, T2> Tuple2<T1, T2> empty2() {
+        return new Tuple2<>(null, null);
+    }
+
+    public static<T1, T2, T3> Tuple3<T1, T2, T3> empty3() {
+        return new Tuple3<>(null, null, null);
+    }
+
+    public static<T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> empty4() {
+        return new Tuple4<>(null, null, null, null);
+    }
+
+    public static<T1, T2, T3, T4, T5> Tuple5<T1, T2, T3, T4, T5> empty5() {
+        return new Tuple5<>(null, null, null, null, null);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6> Tuple6<T1, T2, T3, T4, T5, T6> empty6() {
+        return new Tuple6<>(null, null, null, null, null, null);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6, T7> Tuple7<T1, T2, T3, T4, T5, T6, T7> empty7() {
+        return new Tuple7<>(null, null, null, null, null, null, null);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> empty8() {
+        return new Tuple8<>(null, null, null, null, null, null, null, null);
+    }
+
+    public static<T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> empty9() {
         return new Tuple9<>(null, null, null, null, null, null, null, null, null);
     }
 

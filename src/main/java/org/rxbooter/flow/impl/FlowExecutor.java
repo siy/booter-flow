@@ -37,7 +37,7 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
 
     public FlowExecutor(List<Step<?, ?>> steps, I input, Promise<O> promise) {
         this.steps = steps;
-        this.intermediate = input == null ? Tuples.empty() : input;
+        this.intermediate = input;
         this.promise = promise;
     }
 

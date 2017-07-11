@@ -1,5 +1,7 @@
 package org.rxbooter.flow;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Test;
 import org.rxbooter.flow.Tuples.Tuple2;
 import org.rxbooter.flow.Tuples.Tuple3;
@@ -31,6 +33,19 @@ public class FlowTest {
 
         String result = flow.applyTo(Tuples.of("abcABC", 1L)).in(Reactor.pooled()).await().get1();
         assertThat(result).isEqualTo("abcABC 1 abcabc");
+    }
+
+    @Test
+    public void shouldBuildFlowFromSupplier() throws Exception {
+        AtomicInteger counter = new AtomicInteger(0);
+
+        Flow<Tuple1<Integer>, Tuple1<Void>> flow = Flow.from(() -> counter.incrementAndGet()).done();
+
+        Integer value1 = flow.applyTo(null).in(Reactor.pooled()).await().get1();
+        Integer value2 = flow.applyTo(null).in(Reactor.pooled()).await().get1();
+
+        assertThat(value1).isEqualTo(1);
+        assertThat(value2).isEqualTo(2);
     }
 
     @Test

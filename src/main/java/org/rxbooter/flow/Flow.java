@@ -19,43 +19,58 @@ package org.rxbooter.flow;
  */
 
 import org.rxbooter.flow.Tuples.*;
+import org.rxbooter.flow.impl.FlowBuilders;
 import org.rxbooter.flow.impl.FlowBuilders.*;
 import org.rxbooter.flow.impl.FlowExecutor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
+
+import static org.rxbooter.flow.Functions.*;
 
 public class Flow<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
+    private final Tuple empty;
 
-    private Flow(List<Step<?, ?>> steps) {
+    private Flow(List<Step<?, ?>> steps, Tuple empty) {
         this.steps = steps;
+        this.empty = empty;
     }
 
     public FlowExecutor<O, I> applyTo(I input) {
-        return new FlowExecutor<>(steps, input, Promise.empty());
+        return new FlowExecutor<>(steps, sanitizeInput(input), Promise.empty());
+    }
+
+    @SuppressWarnings("unchecked")
+    public I sanitizeInput(I input) {
+        return input == null ? (I) empty : input;
     }
 
     public FlowExecutor<O, I> applyTo(I input, Promise<O> promise) {
-        return new FlowExecutor<>(steps, input, promise);
+        return new FlowExecutor<>(steps, sanitizeInput(input), promise);
     }
 
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(FlowBuilder0<I1> builder) {
         List<Step<?, ?>> steps = new ArrayList<>();
         builder.apply(steps::add);
 
-        return new Flow<>(steps);
+        return new Flow<>(steps, builder.empty());
     }
 
-    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(Step<O1, I1> step) {
-        return new Flow<>(Collections.singletonList(step));
+    public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(Step<O1, I1> step, Tuple empty) {
+        return new Flow<>(Collections.singletonList(step), empty);
     }
 
     public static <O extends Tuple, M extends Tuple, I extends Tuple> Flow<O, I> compose(Flow<M, I> flow1, Flow<O, M> flow2) {
         List<Step<?, ?>> steps = new ArrayList<>(flow1.steps);
         steps.addAll(flow2.steps);
-        return new Flow<>(steps);
+        return new Flow<>(steps, flow1.empty);
+    }
+
+    public static<T1> FlowBuilder1<Tuple1<Void>, T1> from(Supplier<T1> param1) {
+        return new FlowBuilder1<Tuple1<Void>, T1>(null).map((t) -> Tuples.of(param1.get()));
     }
 
     public static<T1> FlowBuilder1<Tuple1<T1>, T1> take(Class<T1> param1) {
