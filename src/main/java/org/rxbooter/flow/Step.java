@@ -1,23 +1,35 @@
 package org.rxbooter.flow;
 
-import org.rxbooter.flow.Tuples.Tuple;
-import org.rxbooter.flow.Tuples.Tuple1;
+/*
+ * Copyright (c) 2017 Sergiy Yevtushenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
 
-import java.util.function.Supplier;
+import org.rxbooter.flow.Functions.EH;
+import org.rxbooter.flow.Functions.TF;
 
 public class Step<R1, T1> {
     private final ExecutionType type;
     private final TF<R1, T1> function;
-
-    private EH<R1> handler = (t) -> null;
+    private EH<R1> handler;
 
     private Step(ExecutionType type, TF<R1, T1> function, EH<R1> handler) {
         this.type = type;
         this.function = function;
-
-        if (handler != null) {
-            this.handler = handler;
-        }
+        this.handler = handler == null ? (t) -> null : handler;
     }
 
     public EH<R1> handler() {
@@ -47,54 +59,34 @@ public class Step<R1, T1> {
     }
 
     public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function) {
-        return new Step<>(type, function, (t) -> null);
+        return of(type, function, (t) -> null);
+    }
+
+    public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
+        return new Step<>(type, function, errorHandler);
     }
 
     public static<R, T> Step<R, T> sync(TF<R, T> function) {
-        return new Step<>(ExecutionType.SYNC, function, null);
+        return of(ExecutionType.SYNC, function);
     }
 
     public static<R, T> Step<R, T> sync(TF<R, T> function, EH<R> errorHandler) {
-        return new Step<>(ExecutionType.SYNC, function, errorHandler);
+        return of(ExecutionType.SYNC, function, errorHandler);
     }
 
     public static<R, T> Step<R, T> async(TF<R, T> function) {
-        return new Step<>(ExecutionType.ASYNC, function, null);
+        return of(ExecutionType.ASYNC, function);
     }
 
     public static<R, T> Step<R, T> async(TF<R, T> function, EH<R> errorHandler) {
-        return new Step<>(ExecutionType.ASYNC, function, errorHandler);
+        return of(ExecutionType.ASYNC, function, errorHandler);
     }
 
     public static<R, T> Step<R, T> await(TF<R, T> function) {
-        return new Step<>(ExecutionType.AWAIT, function, null);
+        return of(ExecutionType.AWAIT, function);
     }
 
     public static<R, T> Step<R, T> await(TF<R, T> function, EH<R> errorHandler) {
-        return new Step<>(ExecutionType.AWAIT, function, errorHandler);
-    }
-
-    public interface TF<R1, T1> {
-        R1 apply(T1 param) throws Throwable;
-
-        static TF<Tuple1<Void>, Tuple> from(Runnable runnable) {
-            return (a) -> {runnable.run(); return Tuples.of(null);};
-        }
-
-        static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
-            return (t) -> Tuples.of(supplier.get());
-        }
-    }
-
-    public interface EH<R1> {
-        R1 handle(Throwable err);
-    }
-
-    public interface CF<T1> {
-        boolean test(T1 param);
-    }
-
-    public interface AF<T1> {
-        void accept(T1 param);
+        return of(ExecutionType.AWAIT, function, errorHandler);
     }
 }

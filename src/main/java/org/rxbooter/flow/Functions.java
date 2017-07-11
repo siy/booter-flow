@@ -1,11 +1,51 @@
 package org.rxbooter.flow;
 
-// WARNING: Generated file, do not edit, all changes will be lost.
+/*
+ * Copyright (c) 2017 Sergiy Yevtushenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
 
-import static org.rxbooter.flow.Step.*;
+import java.util.function.Supplier;
+
 import static org.rxbooter.flow.Tuples.*;
 
 public interface Functions {
+    interface TF<R1, T1> {
+        R1 apply(T1 param) throws Throwable;
+
+        static TF<Tuple1<Void>, Tuple> from(Runnable runnable) {
+            return (a) -> {runnable.run(); return of(null);};
+        }
+
+        static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
+            return (t) -> of(supplier.get());
+        }
+    }
+
+    interface EH<R1> {
+        R1 handle(Throwable err);
+    }
+
+    interface CF<T1> {
+        boolean test(T1 param);
+    }
+
+    interface AF<T1> {
+        void accept(T1 param);
+    }
 
     //----------------------------------- Acceptor functions
 

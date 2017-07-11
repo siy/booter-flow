@@ -8,7 +8,6 @@ import org.rxbooter.flow.Tuples.Tuple1;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//TODO: do we need it?
 public class FlowBuildersTest {
     @Test
     public void shouldBuildSimpleFlow() throws Exception {
@@ -20,4 +19,6 @@ public class FlowBuildersTest {
         String result = flow.applyTo(Tuples.of("AbCdEf")).in(Reactor.pooled()).await().get1();
         assertThat(result).isEqualTo("abcdef - 12");
     }
+
+
 }

@@ -1,7 +1,24 @@
 package org.rxbooter.flow;
 
-import org.rxbooter.flow.Step.EH;
-import org.rxbooter.flow.Step.TF;
+/*
+ * Copyright (c) 2017 Sergiy Yevtushenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
+
+import org.rxbooter.flow.Functions.EH;
 import org.rxbooter.flow.impl.*;
 
 import java.util.Optional;
@@ -19,7 +36,7 @@ public interface Reactor {
      * @param runnable Task to execute
      */
     default Promise<Tuple1<Void>> async(Runnable runnable) {
-        return submit(Flow.of(Step.async(TF.from(runnable))).applyTo(null));
+        return submit(Flow.of(Step.async(Functions.TF.from(runnable))).applyTo(null));
     }
 
     /**
@@ -30,7 +47,7 @@ public interface Reactor {
      * @param handler
      */
     default Promise<Tuple1<Void>> async(Runnable runnable, EH<Tuple1<Void>> handler) {
-        return submit(Flow.of(Step.async(TF.from(runnable), handler)).applyTo(null));
+        return submit(Flow.of(Step.async(Functions.TF.from(runnable), handler)).applyTo(null));
     }
 
     /**
@@ -60,7 +77,7 @@ public interface Reactor {
      * @throws FlowException if task threw exception
      */
     default <T> T await(Supplier<T> supplier, EH<Tuple1<T>> handler) {
-        return submit(Flow.of(Step.await(TF.from(supplier), handler)).applyTo(null)).await().get1();
+        return submit(Flow.of(Step.await(Functions.TF.from(supplier), handler)).applyTo(null)).await().get1();
     }
 
     /**
@@ -78,7 +95,7 @@ public interface Reactor {
     <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
 
     default <T> Promise<Tuple1<T>> submit(Supplier<T> supplier) {
-        return submit(Flow.of(Step.await(TF.from(supplier))).applyTo(null));
+        return submit(Flow.of(Step.await(Functions.TF.from(supplier))).applyTo(null));
     }
 
     default <T1> Tuple1<T1> awaitAll(Supplier<T1> param1) {
@@ -173,10 +190,6 @@ public interface Reactor {
      * Shutdown reactor instance. Attempt to submit task to reactor which is shutdown will throw an exception.
      */
     void shutdown();
-
-    static Reactor single() {
-        return new SingleThreadReactor();
-    }
 
     static Reactor pooled() {
         return ThreadPoolReactor.defaultReactor();

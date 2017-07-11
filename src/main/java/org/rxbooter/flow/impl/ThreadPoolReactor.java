@@ -1,18 +1,35 @@
 package org.rxbooter.flow.impl;
 
-import org.rxbooter.flow.ExecutionType;
-import org.rxbooter.flow.Promise;
-import org.rxbooter.flow.Tuples.Tuple;
+/*
+ * Copyright (c) 2017 Sergiy Yevtushenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.rxbooter.flow.*;
+import org.rxbooter.flow.Tuples.Tuple;
+import org.rxbooter.flow.Tuples.Tuple1;
+
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
-public class ThreadPoolReactor extends AbstractReactor {
+public class ThreadPoolReactor implements Reactor {
     private static final long POLL_INTERVAL = 100;
 
     private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
@@ -35,6 +52,19 @@ public class ThreadPoolReactor extends AbstractReactor {
 
     public static ThreadPoolReactor with(ThreadPool computingPool, ThreadPool ioPool) {
         return new ThreadPoolReactor(computingPool, ioPool);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public final <T> Optional<T> awaitAny(Supplier<T>... suppliers) {
+        Promise<Tuple1<T>> promise = Promise.waifFor(suppliers.length);
+
+        Arrays.stream(suppliers)
+              .map(s -> Flow.of(Step.await(Functions.TF.from(s))))
+              .map(f -> f.applyTo(null, promise))
+              .forEach(this::submit);
+
+        return promise.safeAwait().map(Tuple1::get1);
     }
 
     @Override
@@ -96,6 +126,12 @@ public class ThreadPoolReactor extends AbstractReactor {
         }
 
         submit(flowExecutor);
+    }
+
+    protected void runAllAsync(FlowExecutor<?, ?> flowExecutor) {
+        while (flowExecutor.isAsync()) {
+            submit(flowExecutor.forCurrent());
+        }
     }
 
     private List<FlowExecutor<?, ?>> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {
