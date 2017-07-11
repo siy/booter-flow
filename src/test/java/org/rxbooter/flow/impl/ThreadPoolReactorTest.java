@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
+import org.rxbooter.flow.Promise;
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple1;

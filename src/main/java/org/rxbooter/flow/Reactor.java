@@ -13,12 +13,6 @@ import static org.rxbooter.flow.Tuples.*;
  * Flow execution reactor.
  */
 public interface Reactor {
-
-    /**
-     * Shutdown reactor instance. Attempt to submit task to reactor which is shutdown will throw an exception.
-     */
-    void shutdown();
-
     /**
      * Schedule asynchronous execution of task provided as a {@link Runnable}.
      *
@@ -85,18 +79,6 @@ public interface Reactor {
 
     default <T> Promise<Tuple1<T>> submit(Supplier<T> supplier) {
         return submit(Flow.of(Step.await(TF.from(supplier))).applyTo(null));
-    }
-
-    static Reactor single() {
-        return new SingleThreadReactor();
-    }
-
-    static Reactor pooled() {
-        return ThreadPoolReactor.defaultReactor();
-    }
-
-    static Reactor pooled(ThreadPool computingPool, ThreadPool ioPool) {
-        return ThreadPoolReactor.with(computingPool, ioPool);
     }
 
     default <T1> Tuple1<T1> awaitAll(Supplier<T1> param1) {
@@ -185,5 +167,22 @@ public interface Reactor {
         Promise<Tuple1<T9>> r9 = submit(param9);
 
         return Tuples.of(r1.await().get1(), r2.await().get1(), r3.await().get1(), r4.await().get1(), r5.await().get1(), r6.await().get1(), r7.await().get1(), r8.await().get1(), r9.await().get1());
+    }
+
+    /**
+     * Shutdown reactor instance. Attempt to submit task to reactor which is shutdown will throw an exception.
+     */
+    void shutdown();
+
+    static Reactor single() {
+        return new SingleThreadReactor();
+    }
+
+    static Reactor pooled() {
+        return ThreadPoolReactor.defaultReactor();
+    }
+
+    static Reactor pooled(ThreadPool computingPool, ThreadPool ioPool) {
+        return ThreadPoolReactor.with(computingPool, ioPool);
     }
 }

@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.rxbooter.flow.Promise;
 import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Tuples;
 import static org.rxbooter.flow.Tuples.*;

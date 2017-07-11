@@ -3,6 +3,7 @@ package org.rxbooter.flow.impl;
 import org.junit.Test;
 import org.rxbooter.flow.FlowException;
 import org.rxbooter.flow.FlowWrappedException;
+import org.rxbooter.flow.Promise;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,7 +1,4 @@
-package org.rxbooter.flow.impl;
-
-import org.rxbooter.flow.FlowException;
-import org.rxbooter.flow.FlowWrappedException;
+package org.rxbooter.flow;
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;

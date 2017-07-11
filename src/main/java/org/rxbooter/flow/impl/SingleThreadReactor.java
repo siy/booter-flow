@@ -1,5 +1,6 @@
 package org.rxbooter.flow.impl;
 
+import org.rxbooter.flow.Promise;
 import org.rxbooter.flow.Tuples.Tuple;
 
 import java.util.concurrent.BlockingQueue;
