@@ -20,8 +20,8 @@ public class SrcGen {
 
     //Note: might have issues in generated code
     public static void main(String[] args) {
-        //new SrcGen("FlowBuilders").generateFlowBuilders();
-        new SrcGen("Tuples").generateTuples();
+        new SrcGen("FlowBuilders").generateFlowBuilders();
+        //new SrcGen("Tuples").generateTuples();
         //new SrcGen("Functions").generateFunctions();
         //new SrcGen("Flows").generateFlows();
         //new SrcGen("Reactor").generateReactor();
@@ -110,7 +110,6 @@ public class SrcGen {
         out(0, "import java.util.function.Consumer;");
         nl();
         out(0, "import static " + PACKAGE + ".Functions.*;");
-        out(0, "import static " + PACKAGE + ".Step.*;");
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
 
@@ -162,7 +161,7 @@ public class SrcGen {
 
         out(2, "@SuppressWarnings(\"unchecked\")");
         out(2, "protected<T> FlowBuilder0<I1> step(AF<T> function) {");
-        out(3, "Step.of(type, (input) -> { function.accept((T) input); return input;});");
+        out(3, "this.step = Step.of(type, (input) -> { function.accept((T) input); return input;});");
         out(3, "return this;");
         out(2, "}");
         nl();

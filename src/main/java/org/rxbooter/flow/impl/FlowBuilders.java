@@ -72,7 +72,7 @@ public final class FlowBuilders {
 
         @SuppressWarnings("unchecked")
         protected<T> FlowBuilder0<I1> step(AF<T> function) {
-            Step.of(type, (input) -> { function.accept((T) input); return input;});
+            this.step = Step.of(type, (input) -> { function.accept((T) input); return input;});
             return this;
         }
 
