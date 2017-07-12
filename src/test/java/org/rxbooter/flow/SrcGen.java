@@ -124,9 +124,11 @@ public class SrcGen {
         out(2, "protected Step<?, ?> step;");
         out(2, "@SuppressWarnings(\"rawtypes\")");
         out(2, "private CF condition;");
+        out(2, "private final Tuple empty;");
         nl();
-        out(2, "FlowBuilder0(FlowBuilder0<I1> prev) {");
+        out(2, "FlowBuilder0(FlowBuilder0<I1> prev, Tuple empty) {");
         out(3, "this.prev = prev;");
+        out(3, "this.empty = empty;");
         out(2, "}");
         nl();
         out(2, "void setAsync() {");
@@ -151,7 +153,10 @@ public class SrcGen {
         out(3, "}");
         out(2, "}");
         nl();
-
+        out(2, "public Tuple empty() {");
+        out(3, "return (prev == null) ? empty : prev.empty();");
+        out(2, "}");
+        nl();
         out(2, "@SuppressWarnings(\"unchecked\")");
         out(2, "protected<R, T> FlowBuilder0<I1> step(TF<R, T> function) {");
         out(3, "this.step = condition != null ? Step.of(type, (input) -> condition.test(input) ? function.apply((T) input) : input) : Step.of(type, function);");
@@ -191,7 +196,7 @@ public class SrcGen {
                 + " {");
             nl();
             out(2, "public FlowBuilder" + i + "(FlowBuilder0<I1> prev) {");
-            out(3, "super(prev);");
+            out(3, "super(prev, empty" + i + "());");
             out(2, "}");
             nl();
             out(2, "public " + flowAsyncBaseTypeName("T", i) + " async() {");
@@ -213,6 +218,15 @@ public class SrcGen {
             out(3, "return Flow.of(this);");
             out(2, "}");
             nl();
+
+            if (i == 1) {
+                out(2, "public Flow<Tuple1<Void>, I1> to(Consumer<T1> consumer) {");
+                out(3, "step(TF.from(consumer));");
+                out(3, "return Flow.of(this);");
+                out(2, "}");
+                nl();
+            }
+
             out(2, "@Override");
             addFlowAcceptMethod(i, "accept");
             nl();

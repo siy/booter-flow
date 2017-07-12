@@ -4,9 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
-import org.rxbooter.flow.Flow;
-import org.rxbooter.flow.Reactor;
-import org.rxbooter.flow.Tuples;
+import org.rxbooter.flow.*;
 import org.rxbooter.flow.Tuples.Tuple1;
 import org.rxbooter.flow.Tuples.Tuple2;
 import org.rxbooter.flow.Tuples.Tuple3;
@@ -16,7 +14,6 @@ import org.rxbooter.flow.Tuples.Tuple6;
 import org.rxbooter.flow.Tuples.Tuple7;
 import org.rxbooter.flow.Tuples.Tuple8;
 import org.rxbooter.flow.Tuples.Tuple9;
-import org.rxbooter.flow.Type;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -393,29 +390,299 @@ public class FlowBuildersTest {
         assertOutput(ref.get());
     }
 
-    public void assertOutput(Tuple1<String> result) {
+    @Test
+    public void shouldBuildAwaitFlowWithOneInput() throws Exception {
+        assertOutput(Flow.take(String.class)
+                         .await()
+                         .map((s1) -> Tuples.of(s1 + "1"))
+                         .done()
+                         .applyTo(Tuples.of("input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithTwoInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class)
+                         .await()
+                         .map((s1, s2) -> Tuples.of(s1 + "1", s2 + "2"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithThreeInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithFourInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3, s4) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithFiveInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3, s4, s5) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithSixInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3, s4, s5, s6) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithSevenInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3, s4, s5, s6, s7) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6", s7 + "7"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithEightInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3, s4, s5, s6, s7, s8) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6", s7 + "7", s8 + "8"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildAwaitFlowWithNineInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .await()
+                         .map((s1, s2, s3, s4, s5, s6, s7, s8, s9) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6", s7 + "7", s8 + "8", s9 + "9"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndOneInput() throws Exception {
+        assertOutput(Flow.take(String.class)
+                         .map((s1) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1"))
+                         .done()
+                         .applyTo(Tuples.empty1())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndTwoInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class)
+                         .map((s1, s2) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2"))
+                         .done()
+                         .applyTo(Tuples.empty2())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndThreeInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class)
+                         .map((s1, s2, s3) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3"))
+                         .done()
+                         .applyTo(Tuples.empty3())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndFourInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class)
+                         .map((s1, s2, s3, s4) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3", "input4"))
+                         .done()
+                         .applyTo(Tuples.empty4())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndFiveInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class)
+                         .map((s1, s2, s3, s4, s5) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3", "input4", "input5"))
+                         .done()
+                         .applyTo(Tuples.empty5())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndSixInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class)
+                         .map((s1, s2, s3, s4, s5, s6) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3", "input4", "input5", "input6"))
+                         .done()
+                         .applyTo(Tuples.empty6())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndSevenInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .map((s1, s2, s3, s4, s5, s6, s7) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3", "input4", "input5", "input6", "input7"))
+                         .done()
+                         .applyTo(Tuples.empty7())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndEightInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .map((s1, s2, s3, s4, s5, s6, s7, s8) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3", "input4", "input5", "input6", "input7", "input8"))
+                         .done()
+                         .applyTo(Tuples.empty8())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithOnErrorHandlerAndNineInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .map((s1, s2, s3, s4, s5, s6, s7, s8, s9) -> {throw new FlowException("fatal");})
+                         .onError((t) -> Tuples.of("input1", "input2", "input3", "input4", "input5", "input6", "input7", "input8", "input9"))
+                         .done()
+                         .applyTo(Tuples.empty9())
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndOneInput() throws Exception {
+        assertOutput(Flow.take(String.class)
+                         .when((s1) -> true)
+                         .map((s1) -> Tuples.of(s1 + "1"))
+                         .done()
+                         .applyTo(Tuples.of("input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndTwoInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class)
+                         .when((s1, s2) -> true)
+                         .map((s1, s2) -> Tuples.of(s1 + "1", s2 + "2"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndThreeInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class)
+                         .when((s1, s2, s3) -> true)
+                         .map((s1, s2, s3) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndFourInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class)
+                         .when((s1, s2, s3, s4) -> true)
+                         .map((s1, s2, s3, s4) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndFiveInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class)
+                         .when((s1, s2, s3, s4, s5) -> true)
+                         .map((s1, s2, s3, s4, s5) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndSixInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class)
+                         .when((s1, s2, s3, s4, s5, s6) -> true)
+                         .map((s1, s2, s3, s4, s5, s6) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndSevenInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .when((s1, s2, s3, s4, s5, s6, s7) -> true)
+                         .map((s1, s2, s3, s4, s5, s6, s7) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6", s7 + "7"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndEightInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .when((s1, s2, s3, s4, s5, s6, s7, s8) -> true)
+                         .map((s1, s2, s3, s4, s5, s6, s7, s8) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6", s7 + "7", s8 + "8"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    @Test
+    public void shouldBuildFlowWithConditionAndNineInputs() throws Exception {
+        assertOutput(Flow.take(String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class)
+                         .when((s1, s2, s3, s4, s5, s6, s7, s8, s9) -> true)
+                         .map((s1, s2, s3, s4, s5, s6, s7, s8, s9) -> Tuples.of(s1 + "1", s2 + "2", s3 + "3", s4 + "4", s5 + "5", s6 + "6", s7 + "7", s8 + "8", s9 + "9"))
+                         .done()
+                         .applyTo(Tuples.of("input", "input", "input", "input", "input", "input", "input", "input", "input"))
+                         .in(Reactor.pooled()).await());
+    }
+
+    public void assertOutput(Tuple1<?> result) {
         assertThat(result.get1()).isEqualTo("input1");
     }
 
-    public void assertOutput(Tuple2<String, String> result) {
+    public void assertOutput(Tuple2<?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
     }
 
-    public void assertOutput(Tuple3<String, String, String> result) {
+    public void assertOutput(Tuple3<?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
     }
 
-    public void assertOutput(Tuple4<String, String, String, String> result) {
+    public void assertOutput(Tuple4<?, ?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
         assertThat(result.get4()).isEqualTo("input4");
     }
 
-    public void assertOutput(Tuple5<String, String, String, String, String> result) {
+    public void assertOutput(Tuple5<?, ?, ?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
@@ -423,7 +690,7 @@ public class FlowBuildersTest {
         assertThat(result.get5()).isEqualTo("input5");
     }
 
-    public void assertOutput(Tuple6<String, String, String, String, String, String> result) {
+    public void assertOutput(Tuple6<?, ?, ?, ?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
@@ -432,7 +699,7 @@ public class FlowBuildersTest {
         assertThat(result.get6()).isEqualTo("input6");
     }
 
-    public void assertOutput(Tuple7<String, String, String, String, String, String, String> result) {
+    public void assertOutput(Tuple7<?, ?, ?, ?, ?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
@@ -442,7 +709,7 @@ public class FlowBuildersTest {
         assertThat(result.get7()).isEqualTo("input7");
     }
 
-    public void assertOutput(Tuple8<String, String, String, String, String, String, String, String> result) {
+    public void assertOutput(Tuple8<?, ?, ?, ?, ?, ?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
@@ -453,7 +720,7 @@ public class FlowBuildersTest {
         assertThat(result.get8()).isEqualTo("input8");
     }
 
-    public void assertOutput(Tuple9<String, String, String, String, String, String, String, String, String> result) {
+    public void assertOutput(Tuple9<?, ?, ?, ?, ?, ?, ?, ?, ?> result) {
         assertThat(result.get1()).isEqualTo("input1");
         assertThat(result.get2()).isEqualTo("input2");
         assertThat(result.get3()).isEqualTo("input3");
