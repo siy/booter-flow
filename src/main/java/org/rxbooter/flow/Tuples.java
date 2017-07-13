@@ -100,7 +100,7 @@ public final class Tuples {
             this.values = values;
         }
 
-        public Object get(int i) {
+        protected Object get(int i) {
             return values[i];
         }
 

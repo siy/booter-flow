@@ -20,6 +20,8 @@ package org.rxbooter.flow.impl;
 
 import org.rxbooter.flow.ExecutionType;
 import org.rxbooter.flow.Flow;
+import org.rxbooter.flow.Promise;
+import org.rxbooter.flow.Reactor;
 import org.rxbooter.flow.Step;
 
 import java.util.function.Consumer;
@@ -124,6 +126,11 @@ public final class FlowBuilders {
             return Flow.of(this);
         }
 
+        public F<Promise<Tuple1<T1>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple1<T1>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
+        }
+
         public Flow<Tuple1<Void>, I1> to(Consumer<T1> consumer) {
             step(TF.from(consumer));
             return Flow.of(this);
@@ -212,6 +219,11 @@ public final class FlowBuilders {
             return Flow.of(this);
         }
 
+        public F<Promise<Tuple2<T1, T2>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple2<T1, T2>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
+        }
+
         @Override
         public FlowBuilder2<I1, T1, T2> accept(AF2<T1, T2> function) {
             return new FlowBuilder2<>(step(function.asAcceptorFunction()));
@@ -293,6 +305,11 @@ public final class FlowBuilders {
 
         public Flow<Tuple3<T1, T2, T3>, I1> done() {
             return Flow.of(this);
+        }
+
+        public F<Promise<Tuple3<T1, T2, T3>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple3<T1, T2, T3>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
         }
 
         @Override
@@ -378,6 +395,11 @@ public final class FlowBuilders {
             return Flow.of(this);
         }
 
+        public F<Promise<Tuple4<T1, T2, T3, T4>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple4<T1, T2, T3, T4>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
+        }
+
         @Override
         public FlowBuilder4<I1, T1, T2, T3, T4> accept(AF4<T1, T2, T3, T4> function) {
             return new FlowBuilder4<>(step(function.asAcceptorFunction()));
@@ -459,6 +481,11 @@ public final class FlowBuilders {
 
         public Flow<Tuple5<T1, T2, T3, T4, T5>, I1> done() {
             return Flow.of(this);
+        }
+
+        public F<Promise<Tuple5<T1, T2, T3, T4, T5>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple5<T1, T2, T3, T4, T5>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
         }
 
         @Override
@@ -544,6 +571,11 @@ public final class FlowBuilders {
             return Flow.of(this);
         }
 
+        public F<Promise<Tuple6<T1, T2, T3, T4, T5, T6>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple6<T1, T2, T3, T4, T5, T6>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
+        }
+
         @Override
         public FlowBuilder6<I1, T1, T2, T3, T4, T5, T6> accept(AF6<T1, T2, T3, T4, T5, T6> function) {
             return new FlowBuilder6<>(step(function.asAcceptorFunction()));
@@ -625,6 +657,11 @@ public final class FlowBuilders {
 
         public Flow<Tuple7<T1, T2, T3, T4, T5, T6, T7>, I1> done() {
             return Flow.of(this);
+        }
+
+        public F<Promise<Tuple7<T1, T2, T3, T4, T5, T6, T7>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple7<T1, T2, T3, T4, T5, T6, T7>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
         }
 
         @Override
@@ -710,6 +747,11 @@ public final class FlowBuilders {
             return Flow.of(this);
         }
 
+        public F<Promise<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
+        }
+
         @Override
         public FlowBuilder8<I1, T1, T2, T3, T4, T5, T6, T7, T8> accept(AF8<T1, T2, T3, T4, T5, T6, T7, T8> function) {
             return new FlowBuilder8<>(step(function.asAcceptorFunction()));
@@ -791,6 +833,11 @@ public final class FlowBuilders {
 
         public Flow<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>, I1> done() {
             return Flow.of(this);
+        }
+
+        public F<Promise<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>>, I1> asFunctionIn(Reactor reactor) {
+            Flow<Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9>, I1> flow = done();
+            return (param) -> flow.applyTo(param).in(reactor);
         }
 
         @Override

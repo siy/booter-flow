@@ -24,18 +24,38 @@ import java.util.function.Supplier;
 import static org.rxbooter.flow.Tuples.*;
 
 public interface Functions {
-    interface TF<R1, T1> {
-        R1 apply(T1 param) throws Throwable;
 
-        static TF<Tuple1<Void>, Tuple> from(Runnable runnable) {
+    //----------------------------------- General Purpose functions
+
+    
+    interface F<R1, T1> {
+        R1 apply(T1 param);
+
+        static F<Tuple1<Void>, Tuple1<Void>> from(Runnable runnable) {
             return (a) -> {runnable.run(); return of(null);};
         }
 
-        static <T> TF<Tuple1<T>, Tuple> from(Supplier<T> supplier) {
+        static <T> F<Tuple1<T>, Tuple1<Void>> from(Supplier<T> supplier) {
             return (t) -> of(supplier.get());
         }
 
-        static <T> TF<Tuple, Tuple1<T>> from(Consumer<T> consumer) {
+        static <T> F<Tuple1<Void>, Tuple1<T>> from(Consumer<T> consumer) {
+            return (t) -> { consumer.accept(t.get1()); return Tuples.empty1();};
+        }
+    }
+
+    interface TF<R1, T1> {
+        R1 apply(T1 param) throws Throwable;
+
+        static TF<Tuple1<Void>, Tuple1<Void>> from(Runnable runnable) {
+            return (a) -> {runnable.run(); return of(null);};
+        }
+
+        static <T> TF<Tuple1<T>, Tuple1<Void>> from(Supplier<T> supplier) {
+            return (t) -> of(supplier.get());
+        }
+
+        static <T> TF<Tuple1<Void>, Tuple1<T>> from(Consumer<T> consumer) {
             return (t) -> { consumer.accept(t.get1()); return Tuples.empty1();};
         }
     }

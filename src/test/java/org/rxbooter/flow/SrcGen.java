@@ -20,9 +20,9 @@ public class SrcGen {
 
     //Note: might have issues in generated code
     public static void main(String[] args) {
-        new SrcGen("FlowBuilders").generateFlowBuilders();
+        //new SrcGen("FlowBuilders").generateFlowBuilders();
         //new SrcGen("Tuples").generateTuples();
-        //new SrcGen("Functions").generateFunctions();
+        new SrcGen("Functions").generateFunctions();
         //new SrcGen("Flows").generateFlows();
         //new SrcGen("Reactor").generateReactor();
     }
@@ -82,9 +82,9 @@ public class SrcGen {
     }
 
     private void declareReactorMethod(int i, String functionName) {
-        out(1, "default <" + typeList("T", i) + "> " + tupleName("T", i) + " " + functionName + "(" + inputSupplierList(i) + ") {");
+        out(1, "default <" + typeList("T", i) + "> " + tupleName("T", i) + " " + functionName + "(" + inputSupplierList(i) +") {");
 
-        out(2, "return Tuples.of(" + awaitParameters(i) + ");");
+        out(2, "return Tuples.of(" + awaitParameters(i) +");");
         out(1, "}");
     }
 
@@ -101,10 +101,28 @@ public class SrcGen {
     private void generateFlowBuilder(String name) {
         out(0, "package " + PACKAGE + ".impl" + ";");
         nl();
-        out(0, "// WARNING: Generated file, do not edit, all changes will be lost.");
+        out(0, "/*");
+        out(0, " * Copyright (c) 2017 Sergiy Yevtushenko");
+        out(0, " *");
+        out(0, " * Licensed under the Apache License, Version 2.0 (the \"License\");");
+        out(0, " * you may not use this file except in compliance with the License.");
+        out(0, " * You may obtain a copy of the License at");
+        out(0, " *");
+        out(0, " *    http://www.apache.org/licenses/LICENSE-2.0");
+        out(0, " *");
+        out(0, " * Unless required by applicable law or agreed to in writing, software");
+        out(0, " * distributed under the License is distributed on an \"AS IS\" BASIS,");
+        out(0, " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.");
+        out(0, " * See the License for the specific language governing permissions and");
+        out(0, " * limitations under the License.");
+        out(0, " *");
+        out(0, " *");
+        out(0, " */");
         nl();
         out(0, "import " + PACKAGE + ".ExecutionType;");
         out(0, "import " + PACKAGE + ".Flow;");
+        out(0, "import " + PACKAGE + ".Promise;");
+        out(0, "import " + PACKAGE + ".Reactor;");
         out(0, "import " + PACKAGE + ".Step;");
         nl();
         out(0, "import java.util.function.Consumer;");
@@ -218,6 +236,11 @@ public class SrcGen {
             out(3, "return Flow.of(this);");
             out(2, "}");
             nl();
+            out(2, "public F<Promise<Tuple" + i + "<" + typeList("T", i) + ">>, I1> asFunctionIn(Reactor reactor) {");
+            out(3, "Flow<Tuple" + i + "<" + typeList("T", i) + ">, I1> flow = done();");
+            out(3, "return (param) -> flow.applyTo(param).in(reactor);");
+            out(2, "}");
+            nl();
 
             if (i == 1) {
                 out(2, "public Flow<Tuple1<Void>, I1> to(Consumer<T1> consumer) {");
@@ -282,7 +305,7 @@ public class SrcGen {
     private void addFlowConditionalMethod(int k, String name) {
         String methodStart = "public " + flowBaseTypeName("T", k) + " " + name + "(" + conditionFunctionTypeName(k) + " condition";
 
-        out(2, methodStart + ") {");
+        out(2, methodStart +") {");
         out(3, "setCondition(condition.asConditionFunction());");
         out(3, "return this;");
         out(2, "}");
@@ -291,7 +314,7 @@ public class SrcGen {
     private void addFlowAcceptMethod(int k, String name) {
         String methodStart = "public " + flowTypeName("T", k) + " " + name + "(" + acceptFunctionTypeName(k) + " function";
 
-        out(2, methodStart + ") {");
+        out(2, methodStart +") {");
         out(3, "return new FlowBuilder" + k + "<>(step(function.asAcceptorFunction()));");
         out(2, "}");
     }
@@ -300,7 +323,7 @@ public class SrcGen {
         String name = inputName + (ordered ? k : "");
         String methodStart = "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + "(" + functionTypeName(j, k) + " function";
 
-        out(2, methodStart + ") {");
+        out(2, methodStart +") {");
         out(3, "return new FlowBuilder" + k + "<>(step(function.asStepFunction()));");
         out(2, "}");
     }
@@ -343,8 +366,8 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> of(" + inputParamList(i) + ") {");
-            out(2, "return new Tuple" + i + "<>(" + paramList(i) + ");");
+            out(1, "public static<" + typeList("T", i) + "> Tuple" + i + "<" + typeList("T", i) + "> of(" + inputParamList(i) +") {");
+            out(2, "return new Tuple" + i + "<>(" + paramList(i) +");");
             out(1, "}");
             writeSeparator(i);
         }
@@ -369,14 +392,14 @@ public class SrcGen {
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
                 out(1, "public static class Tuple" + i + "<" + typeList("T", i) + "> extends Tuple {");
-                out(2, "public Tuple" + i + "(" + inputParamList(i) + ") {");
-                out(3, "super(" + paramList(i) + ");");
+                out(2, "public Tuple" + i + "(" + inputParamList(i) +") {");
+                out(3, "super(" + paramList(i) +");");
                 out(2, "}");
                 nl();
                 for(int j = 1; j <= i; j++) { //Getters
                     out(2, "@SuppressWarnings(\"unchecked\")");
                     out(2, "public T" + j + " get" + j + "() {");
-                    out(3, "return (T" + j + ") get(" + (j - 1) + ");");
+                    out(3, "return (T" + j +") get(" + (j - 1) +");");
                     out(2, "}");
                     writeInnerSeparator(j, i);
                 }
@@ -390,23 +413,89 @@ public class SrcGen {
     private void generateFunctions(String name) {
         out(0, "package " + PACKAGE + ";");
         nl();
-        out(0, "// WARNING: Generated file, do not edit, all changes will be lost.");
+        out(0, "/*");
+        out(0, " * Copyright (c) 2017 Sergiy Yevtushenko");
+        out(0, " *");
+        out(0, " * Licensed under the Apache License, Version 2.0 (the \"License\");");
+        out(0, " * you may not use this file except in compliance with the License.");
+        out(0, " * You may obtain a copy of the License at");
+        out(0, " *");
+        out(0, " *    http://www.apache.org/licenses/LICENSE-2.0");
+        out(0, " *");
+        out(0, " * Unless required by applicable law or agreed to in writing, software");
+        out(0, " * distributed under the License is distributed on an \"AS IS\" BASIS,");
+        out(0, " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.");
+        out(0, " * See the License for the specific language governing permissions and");
+        out(0, " * limitations under the License.");
+        out(0, " *");
+        out(0, " *");
+        out(0, " */");
         nl();
-        out(0, "import static " + PACKAGE + ".Step.*;");
+        out(0, "import java.util.function.Consumer;");
+        out(0, "import java.util.function.Supplier;");
+        nl();
         out(0, "import static " + PACKAGE + ".Tuples.*;");
         nl();
         out(0, "public interface " + name + " {");
+        nl();
+        out(1, "//----------------------------------- General Purpose functions");
+        nl();
+        out(1, "");
+
+        out(1, "interface F<R1, T1> {");
+        out(2, "R1 apply(T1 param);");
+        nl();
+        out(2, "static F<Tuple1<Void>, Tuple1<Void>> from(Runnable runnable) {");
+        out(3, "return (a) -> {runnable.run(); return of(null);};");
+        out(2, "}");
+        nl();
+        out(2, "static <T> F<Tuple1<T>, Tuple1<Void>> from(Supplier<T> supplier) {");
+        out(3, "return (t) -> of(supplier.get());");
+        out(2, "}");
+        nl();
+        out(2, "static <T> F<Tuple1<Void>, Tuple1<T>> from(Consumer<T> consumer) {");
+        out(3, "return (t) -> { consumer.accept(t.get1()); return Tuples.empty1();};");
+        out(2, "}");
+        out(1, "}");
+        nl();
+        out(1, "interface TF<R1, T1> {");
+        out(2, "R1 apply(T1 param) throws Throwable;");
+        nl();
+        out(2, "static TF<Tuple1<Void>, Tuple1<Void>> from(Runnable runnable) {");
+        out(3, "return (a) -> {runnable.run(); return of(null);};");
+        out(2, "}");
+        nl();
+        out(2, "static <T> TF<Tuple1<T>, Tuple1<Void>> from(Supplier<T> supplier) {");
+        out(3, "return (t) -> of(supplier.get());");
+        out(2, "}");
+        nl();
+        out(2, "static <T> TF<Tuple1<Void>, Tuple1<T>> from(Consumer<T> consumer) {");
+        out(3, "return (t) -> { consumer.accept(t.get1()); return Tuples.empty1();};");
+        out(2, "}");
+        out(1, "}");
+        nl();
+        out(1, "interface EH<R1> {");
+        out(2, "R1 handle(Throwable err);");
+        out(1, "}");
+        nl();
+        out(1, "interface CF<T1> {");
+        out(2, "boolean test(T1 param);");
+        out(1, "}");
+        nl();
+        out(1, "interface AF<T1> {");
+        out(2, "void accept(T1 param);");
+        out(1, "}");
         nl();
         out(1, "//----------------------------------- Acceptor functions");
         nl();
         for (int j = 1; j <= NUM_PARAMS; j++) { //Inputs
             String typeSpec = "<" + typeList("T", j) + ">";
             out(1, "interface AF" + j + typeSpec + " {");
-            out(2, "void accept(" + inputParamList(j) + ");");
+            out(2, "void accept(" + inputParamList(j) +");");
             nl();
             String returnType = "Tuple" + j + typeSpec;
             out(2, "default AF<" + returnType + "> asAcceptorFunction() {");
-            out(3, "return (" + returnType + " param) -> accept(" + tupleToParams("T", j) + ");");
+            out(3, "return (" + returnType + " param) -> accept(" + tupleToParams("T", j) +");");
             out(2, "}");
             out(1, "}");
             nl();
@@ -417,11 +506,11 @@ public class SrcGen {
         for (int j = 1; j <= NUM_PARAMS; j++) { //Inputs
             String typeSpec = "<" + typeList("T", j) + ">";
             out(1, "interface CF" + j + typeSpec + " {");
-            out(2, "boolean test(" + inputParamList(j) + ");");
+            out(2, "boolean test(" + inputParamList(j) +");");
             nl();
             String returnType = "Tuple" + j + typeSpec;
             out(2, "default CF<" + returnType + "> asConditionFunction() {");
-            out(3, "return (" + returnType + " param) -> test(" + tupleToParams("T", j) + ");");
+            out(3, "return (" + returnType + " param) -> test(" + tupleToParams("T", j) +");");
             out(2, "}");
             out(1, "}");
             nl();
@@ -431,7 +520,7 @@ public class SrcGen {
         for (int j = 1; j <= NUM_PARAMS; j++) { //Outputs
             String baseName = "FN" + j + "0";
             out(1, "interface " + baseName + typeList(j, 1) + " {");
-            out(2, "R1 apply(" + inputParamList(j) + ");");
+            out(2, "R1 apply(" + inputParamList(j) +");");
             out(1, "}");
             nl();
 
@@ -441,7 +530,7 @@ public class SrcGen {
                 out(1, "interface FN" + j + i + typeList(j, i) + " extends " + baseName + "<" + resultTypeName + ", " + typeList("T", j) + "> {");
                 //out(2, "@SuppressWarnings(\"unchecked\")");
                 out(2, "default TF<" + resultTypeName + ", " + inputTypeName + "> asStepFunction() {");
-                out(3, "return (" + inputTypeName + " param) -> apply(" + tupleToParams("T", j) + ");");
+                out(3, "return (" + inputTypeName + " param) -> apply(" + tupleToParams("T", j) +");");
                 out(2, "}");
                 out(1, "}");
                 writeSeparator(i);
@@ -505,7 +594,7 @@ public class SrcGen {
         StringBuilder builder = new StringBuilder();
 
         for (int i = 1; i <= count; i++) {
-            builder.append("Supplier<T").append(i).append("> ").append("param").append(i).append(SEPARATOR);
+            builder.append("Supplier<T").append(i).append(">").append("param").append(i).append(SEPARATOR);
         }
 
         builder.setLength(builder.length() - SEPARATOR.length());
