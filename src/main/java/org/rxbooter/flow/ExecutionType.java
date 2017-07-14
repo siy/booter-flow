@@ -18,6 +18,9 @@ package org.rxbooter.flow;
  *
  */
 
+/**
+ * Different execution types for flow steps.
+ */
 public enum ExecutionType {
     SYNC, ASYNC, AWAIT
 }

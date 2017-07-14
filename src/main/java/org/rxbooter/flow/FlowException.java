@@ -18,6 +18,9 @@ package org.rxbooter.flow;
  *
  */
 
+/**
+ * Base exception for flows.
+ */
 public class FlowException extends RuntimeException {
     private static final long serialVersionUID = -4685894495982223864L;
 
