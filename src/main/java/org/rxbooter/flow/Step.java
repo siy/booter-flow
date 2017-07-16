@@ -21,6 +21,12 @@ package org.rxbooter.flow;
 import org.rxbooter.flow.Functions.EH;
 import org.rxbooter.flow.Functions.TF;
 
+/**
+ * Contained for single flow step.
+ *
+ * @param <R1>  return type
+ * @param <T1>  input type
+ */
 public class Step<R1, T1> {
     private final ExecutionType type;
     private final TF<R1, T1> function;
@@ -32,19 +38,43 @@ public class Step<R1, T1> {
         this.handler = handler == null ? (t) -> null : handler;
     }
 
+    /**
+     * Obtain exception handler for the step.
+     *
+     * @return exception handler defined for the step.
+     */
     public EH<R1> handler() {
         return handler;
     }
 
+    /**
+     * Set new exception handler for step.
+     *
+     * @param handler
+     *          New exception handlert.
+     * @return  reference to {@code this} for call chaining (fluent syntax)
+     */
     public Step<R1, T1> handler(EH<R1> handler) {
         this.handler = handler;
         return this;
     }
 
+    /**
+     * Obtain step execution type.
+     *
+     * @return step execution type.
+     */
     public ExecutionType type() {
         return type;
     }
 
+    /**
+     * Apply step function to provided parameters and handle result.
+     *
+     * @param param
+     *          Input parameter
+     * @return  result of applying step function to given parameter.
+     */
     public R1 apply(T1 param) {
         try {
             return function.apply(param);
@@ -58,10 +88,30 @@ public class Step<R1, T1> {
         }
     }
 
+    /**
+     * Static factory method for creating steps with given type and step function.
+     *
+     * @param type
+     *          Desired step type
+     * @param function
+     *          Step function
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function) {
         return of(type, function, (t) -> null);
     }
 
+    /**
+     * Static factory method for creating steps with given type, step function and exception handler.
+     *
+     * @param type
+     *          Desired step type
+     * @param function
+     *          Step function
+     * @param errorHandler
+     *          Exception handler
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> of(ExecutionType type, TF<R, T> function, EH<R> errorHandler) {
         return new Step<>(type, function, errorHandler);
     }

@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Representation of the @{@link org.rxbooter.flow.Flow} in active state, i.e. when flow is bound to input
- * and can be executed.
+ * Representation of the @{@link org.rxbooter.flow.Flow} in active state, i.e. when flow
+ * is bound to input and can be executed.
  */
 public class FlowExecutor<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;

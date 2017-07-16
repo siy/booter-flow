@@ -23,11 +23,13 @@ import java.util.function.Supplier;
 
 import static org.rxbooter.flow.Tuples.*;
 
+/**
+ * Various functional interfaces used for building flows.
+ */
 public interface Functions {
 
     //----------------------------------- General Purpose functions
 
-    
     interface F<R1, T1> {
         R1 apply(T1 param);
 
