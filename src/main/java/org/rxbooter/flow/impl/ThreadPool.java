@@ -20,6 +20,9 @@ package org.rxbooter.flow.impl;
 
 import java.util.concurrent.ThreadFactory;
 
+/**
+ * Abstract thread pool necessary for {@link org.rxbooter.flow.Reactor}.
+ */
 public interface ThreadPool {
     int DEFAULT_COMPUTING_POOL_SIZE = FixedThreadPool.DEFAULT_COMPUTING_POOL_SIZE;
     int DEFAULT_IO_POOL_SIZE = FixedThreadPool.DEFAULT_IO_POOL_SIZE;

@@ -29,6 +29,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+/**
+ * Simple yet full featured {@link Reactor} implementation.
+ * <br/>
+ * This implementation is built around two thread pools - one (computation) thread pool is used
+ * for {@link ExecutionType#SYNC} steps and second (I/O or blocking) for remaining tasks.
+ */
 public class ThreadPoolReactor implements Reactor {
     private static final long POLL_INTERVAL = 100;
 
@@ -46,14 +52,36 @@ public class ThreadPoolReactor implements Reactor {
         this.ioPool.start(this::ioHandler);
     }
 
+    /**
+     * Obtain default instance of {@link ThreadPoolReactor}
+     * @return default reactor instance.
+     */
     public static ThreadPoolReactor defaultReactor() {
         return DefaultReactorHolder.INSTANCE.reactor();
     }
 
+    /**
+     * Create instance of {@link ThreadPoolReactor} with which will use specified thread pools.
+     *
+     * @param computingPool
+     *          Computing pool which is used for fast non-blocking flow steps execution.
+     * @param ioPool
+     *          I/O or blocking pool which is used for all asynchronous and blocking tasks.
+     * @return built instance of {@link ThreadPoolReactor}
+     */
     public static ThreadPoolReactor with(ThreadPool computingPool, ThreadPool ioPool) {
         return new ThreadPoolReactor(computingPool, ioPool);
     }
 
+    /**
+     * Execute provided instances of {@link Supplier} and wait for one of them which will finish
+     * successful execution first. Once first supplier is finished, result is returned event if
+     * some other suppliers are still running. If all suppliers failed then empty result is returned.
+     *
+     * @param suppliers Suppliers to execute
+     * @return optional result of execution. It holds first returned value if at least one supplier
+     * provided valid instance or is empty if all suppliers failed.
+     */
     @SuppressWarnings("unchecked")
     @Override
     public final <T> Optional<T> awaitAny(Supplier<T>... suppliers) {
@@ -67,6 +95,9 @@ public class ThreadPoolReactor implements Reactor {
         return promise.safeAwait().map(Tuple1::get1);
     }
 
+    /**
+     * Shutdown reactor.
+     */
     @Override
     public void shutdown() {
         shutdown.compareAndSet(false, true);
@@ -74,6 +105,15 @@ public class ThreadPoolReactor implements Reactor {
         ioPool.shutdown();
     }
 
+    /**
+     * Submit {@link FlowExecutor} to reactor for execution. Submission is performed asynchronously
+     * and result if returned immediately. Notification about execution are performed via returned
+     * instance of {@link Promise} associated with the {@link FlowExecutor} instance.
+     *
+     * @param flowExecutor
+     *          {@link FlowExecutor} instance which need to be processed.
+     * @return  Instance of {@link Promise} associated with submitted {@link FlowExecutor}.
+     */
     @Override
     public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
         if (shutdown.get()) {

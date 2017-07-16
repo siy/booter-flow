@@ -58,30 +58,67 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return result;
     }
 
+    /**
+     * Access instance of {@link Promise} associated with this {@link FlowExecutor}.
+     *
+     * @return reference to {@link Promise} instance.
+     */
     public Promise<O> promise() {
         return promise;
     }
 
+    /**
+     * Check if execution changed state of associated {@link Promise} so result of execution
+     * is already calculated and can be returned.
+     *
+     * @return {@code true} is associated {@link Promise} instance holds value or error.
+     */
     public boolean isReady() {
         return promise.isReady();
     }
 
+    /**
+     * Return type of current (not yet executed) step.
+     *
+     * @return execution type.
+     */
     public ExecutionType type() {
         return (index < steps.size()) ? currentStep().type() : null;
     }
 
+    /**
+     * Check if current (not yet executed) step is blocking. All step types except
+     * {@link ExecutionType#SYNC} are considered blocking.
+     *
+     * @return {@code true} if current step can be executed and is blocking.
+     */
     public boolean isBlocking() {
         return !canRun() || currentStep().type() != ExecutionType.SYNC;
     }
 
+    /**
+     * Check if current (not yet executed) step is asynchronous execution step.
+     *
+     * @return {@code true} if current step can be executed and is asynchronous.
+     */
     public boolean isAsync() {
         return canRun() && currentStep().type() == ExecutionType.ASYNC;
     }
 
+    /**
+     * Check if flow can execute current step.
+     *
+     * @return {@code true} if step can be executed.
+     */
     public boolean canRun() {
         return !isReady() && index < steps.size();
     }
 
+    /**
+     * Execute single flow step. If executed step is the last one then associated promise is notified.
+     *
+     * @return {@code true} if next step can be executed.
+     */
     @SuppressWarnings("unchecked")
     public boolean run() {
         if (!canRun()) {
@@ -110,6 +147,11 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return (Step<Tuple, Tuple>) steps.get(index);
     }
 
+    /**
+     * Go to next step.
+     *
+     * @return {@code true} if switching to next step is possible and went successfully.
+     */
     public boolean advance() {
         if (index < steps.size()) {
             index++;
@@ -117,6 +159,13 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
         return canRun();
     }
 
+    /**
+     * Start execution of the flow in the specified {@link Reactor}.
+     *
+     * @param reactor
+     *          Instance of {@link Reactor} where flow will be executed.
+     * @return instance of {@link Promise} associated with this flow.
+     */
     public Promise<O> in(Reactor reactor) {
         return reactor.submit(this);
     }

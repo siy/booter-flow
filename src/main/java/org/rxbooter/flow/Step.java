@@ -116,26 +116,80 @@ public class Step<R1, T1> {
         return new Step<>(type, function, errorHandler);
     }
 
+    /**
+     * Static factory method for creating steps of {@link ExecutionType#SYNC} type and with given
+     * step function.
+     *
+     * @param function
+     *          Step function
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> sync(TF<R, T> function) {
         return of(ExecutionType.SYNC, function);
     }
 
+    /**
+     * Static factory method for creating steps of {@link ExecutionType#SYNC} type, with given
+     * step function and exception handler.
+     *
+     * @param function
+     *          Step function
+     * @param errorHandler
+     *          Exception handler
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> sync(TF<R, T> function, EH<R> errorHandler) {
         return of(ExecutionType.SYNC, function, errorHandler);
     }
 
+    /**
+     * Static factory method for creating steps of {@link ExecutionType#ASYNC} type and with given
+     * step function.
+     *
+     * @param function
+     *          Step function
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> async(TF<R, T> function) {
         return of(ExecutionType.ASYNC, function);
     }
 
+    /**
+     * Static factory method for creating steps of {@link ExecutionType#ASYNC} type, with given
+     * step function and exception handler.
+     *
+     * @param function
+     *          Step function
+     * @param errorHandler
+     *          Exception handler
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> async(TF<R, T> function, EH<R> errorHandler) {
         return of(ExecutionType.ASYNC, function, errorHandler);
     }
 
+    /**
+     * Static factory method for creating steps of {@link ExecutionType#AWAIT} type and with given
+     * step function.
+     *
+     * @param function
+     *          Step function
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> await(TF<R, T> function) {
         return of(ExecutionType.AWAIT, function);
     }
 
+    /**
+     * Static factory method for creating steps of {@link ExecutionType#AWAIT} type, with given
+     * step function and exception handler.
+     *
+     * @param function
+     *          Step function
+     * @param errorHandler
+     *          Exception handler
+     * @return created {@link Step} instance.
+     */
     public static<R, T> Step<R, T> await(TF<R, T> function, EH<R> errorHandler) {
         return of(ExecutionType.AWAIT, function, errorHandler);
     }
