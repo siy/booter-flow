@@ -299,9 +299,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Single value tuple.
-     */
     public static class Tuple1<T1> extends Tuple {
         public Tuple1(T1 param1) {
             super(param1);
@@ -313,9 +310,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Tuple for two values of different types.
-     */
     public static class Tuple2<T1, T2> extends Tuple {
         public Tuple2(T1 param1, T2 param2) {
             super(param1, param2);
@@ -332,9 +326,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Tuple for three values of different types.
-     */
     public static class Tuple3<T1, T2, T3> extends Tuple {
         public Tuple3(T1 param1, T2 param2, T3 param3) {
             super(param1, param2, param3);
@@ -356,9 +347,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Tuple for four values of different types.
-     */
     public static class Tuple4<T1, T2, T3, T4> extends Tuple {
         public Tuple4(T1 param1, T2 param2, T3 param3, T4 param4) {
             super(param1, param2, param3, param4);
@@ -385,9 +373,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Tuple for five values of different types.
-     */
     public static class Tuple5<T1, T2, T3, T4, T5> extends Tuple {
         public Tuple5(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5) {
             super(param1, param2, param3, param4, param5);
@@ -419,9 +404,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Tuple for six values of different types.
-     */
     public static class Tuple6<T1, T2, T3, T4, T5, T6> extends Tuple {
         public Tuple6(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6) {
             super(param1, param2, param3, param4, param5, param6);
@@ -458,9 +440,6 @@ public final class Tuples {
         }
     }
 
-    /**
-     * Tuple for seven values of different types.
-     */
     public static class Tuple7<T1, T2, T3, T4, T5, T6, T7> extends Tuple {
         public Tuple7(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5, T6 param6, T7 param7) {
             super(param1, param2, param3, param4, param5, param6, param7);
