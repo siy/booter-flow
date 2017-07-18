@@ -30,22 +30,57 @@ public interface ThreadPool {
     ThreadFactory DEFAULT_COMPUTING_THREAD_FACTORY = new DaemonThreadFactory("ThreadPoolReactor-computing-");
     ThreadFactory DEFAULT_IO_THREAD_FACTORY = new DaemonThreadFactory("ThreadPoolReactor-io-");
 
+    /**
+     * Start thread pool. All threads will run provided {@link Runnable} instance.
+     *
+     * @param target
+     *          {@link Runnable} instance to be executed in thread pool.
+     *
+     * @return {@code this} for call chaining (fluent syntax).
+     */
     ThreadPool start(Runnable target);
 
+    /**
+     * Start shutting down of the thread pool.
+     */
     void shutdown();
 
+    /**
+     * Factory method for creating thread pool configured for blocking I/O operations.
+     *
+     * @return created thread pool
+     */
     static ThreadPool defaultIo() {
         return new FixedThreadPool(DEFAULT_IO_POOL_SIZE, DEFAULT_IO_THREAD_FACTORY);
     }
 
+    /**
+     * Factory method for creating thread pool configured for non-blocking computing operations.
+     *
+     * @return created thread pool
+     */
     static ThreadPool defaultComputing() {
         return new FixedThreadPool(DEFAULT_COMPUTING_POOL_SIZE, DEFAULT_COMPUTING_THREAD_FACTORY);
     }
 
+    /**
+     * Create thread pool of specified size configured for blocking I/O operations.
+     *
+     * @param size
+     *          Size of thread pool
+     * @return created thread pool
+     */
     static ThreadPool fixedIo(int size) {
         return new FixedThreadPool(size, DEFAULT_IO_THREAD_FACTORY);
     }
 
+    /**
+     * Create thread pool of specified size configured for non-blocking computing operations.
+     *
+     * @param size
+     *          Size of thread pool
+     * @return created thread pool
+     */
     static ThreadPool fixedComputing(int size) {
         return new FixedThreadPool(size, DEFAULT_COMPUTING_THREAD_FACTORY);
     }

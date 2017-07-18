@@ -30,6 +30,27 @@ import java.util.function.Supplier;
 
 import static org.rxbooter.flow.Functions.*;
 
+/**
+ * Representation of executable flow.
+ * <br/>
+ * Executable flow consists of set of {@link Step}'s. Each step might be one of the {@link ExecutionType}
+ * type. Steps of {@link ExecutionType#SYNC} type are handled by computing thread pool of {@link Reactor}.
+ * Steps of {@link ExecutionType#ASYNC} and {@link ExecutionType#AWAIT} types are handled by blocking I/O
+ * thread pool of {@link Reactor}.
+ * <br/>
+ * Each flow has input and output values. Both of them are instances of {@link Tuple} of some size
+ * (sizes from 1 to 9 are supported) qualified by some types. Flows with compatible types (i.e. type of
+ * output of one flow matches type of input of other flow) can be combined in more complex flow.
+ * <br/>
+ * {@link Flow} is immutable container with zero flow state, so it can be freely shared across multiple
+ * threads without need for synchronisation. In order to execute flow {@link #applyTo(Tuple)} is used.
+ * It creates an instance of {@link FlowExecutor} which can be submitted to {@link Reactor} for execution.
+ *
+ * @param <O>
+ *     Output type
+ * @param <I>
+ *     Input type
+ */
 public class Flow<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
     private final Tuple empty;
@@ -39,19 +60,47 @@ public class Flow<O extends Tuple, I extends Tuple> {
         this.empty = empty;
     }
 
+    /**
+     * Create {@link FlowExecutor} for this flow. Note that this call does not trigger immediate execution.
+     * Instead created instance of {@link FlowExecutor} should be submitted to {@link Reactor} for execution.
+     *
+     * @param input
+     *          Actual input parameters for flow.
+     * @return created {@link FlowExecutor}
+     */
     public FlowExecutor<O, I> applyTo(I input) {
         return new FlowExecutor<>(steps, sanitizeInput(input), Promise.empty());
     }
 
-    @SuppressWarnings("unchecked")
-    public I sanitizeInput(I input) {
-        return input == null ? (I) empty : input;
-    }
-
+    /**
+     * Create {@link FlowExecutor} for this flow. Note that this call does not trigger immediate execution.
+     * Instead created instance of {@link FlowExecutor} should be submitted to {@link Reactor} for execution.
+     * <br/>
+     * Along with input parameter this method requires instance of {@link Promise} which will receive
+     * notification upon flow execution completion.
+     *
+     * @param input
+     *          Actual input parameters for flow.
+     * @param promise
+     *          Instance of {@link Promise} which will receive notification
+     * @return created {@link FlowExecutor}
+     */
     public FlowExecutor<O, I> applyTo(I input, Promise<O> promise) {
         return new FlowExecutor<>(steps, sanitizeInput(input), promise);
     }
 
+    @SuppressWarnings("unchecked")
+    private I sanitizeInput(I input) {
+        return input == null ? (I) empty : input;
+    }
+
+    /**
+     * Factory method for assembling {@link Flow} from flow builder.
+     *
+     * @param builder
+     *          Builder to assemble flow from.
+     * @return created {@link Flow} instance
+     */
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(FlowBuilder0<I1> builder) {
         List<Step<?, ?>> steps = new ArrayList<>();
         builder.apply(steps::add);
@@ -59,6 +108,15 @@ public class Flow<O extends Tuple, I extends Tuple> {
         return new Flow<>(steps, builder.empty());
     }
 
+    /**
+     * Create flow consisting of single step.
+     *
+     * @param step
+     *          The step for which flow is created.
+     * @param empty
+     *          Tuple which represents empty input for step.
+     * @return created {@link Flow} instance
+     */
     public static <O1 extends Tuple, I1 extends Tuple> Flow<O1, I1> of(Step<O1, I1> step, Tuple empty) {
         return new Flow<>(Collections.singletonList(step), empty);
     }

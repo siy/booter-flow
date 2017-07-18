@@ -24,6 +24,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
+/**
+ * Implementation of {@link ThreadPool} with fixed number of threads.
+ */
 public class FixedThreadPool implements ThreadPool {
     public static final int DEFAULT_COMPUTING_POOL_SIZE;
     public static final int DEFAULT_IO_POOL_SIZE = 1000;
