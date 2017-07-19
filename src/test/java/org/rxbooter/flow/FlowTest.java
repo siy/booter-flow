@@ -12,6 +12,7 @@ import static org.rxbooter.flow.Tuples.Tuple1;
 import static org.rxbooter.flow.Tuples.of;
 
 //TODO: finish it
+@SuppressWarnings("SpellCheckingInspection")
 public class FlowTest {
     @Test
     public void shouldCompileAndRunSimpleFlow() throws Exception {
@@ -39,7 +40,7 @@ public class FlowTest {
     public void shouldBuildFlowFromSupplier() throws Exception {
         AtomicInteger counter = new AtomicInteger(0);
 
-        Flow<Tuple1<Integer>, Tuple1<Void>> flow = Flow.from(() -> counter.incrementAndGet()).done();
+        Flow<Tuple1<Integer>, Tuple1<Void>> flow = Flow.from(counter::incrementAndGet).done();
 
         Integer value1 = flow.applyTo(null).in(Reactor.pooled()).await().get1();
         Integer value2 = flow.applyTo(null).in(Reactor.pooled()).await().get1();
@@ -56,13 +57,13 @@ public class FlowTest {
             .done();
 
         Flow<Tuple1<String>, Tuple2<String, Integer>> flow2 = take(String.class, Integer.class)
-            .mapTo5((s, i) -> of(s, i, "refix-" + s, i + s.length(), s.length()))
+            .mapTo5((s, i) -> of(s, i, "prefix-" + s, i + s.length(), s.length()))
             .mapTo1((s1, i1, s2, i2, i3) -> of(String.format("<%s>, <%s>, <%s>, <%s>, <%s>", s1, i1, s2, i2, i3)))
             .done();
 
         Flow<Tuple1<String>, Tuple3<String, Long, Integer>> flow = Flow.compose(flow1, flow2);
 
         String result = flow.applyTo(Tuples.of("abcABC", 1L, 33)).in(Reactor.pooled()).await().get1();
-        assertThat(result).isEqualTo("<abcABC-suffix 43>, <18>, <refix-abcABC-suffix 43>, <34>, <16>");
+        assertThat(result).isEqualTo("<abcABC-suffix 43>, <18>, <prefix-abcABC-suffix 43>, <34>, <16>");
     }
 }

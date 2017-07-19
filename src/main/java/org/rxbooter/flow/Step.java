@@ -51,7 +51,7 @@ public class Step<R1, T1> {
      * Set new exception handler for step.
      *
      * @param handler
-     *          New exception handlert.
+     *          New exception handler.
      * @return  reference to {@code this} for call chaining (fluent syntax)
      */
     public Step<R1, T1> handler(EH<R1> handler) {

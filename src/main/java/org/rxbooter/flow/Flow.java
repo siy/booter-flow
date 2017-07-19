@@ -19,7 +19,6 @@ package org.rxbooter.flow;
  */
 
 import org.rxbooter.flow.Tuples.*;
-import org.rxbooter.flow.impl.FlowBuilders;
 import org.rxbooter.flow.impl.FlowBuilders.*;
 import org.rxbooter.flow.impl.FlowExecutor;
 
@@ -27,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-
-import static org.rxbooter.flow.Functions.*;
 
 /**
  * Representation of executable flow.

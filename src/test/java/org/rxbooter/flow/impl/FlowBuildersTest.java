@@ -11,6 +11,7 @@ import static  org.rxbooter.flow.Functions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FlowBuildersTest {
+    @SuppressWarnings("SpellCheckingInspection")
     @Test
     public void shouldBuildSimpleFlow() throws Exception {
         Flow<Tuple1<String>, Tuple1<String>> flow = Flow.take(String.class)

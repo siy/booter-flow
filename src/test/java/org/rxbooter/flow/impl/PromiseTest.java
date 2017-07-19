@@ -12,7 +12,7 @@ public class PromiseTest {
     public void shouldWaitForValueToBeSet() throws Exception {
         Promise<Integer> promise = Promise.empty();
 
-        newThread(() -> {sleep(20); promise.notify(42);}).start();
+        newThread(() -> {sleep(); promise.notify(42);}).start();
 
         assertThat(promise.get()).isNull();
         assertThat(promise.await()).isEqualTo(42);
@@ -24,7 +24,7 @@ public class PromiseTest {
         Promise<Integer> promise = Promise.empty();
 
         newThread(() -> {promise.notify(40); promise.notify(41);}).start();
-        sleep(20);
+        sleep();
         assertThat(promise.await()).isEqualTo(40);
         assertThat(promise.isReady()).isTrue();
     }
@@ -33,7 +33,7 @@ public class PromiseTest {
     public void shouldRethrowNotifiedError() throws Exception {
         Promise<Integer> promise = Promise.empty();
 
-        newThread(() -> {sleep(20); promise.notifyError(new FlowException("oops!"));}).start();
+        newThread(() -> {sleep(); promise.notifyError(new FlowException("oops!"));}).start();
 
         try {
             promise.await();
@@ -74,6 +74,10 @@ public class PromiseTest {
         assertThat(promise.isReady()).isTrue();
         assertThat(promise.get()).isNull();
         promise.await();
+    }
+
+    private void sleep() {
+        sleep(20);
     }
 
     private void sleep(long delay) {

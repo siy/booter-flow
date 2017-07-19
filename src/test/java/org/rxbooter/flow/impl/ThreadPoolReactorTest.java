@@ -34,7 +34,7 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldRunAsyncTask() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
-        Promise<Tuple1<Void>> promise = reactor().async(() -> latch.countDown());
+        Promise<Tuple1<Void>> promise = reactor().async(latch::countDown);
         promise.await();
         assertThat(latch.getCount()).isEqualTo(0);
     }
@@ -63,7 +63,7 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks1() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple1<Long> result = reactor().awaitAll(() -> slowMethod1());
+        Tuple1<Long> result = reactor().awaitAll(this::slowMethod1);
 
         assertThat(result.get1()).isEqualTo(42L);
         System.out.println("Time 1: " + (System.currentTimeMillis() - start));
@@ -72,7 +72,7 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks2() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple2<Long, Long> result = reactor().awaitAll(() -> slowMethod1(), () -> slowMethod2());
+        Tuple2<Long, Long> result = reactor().awaitAll(this::slowMethod1, this::slowMethod2);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -82,9 +82,9 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks3() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple3<Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                             () -> slowMethod2(),
-                                                             () -> slowMethod1());
+        Tuple3<Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                             this::slowMethod2,
+                                                             this::slowMethod1);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -95,10 +95,10 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks4() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple4<Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                                   () -> slowMethod2(),
-                                                                   () -> slowMethod1(),
-                                                                   () -> slowMethod2());
+        Tuple4<Long, Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                                   this::slowMethod2,
+                                                                   this::slowMethod1,
+                                                                   this::slowMethod2);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -110,11 +110,11 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks5() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple5<Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                                         () -> slowMethod2(),
-                                                                         () -> slowMethod1(),
-                                                                         () -> slowMethod2(),
-                                                                         () -> slowMethod1());
+        Tuple5<Long, Long, Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                                         this::slowMethod2,
+                                                                         this::slowMethod1,
+                                                                         this::slowMethod2,
+                                                                         this::slowMethod1);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -127,12 +127,12 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks6() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple6<Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                                               () -> slowMethod2(),
-                                                                               () -> slowMethod1(),
-                                                                               () -> slowMethod2(),
-                                                                               () -> slowMethod1(),
-                                                                               () -> slowMethod2());
+        Tuple6<Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                                               this::slowMethod2,
+                                                                               this::slowMethod1,
+                                                                               this::slowMethod2,
+                                                                               this::slowMethod1,
+                                                                               this::slowMethod2);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -146,13 +146,13 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks7() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple7<Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                                                     () -> slowMethod2(),
-                                                                                     () -> slowMethod1(),
-                                                                                     () -> slowMethod2(),
-                                                                                     () -> slowMethod1(),
-                                                                                     () -> slowMethod2(),
-                                                                                     () -> slowMethod1());
+        Tuple7<Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                                                     this::slowMethod2,
+                                                                                     this::slowMethod1,
+                                                                                     this::slowMethod2,
+                                                                                     this::slowMethod1,
+                                                                                     this::slowMethod2,
+                                                                                     this::slowMethod1);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -167,14 +167,14 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks8() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple8<Long, Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                                                           () -> slowMethod2(),
-                                                                                           () -> slowMethod1(),
-                                                                                           () -> slowMethod2(),
-                                                                                           () -> slowMethod1(),
-                                                                                           () -> slowMethod2(),
-                                                                                           () -> slowMethod1(),
-                                                                                           () -> slowMethod2());
+        Tuple8<Long, Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                                                           this::slowMethod2,
+                                                                                           this::slowMethod1,
+                                                                                           this::slowMethod2,
+                                                                                           this::slowMethod1,
+                                                                                           this::slowMethod2,
+                                                                                           this::slowMethod1,
+                                                                                           this::slowMethod2);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -190,15 +190,15 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAllTasks9() throws Exception {
         long start = System.currentTimeMillis();
-        Tuple9<Long, Long, Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(() -> slowMethod1(),
-                                                                                                 () -> slowMethod2(),
-                                                                                                 () -> slowMethod1(),
-                                                                                                 () -> slowMethod2(),
-                                                                                                 () -> slowMethod1(),
-                                                                                                 () -> slowMethod2(),
-                                                                                                 () -> slowMethod1(),
-                                                                                                 () -> slowMethod2(),
-                                                                                                 () -> slowMethod1());
+        Tuple9<Long, Long, Long, Long, Long, Long, Long, Long, Long> result = reactor().awaitAll(this::slowMethod1,
+                                                                                                 this::slowMethod2,
+                                                                                                 this::slowMethod1,
+                                                                                                 this::slowMethod2,
+                                                                                                 this::slowMethod1,
+                                                                                                 this::slowMethod2,
+                                                                                                 this::slowMethod1,
+                                                                                                 this::slowMethod2,
+                                                                                                 this::slowMethod1);
 
         assertThat(result.get1()).isEqualTo(42L);
         assertThat(result.get2()).isEqualTo(24L);
@@ -215,7 +215,7 @@ public class ThreadPoolReactorTest {
     @Test
     public void shouldWaitForAnyTask() throws Exception {
         // slowMethod2 has shorter delay
-        Optional<Long> result = reactor().awaitAny(() -> slowMethod1(), () -> slowMethod2());
+        Optional<Long> result = reactor().awaitAny(this::slowMethod1, this::slowMethod2);
 
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(24L);

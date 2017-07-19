@@ -74,15 +74,15 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            declareReactorMethod(i, "awaitAll");
+            declareReactorMethod(i);
             writeSeparator(i);
         }
 
         out(0,"}");
     }
 
-    private void declareReactorMethod(int i, String functionName) {
-        out(1, "default <" + typeList("T", i) + "> " + tupleName("T", i) + " " + functionName + "(" + inputSupplierList(i) +") {");
+    private void declareReactorMethod(int i) {
+        out(1, "default <" + typeList("T", i) + "> " + tupleName(i) + " " + "awaitAll" + "(" + inputSupplierList(i) + ") {");
 
         out(2, "return Tuples.of(" + awaitParameters(i) +");");
         out(1, "}");
@@ -199,25 +199,25 @@ public class SrcGen {
         nl();
 
         for(int i = 1; i <= NUM_PARAMS; i++) { //Inputs
-            out(1, "public interface " + flowFullAsyncBaseTypeName("T", i) + " {");
+            out(1, "public interface " + flowFullAsyncBaseTypeName(i) + " {");
             out(2, flowTypeName("T", i) + " " + "accept" + "(" + acceptFunctionTypeName(i) + " function);");
             out(1, "}");
             nl();
-            out(1, "public interface " + flowFullBaseTypeName("T", i) + " {");
+            out(1, "public interface " + flowFullBaseTypeName(i) + " {");
             out(2, "<" + typeList("R", i) + "> " + flowTypeName("R", i) + " " + "map" + "(" + functionTypeName(i, i) + " function);");
-            out(2, flowBaseTypeName("T", i) + " " + "when" + "(" + conditionFunctionTypeName(i) + " condition);");
+            out(2, flowBaseTypeName(i) + " " + "when" + "(" + conditionFunctionTypeName(i) + " condition);");
             out(1, "}");
             nl();
-            out(1, "public static class " + flowMainTypeName("T", i)
-                + " extends FlowBuilder0<I1> implements " + flowBaseTypeName("T", i)
-                + ", " + flowAsyncBaseTypeName("T", i)
+            out(1, "public static class " + flowMainTypeName(i)
+                + " extends FlowBuilder0<I1> implements " + flowBaseTypeName(i)
+                + ", " + flowAsyncBaseTypeName(i)
                 + " {");
             nl();
             out(2, "public FlowBuilder" + i + "(FlowBuilder0<I1> prev) {");
             out(3, "super(prev, empty" + i + "());");
             out(2, "}");
             nl();
-            out(2, "public " + flowAsyncBaseTypeName("T", i) + " async() {");
+            out(2, "public " + flowAsyncBaseTypeName(i) + " async() {");
             out(3, "setAsync();");
             out(3, "return this;");
             out(2, "}");
@@ -227,7 +227,7 @@ public class SrcGen {
             out(3, "return this;");
             out(2, "}");
             nl();
-            out(2, "public " + flowTypeName("T", i) + " onError(" + errorHandlerTypeName("T", i) + " handler) {");
+            out(2, "public " + flowTypeName("T", i) + " onError(" + errorHandlerTypeName(i) + " handler) {");
             out(3, "setOnError(handler);");
             out(3, "return this;");
             out(2, "}");
@@ -251,13 +251,13 @@ public class SrcGen {
             }
 
             out(2, "@Override");
-            addFlowAcceptMethod(i, "accept");
+            addAcceptMethod(i);
             nl();
             out(2, "@Override");
-            addFlowMethod(i, i, "map", false);
+            addMapToMethod(i, i, "map", false);
             nl();
             out(2, "@Override");
-            addFlowConditionalMethod(i, "when");
+            addWhenMethod(i);
             nl();
 
             //Flow methods
@@ -265,7 +265,7 @@ public class SrcGen {
                 if (k == i) {
                     continue;
                 }
-                addFlowMethod(k, i, "mapTo");
+                addMapToMethod(k, i);
                 writeSeparator(k);
             }
 
@@ -298,12 +298,12 @@ public class SrcGen {
         writeInnerSeparator(NUM_PARAMS, i);
     }
 
-    private void addFlowMethod(int k, int j, String name) {
-        addFlowMethod(k, j, name, true);
+    private void addMapToMethod(int k, int j) {
+        addMapToMethod(k, j, "mapTo", true);
     }
 
-    private void addFlowConditionalMethod(int k, String name) {
-        String methodStart = "public " + flowBaseTypeName("T", k) + " " + name + "(" + conditionFunctionTypeName(k) + " condition";
+    private void addWhenMethod(int k) {
+        String methodStart = "public " + flowBaseTypeName(k) + " " + "when" + "(" + conditionFunctionTypeName(k) + " condition";
 
         out(2, methodStart +") {");
         out(3, "setCondition(condition.asConditionFunction());");
@@ -311,15 +311,15 @@ public class SrcGen {
         out(2, "}");
     }
 
-    private void addFlowAcceptMethod(int k, String name) {
-        String methodStart = "public " + flowTypeName("T", k) + " " + name + "(" + acceptFunctionTypeName(k) + " function";
+    private void addAcceptMethod(int k) {
+        String methodStart = "public " + flowTypeName("T", k) + " " + "accept" + "(" + acceptFunctionTypeName(k) + " function";
 
         out(2, methodStart +") {");
         out(3, "return new FlowBuilder" + k + "<>(step(function.asAcceptorFunction()));");
         out(2, "}");
     }
 
-    private void addFlowMethod(int k, int j, String inputName, boolean ordered) {
+    private void addMapToMethod(int k, int j, String inputName, boolean ordered) {
         String name = inputName + (ordered ? k : "");
         String methodStart = "public <" + typeList("R", k) + "> " + flowTypeName("R", k) + " " + name + "(" + functionTypeName(j, k) + " function";
 
@@ -328,28 +328,28 @@ public class SrcGen {
         out(2, "}");
     }
 
-    private String flowMainTypeName(String prefix, int i) {
-        return "FlowBuilder" + i + "<" + "I1 extends Tuple, " + typeList(prefix, i) + ">";
+    private String flowMainTypeName(int i) {
+        return "FlowBuilder" + i + "<" + "I1 extends Tuple, " + typeList("T", i) + ">";
     }
 
     private String flowTypeName(String prefix, int i) {
         return "FlowBuilder" + i + "<" + "I1, " + typeList(prefix, i) + ">";
     }
 
-    private String flowBaseTypeName(String prefix, int i) {
-        return "FlowBuilderBase" + i + "<" + "I1, " + typeList(prefix, i) + ">";
+    private String flowBaseTypeName(int i) {
+        return "FlowBuilderBase" + i + "<" + "I1, " + typeList("T", i) + ">";
     }
 
-    private String flowAsyncBaseTypeName(String prefix, int i) {
-        return "FlowBuilderAsyncBase" + i + "<" + "I1, " + typeList(prefix, i) + ">";
+    private String flowAsyncBaseTypeName(int i) {
+        return "FlowBuilderAsyncBase" + i + "<" + "I1, " + typeList("T", i) + ">";
     }
 
-    private String flowFullBaseTypeName(String prefix, int i) {
-        return "FlowBuilderBase" + i + "<" + "I1 extends Tuple, " + typeList(prefix, i) + ">";
+    private String flowFullBaseTypeName(int i) {
+        return "FlowBuilderBase" + i + "<" + "I1 extends Tuple, " + typeList("T", i) + ">";
     }
 
-    private String flowFullAsyncBaseTypeName(String prefix, int i) {
-        return "FlowBuilderAsyncBase" + i + "<" + "I1 extends Tuple, " + typeList(prefix, i) + ">";
+    private String flowFullAsyncBaseTypeName(int i) {
+        return "FlowBuilderAsyncBase" + i + "<" + "I1 extends Tuple, " + typeList("T", i) + ">";
     }
 
     private void generateTuples(String name) {
@@ -495,7 +495,7 @@ public class SrcGen {
             nl();
             String returnType = "Tuple" + j + typeSpec;
             out(2, "default AF<" + returnType + "> asAcceptorFunction() {");
-            out(3, "return (" + returnType + " param) -> accept(" + tupleToParams("T", j) +");");
+            out(3, "return (" + returnType + " param) -> accept(" + tupleToParams(j) + ");");
             out(2, "}");
             out(1, "}");
             nl();
@@ -510,7 +510,7 @@ public class SrcGen {
             nl();
             String returnType = "Tuple" + j + typeSpec;
             out(2, "default CF<" + returnType + "> asConditionFunction() {");
-            out(3, "return (" + returnType + " param) -> test(" + tupleToParams("T", j) +");");
+            out(3, "return (" + returnType + " param) -> test(" + tupleToParams(j) + ");");
             out(2, "}");
             out(1, "}");
             nl();
@@ -530,7 +530,7 @@ public class SrcGen {
                 out(1, "interface FN" + j + i + typeList(j, i) + " extends " + baseName + "<" + resultTypeName + ", " + typeList("T", j) + "> {");
                 //out(2, "@SuppressWarnings(\"unchecked\")");
                 out(2, "default TF<" + resultTypeName + ", " + inputTypeName + "> asStepFunction() {");
-                out(3, "return (" + inputTypeName + " param) -> apply(" + tupleToParams("T", j) +");");
+                out(3, "return (" + inputTypeName + " param) -> apply(" + tupleToParams(j) + ");");
                 out(2, "}");
                 out(1, "}");
                 writeSeparator(i);
@@ -553,8 +553,8 @@ public class SrcGen {
         return "AF" + inputs + "<" + typeList("T", inputs) + ">";
     }
 
-    private static String errorHandlerTypeName(String prefix, int j) {
-        return "EH<Tuple" + j + "<" + typeList(prefix, j) + ">>";
+    private static String errorHandlerTypeName(int j) {
+        return "EH<Tuple" + j + "<" + typeList("T", j) + ">>";
     }
 
     private static String paramList(int count) {
@@ -568,11 +568,11 @@ public class SrcGen {
         return builder.toString();
     }
 
-    private static String tupleToParams(String prefix, int count) {
+    private static String tupleToParams(int count) {
         StringBuilder builder = new StringBuilder();
 
         for (int i = 1; i <= count; i++) {
-            builder.append("param.get" + i + "()").append(SEPARATOR);
+            builder.append("param.get").append(i).append("()").append(SEPARATOR);
         }
 
         builder.setLength(builder.length() - SEPARATOR.length());
@@ -601,8 +601,8 @@ public class SrcGen {
         return builder.toString();
     }
 
-    private static String tupleName(String prefix, int j) {
-        return "Tuple" + j + "<" + typeList(prefix, j) + ">";
+    private static String tupleName(int j) {
+        return "Tuple" + j + "<" + typeList("T", j) + ">";
     }
 
     private static String typeList(int inputs, int outputs) {
