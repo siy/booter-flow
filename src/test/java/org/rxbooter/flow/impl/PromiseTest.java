@@ -14,7 +14,7 @@ public class PromiseTest {
 
         newThread(() -> {sleep(); promise.notify(42);}).start();
 
-        assertThat(promise.get()).isNull();
+        assertThat(promise.get().isPresent()).isFalse();
         assertThat(promise.await()).isEqualTo(42);
         assertThat(promise.isReady()).isTrue();
     }
@@ -64,7 +64,7 @@ public class PromiseTest {
     public void shouldHaveValueSetIfReady() throws Exception {
         Promise<Integer> promise = Promise.ready(42);
         assertThat(promise.isReady()).isTrue();
-        assertThat(promise.get()).isEqualTo(42);
+        assertThat(promise.get().get()).isEqualTo(42);
         assertThat(promise.await()).isEqualTo(42);
     }
 
@@ -72,7 +72,7 @@ public class PromiseTest {
     public void shouldHaveErrorSetIfReady() throws Exception {
         Promise<Integer> promise = Promise.error(new FlowException("oops!"));
         assertThat(promise.isReady()).isTrue();
-        assertThat(promise.get()).isNull();
+        assertThat(promise.get().isPresent()).isFalse();
         promise.await();
     }
 
