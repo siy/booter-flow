@@ -1,7 +1,7 @@
 # booter-flow
-###Small and fast reactive data processing pipeline builder/executor
+### Small and fast reactive data processing pipeline builder/executor
 
-#Motivation
+# Motivation
 There are several approaches exists to processing of sequences of incoming events/pieces of data/requests in reactive applications.
 All of them are targeted to sequences of identical elements. For example, Java 8 Streams or RxJava are very convenient for such types
 of processing. Nevertheless these case do not cover one of the most frequent use cases - processing of incoming requests in various 
@@ -25,7 +25,7 @@ even less transparent.
 The **booter-flow** addresses both these problems by providing convenient way to build and execute reactive processing
 flows.
 
-#General Overview
+# General Overview
 The **booter-flow** approach is quite different from traditional. 
 
 First of all assembling of the flow and its execution are clearly separate stages. Flow is assembled and then can be processed several times with different inputs in different
