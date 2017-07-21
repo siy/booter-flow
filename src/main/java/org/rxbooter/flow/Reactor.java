@@ -44,8 +44,8 @@ public interface Reactor {
     }
 
     /**
-     * Schedule asynchronous execution of task provided as a {@link Runnable}. If task will throw any exception, it will
-     * be passed to provided handler.
+     * Schedule asynchronous execution of task provided as a {@link Runnable}.
+     * If task will throw any exception, the exception will be passed to provided handler.
      *
      * @param runnable
      *         Task to execute
@@ -119,7 +119,7 @@ public interface Reactor {
     <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
 
     /**
-     * Submit provided instance of {@link Supplier} as single step {@link FlowExecutor}.
+     * Submit task provided as {@link Supplier}.
      *
      * @param supplier
      *         The instance of {@link Supplier} to execute

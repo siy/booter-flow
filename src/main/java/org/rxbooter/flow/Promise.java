@@ -21,7 +21,9 @@ package org.rxbooter.flow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.function.Consumer;
 
@@ -35,7 +37,8 @@ public class Promise<T> {
     private final AtomicMarkableReference<T> value = new AtomicMarkableReference<>(null, false);
     private final AtomicMarkableReference<Throwable> errValue = new AtomicMarkableReference<>(null, false);
     private final CountDownLatch latch;
-    private final List<Consumer<T>> listeners = new ArrayList<>();
+    private final BlockingQueue<Consumer<T>> listeners = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Consumer<Throwable>> errorListeners = new LinkedBlockingQueue<>();
 
     private Promise() {
         this(1);
@@ -99,12 +102,14 @@ public class Promise<T> {
      */
     public Promise<T> notify(T value) {
         if(this.value.compareAndSet(null, value, false, true)) {
-            // successful completion will stop waiting
+            if (listeners.size() > 0) {
+                listeners.forEach((c) -> notifyListener(c, value));
+            }
+
             while(latch.getCount() > 0) {
                 latch.countDown();
             }
 
-            listeners.forEach((c) -> notifyListener(c, value));
         } else {
             latch.countDown();
         }
@@ -121,7 +126,9 @@ public class Promise<T> {
      * @return {@code this} for call chaining (fluent syntax).
      */
     public Promise<T> notifyError(Throwable value) {
-        this.errValue.compareAndSet(null, value, false, true);
+        if(this.errValue.compareAndSet(null, value, false, true)) {
+            errorListeners.forEach(c -> notifyListener(c, value));
+        }
         latch.countDown();
 
         return this;
@@ -145,8 +152,8 @@ public class Promise<T> {
     }
 
     /**
-     * Retrieve notified value if any. No waiting for notification is performed so if value is
-     * missing then empty {@link Optional} will be returned.
+     * Retrieve notified value if any. No waiting for notification is performed so if
+     * value is missing then empty {@link Optional} is returned.
      *
      * @return optional notification value.
      */
@@ -154,10 +161,21 @@ public class Promise<T> {
         return Optional.ofNullable(value.getReference());
     }
 
+    /**
+     * Retrieve error notification if any. No waiting for notification is performed so if
+     * value is missing then empty {@link Optional} is returned.
+     * @return
+     */
     public Optional<? extends Throwable> getError() {
         return Optional.ofNullable(errValue.getReference());
     }
 
+    /**
+     * Wait for notification and return value. If error is notified then notified exception
+     * is rethrown.
+     *
+     * @return  value
+     */
     public T await() {
         doWait();
 
@@ -169,6 +187,18 @@ public class Promise<T> {
     }
 
     /**
+     * Wait for notification and then return value. If error is notified and return value is missing then
+     * empty {@link Optional} is returned.
+     *
+     * @return instance of {@link Optional} with result.
+     */
+    public Optional<T> safeAwait() {
+        doWait();
+
+        return Optional.ofNullable(value.getReference());
+    }
+
+    /**
      * Install notification listener which will be invoked upon value notification.
      * More than one notification listeners can be installed. Note that listener must perform
      * it's operations fast, because it's invoked in the context of the notifying thread
@@ -177,24 +207,45 @@ public class Promise<T> {
      * affect notifying of other listeners, intercepted exceptions are silently discarded
      * and information about the cause is lost.
      *
-     * @param consumer
+     * @param listener
      *          The notification listener.
      * @return {@code this} for call chaining (fluent syntax)
      */
-    public Promise<T> then(Consumer<T> consumer) {
-        if (consumer != null) {
-            listeners.add(consumer);
+    public Promise<T> then(Consumer<T> listener) {
+        return addListener(listener, listeners, value);
+    }
+
+    /**
+     * Install notification listener which will be invoked upon error notification.
+     * More than one error notification listeners can be installed. Note that listener must perform
+     * it's operations fast, because it's invoked in the context of the notifying thread
+     * which might be part of time-critical processing. Also, listener must not throw
+     * any exceptions. Although exceptions in listener will be intercepted and will not
+     * affect notifying of other listeners, intercepted exceptions are silently discarded
+     * and information about the cause is lost.
+     *
+     * @param listener
+     *          The notification listener.
+     * @return {@code this} for call chaining (fluent syntax)
+     */
+    public Promise<T> onError(Consumer<Throwable> listener) {
+        return addListener(listener, errorListeners, errValue);
+    }
+
+    private <V> Promise<T> addListener(Consumer<V> consumer, BlockingQueue<Consumer<V>> queue, AtomicMarkableReference<V> value) {
+        if (consumer == null) {
+            return this;
+        }
+
+        if (value.isMarked()) {
+            notifyListener(consumer, value.getReference());
+        } else {
+            queue.offer(consumer);
         }
         return this;
     }
 
-    public Optional<T> safeAwait() {
-        doWait();
-
-        return Optional.ofNullable(value.getReference());
-    }
-
-    private void notifyListener(Consumer<T> consumer, T value) {
+    private static <T> void notifyListener(Consumer<T> consumer, T value) {
         try {
             consumer.accept(value);
         } catch (Throwable t) {
@@ -225,6 +276,6 @@ public class Promise<T> {
             } catch (InterruptedException e) {
                 // Ignore exceptions here
             }
-        } while (latch.getCount() != 0 && !isReady());
+        } while (latch.getCount() != 0);
     }
 }
