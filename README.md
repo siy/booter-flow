@@ -74,11 +74,35 @@ Such a contract avoids need to worry about synchronisation while writing steps.
 ### Adding dependency to Maven project
 ### Creating and Executing Flow
 ### Utility methods of Reactor and Promise
+
+#### Promise
 Reactor and Promise are designed to work together, nevertheless, Promise might be useful 
 by it's own, as a general purpose result of some (possibly asynchronous) operation. From this point
 of view it's very similar to Java **CompletableFuture** although much simpler and lightweight.
----promise operations/methods ----
+First of all, just like **CompletableFuture** Promise can be set explicitly:
+~~~
+    Promise<String> promise = Promise.empty();
+    ...(probably in another thread)...
+    promise.notify("Some string");
+~~~
+Similar method exists to notify Promise about error:
+~~~
+    Promise<String> promise = Promise.empty();
+    ...(probably in another thread)...
+    try {
+        promise.notify(service.retrieveData());
+    } catch (ServiceException e) {
+        promise.notifyError(e);
+    }
+~~~
+Once _notify_ or _notifyError_ is called, Promise considered _ready_, i.e. such that holds value or error value. 
+Both of these calls will set value only once (i.e. subsequent calls to same _notify_ will not change value and
+subsequent calls to _notifyError_ will not change error value), but value and error value are independent on 
+each other. It means that when, for example, _notifyError_ is called and error value is set, one may call _notify_
+and set the value.
+------------ waiting conditions, number of notifications, etc.------------------------------
 
+#### Reactor
 Reactor provides convenient API for blocking and non-blocking execution of some 
 concurrent tasks. Lets take a look at following method:
 ~~~
@@ -86,4 +110,60 @@ concurrent tasks. Lets take a look at following method:
 ~~~
 This method starts execution of provided supplier as asynchronous task which runs concurrently with current thread. 
 Returned **Promise** can be used to retrieve value when result will be available or perform some steps
-upon receiving of computation result. It allows also to explicitly wait for result availability.
+upon receiving of computation result. For example:
+~~~
+    Promise<String> promise = Reactor.pooled().submit(() -> externalService.retieveData())
+        .then((s) -> response.write(s));
+~~~
+Note that in this case we're dealing with asynchronous operation, so invocation of method _then_ may 
+happen either before or after Promise actually receives it's value. The Promise transparently handles both 
+these situations and lambda passed to _then_ method will be always executed with received value. 
+
+Promise allows also to explicitly wait for result availability:
+~~~
+    Optional<String> value = Reactor.pooled().submit(() -> externalService.retieveData())
+        .safeAwait();
+~~~
+Sometimes it is convenient to handle asynchronous execution just like a method call. For these cases _await_ metod
+might be handy:
+~~~
+    String value = Reactor.pooled().submit(() -> externalService.retieveData()).await();
+~~~
+In this use case invocation will behave exactly like method call - when value will be available it will be returned. 
+If call to external service will throw exception it will be wrapped into **FlowWrappedException** if necessary
+and rethrown. Note that _safeAwait_ does not rethrow exception and just returns an empty **Optional** in case 
+of exception. If information about exception is necessary it can be retrieved from Promise using _isError_ and _getError_
+methods.   
+
+Since use case mentioned above is quite widespread, there is a shorter version of the same call:
+~~~
+    String value = Reactor.pooled().await(() -> externalService.retieveData());
+~~~
+
+In some cases it is necessary to retrieve data from several sources at once. **booter-flow** provides 
+convenient methods for retrieving multiple (1-9) results. For example, for 2 results:
+~~~
+    Tuple2<Session, User> result = reactor.awaitAll(() -> sessionDAO.fromToken(token),
+                                                    () -> userDAO.byToken(token));
+~~~
+The Reactor will execute both tasks asynchronously and once both of them will be ready, result will be returned.
+
+Sometimes waiting for all results is not necessary. Instead we need to get result as soon as possible but it 
+can be obtained from different sources with different reliability and speed. For this use case Reactor provides
+convenient method _awaitAny_:
+~~~
+    Optional<Session> result = reactor.awaitAny(() -> distributedSessionCache.get(sessionId),
+                                                () -> sessionDAO.sessionById(sessionId));
+~~~
+This method executes all provided lambdas concurrently and first one which return valid result will be 
+returned to caller. If all lambdas will throw an exception then empty _Optional_ will be returned. Note that 
+even when result is returned execution of remaining lambdas will not be terminated and they will be allowed 
+to run to the end (either, successful or unsuccessful). Sometimes this behavior can be used (modified version 
+of previous example):
+~~~
+    Optional<Session> result = reactor.awaitAny(() -> distributedSessionCache.get(sessionId),
+                                                () -> distributedSessionCache.get(sessionId, sessionDAO.sessionById(sessionId)));
+~~~
+
+
+### Error handling

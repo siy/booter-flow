@@ -101,6 +101,8 @@ public class Promise<T> {
      *          Value to store in {@link Promise} instance.
      * @return {@code this} for call chaining (fluent syntax).
      */
+    //TODO: decide what to do with null values.
+    // Should we just discard them as useless? perhaps just handle them as if value was already set?
     public Promise<T> notify(T value) {
         if(this.value.compareAndSet(null, value, false, true)) {
             if (listeners.size() > 0) {
