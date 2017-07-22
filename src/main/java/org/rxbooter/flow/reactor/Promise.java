@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.reactor;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -18,8 +18,9 @@ package org.rxbooter.flow;
  *
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import org.rxbooter.flow.exception.FlowException;
+import org.rxbooter.flow.exception.FlowWrappedException;
+
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;

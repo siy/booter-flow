@@ -5,6 +5,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 import org.rxbooter.flow.*;
+import org.rxbooter.flow.exception.FlowException;
+import org.rxbooter.flow.reactor.Promise;
+import org.rxbooter.flow.reactor.Reactor;
+
 import static  org.rxbooter.flow.Tuples.*;
 import static  org.rxbooter.flow.Functions.*;
 

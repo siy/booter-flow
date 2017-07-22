@@ -1,4 +1,4 @@
-package org.rxbooter.flow.impl;
+package org.rxbooter.flow.reactor.impl;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko

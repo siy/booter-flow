@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.exception;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko

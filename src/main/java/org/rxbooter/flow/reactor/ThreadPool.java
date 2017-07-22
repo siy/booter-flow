@@ -1,4 +1,4 @@
-package org.rxbooter.flow.impl;
+package org.rxbooter.flow.reactor;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -18,10 +18,13 @@ package org.rxbooter.flow.impl;
  *
  */
 
+import org.rxbooter.flow.reactor.impl.DaemonThreadFactory;
+import org.rxbooter.flow.reactor.impl.FixedThreadPool;
+
 import java.util.concurrent.ThreadFactory;
 
 /**
- * Abstract thread pool necessary for {@link org.rxbooter.flow.Reactor}.
+ * Abstract thread pool necessary for {@link Reactor}.
  */
 public interface ThreadPool {
     int DEFAULT_COMPUTING_POOL_SIZE = FixedThreadPool.DEFAULT_COMPUTING_POOL_SIZE;

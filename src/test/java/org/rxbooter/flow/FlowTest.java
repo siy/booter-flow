@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.rxbooter.flow.Tuples.Tuple2;
 import org.rxbooter.flow.Tuples.Tuple3;
+import org.rxbooter.flow.reactor.Reactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.rxbooter.flow.Flow.take;

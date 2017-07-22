@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.reactor;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -18,11 +18,14 @@ package org.rxbooter.flow;
  *
  */
 
+import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Functions.EH;
 import org.rxbooter.flow.Functions.TF;
+import org.rxbooter.flow.Tuples;
+import org.rxbooter.flow.exception.FlowException;
+import org.rxbooter.flow.exception.FlowWrappedException;
 import org.rxbooter.flow.impl.FlowExecutor;
-import org.rxbooter.flow.impl.ThreadPool;
-import org.rxbooter.flow.impl.ThreadPoolReactor;
+import org.rxbooter.flow.reactor.impl.ThreadPoolReactor;
 
 import java.util.Optional;
 import java.util.function.Supplier;

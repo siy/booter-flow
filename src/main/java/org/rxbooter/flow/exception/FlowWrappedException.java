@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.exception;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -19,8 +19,16 @@ package org.rxbooter.flow;
  */
 
 /**
- * Different execution types for flow steps.
+ *
  */
-public enum ExecutionType {
-    SYNC, ASYNC, AWAIT
+public class FlowWrappedException extends RuntimeException {
+    private static final long serialVersionUID = -4685894495982223864L;
+
+    public FlowWrappedException(Throwable throwable) {
+        super("Wrapped exception", throwable);
+    }
+
+    public FlowWrappedException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 }

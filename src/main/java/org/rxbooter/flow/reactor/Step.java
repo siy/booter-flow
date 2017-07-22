@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.reactor;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -20,6 +20,7 @@ package org.rxbooter.flow;
 
 import org.rxbooter.flow.Functions.EH;
 import org.rxbooter.flow.Functions.TF;
+import org.rxbooter.flow.exception.FlowException;
 
 /**
  * Contained for single flow step.

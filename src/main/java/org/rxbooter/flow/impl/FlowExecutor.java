@@ -18,8 +18,13 @@ package org.rxbooter.flow.impl;
  *
  */
 
-import org.rxbooter.flow.*;
+import org.rxbooter.flow.Flow;
 import org.rxbooter.flow.Tuples.Tuple;
+import org.rxbooter.flow.exception.FlowException;
+import org.rxbooter.flow.reactor.ExecutionType;
+import org.rxbooter.flow.reactor.Promise;
+import org.rxbooter.flow.reactor.Reactor;
+import org.rxbooter.flow.reactor.Step;
 
 import java.util.Collections;
 import java.util.List;
@@ -120,7 +125,7 @@ public class FlowExecutor<O extends Tuple, I extends Tuple> {
      * @return {@code true} if next step can be executed.
      */
     @SuppressWarnings("unchecked")
-    public boolean run() {
+    public boolean invoke() {
         if (!canRun()) {
             return false;
         }

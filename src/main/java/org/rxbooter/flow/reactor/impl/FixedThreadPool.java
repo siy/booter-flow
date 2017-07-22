@@ -1,4 +1,4 @@
-package org.rxbooter.flow.impl;
+package org.rxbooter.flow.reactor.impl;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -17,6 +17,8 @@ package org.rxbooter.flow.impl;
  *
  *
  */
+
+import org.rxbooter.flow.reactor.ThreadPool;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

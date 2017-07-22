@@ -1,12 +1,30 @@
-package org.rxbooter.flow.impl;
+package org.rxbooter.flow.reactor.impl;
+
+/*
+ * Copyright (c) 2017 Sergiy Yevtushenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
 
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
-import org.rxbooter.flow.Promise;
-import org.rxbooter.flow.Reactor;
+import org.rxbooter.flow.reactor.Promise;
+import org.rxbooter.flow.reactor.Reactor;
 import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple1;
 import org.rxbooter.flow.Tuples.Tuple2;
@@ -17,6 +35,8 @@ import org.rxbooter.flow.Tuples.Tuple6;
 import org.rxbooter.flow.Tuples.Tuple7;
 import org.rxbooter.flow.Tuples.Tuple8;
 import org.rxbooter.flow.Tuples.Tuple9;
+import org.rxbooter.flow.reactor.ThreadPool;
+import org.rxbooter.flow.reactor.impl.ThreadPoolReactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

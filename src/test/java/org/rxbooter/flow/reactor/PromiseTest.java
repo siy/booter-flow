@@ -1,4 +1,4 @@
-package org.rxbooter.flow;
+package org.rxbooter.flow.reactor;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -19,9 +19,9 @@ package org.rxbooter.flow;
  */
 
 import org.junit.Test;
-import org.rxbooter.flow.FlowException;
-import org.rxbooter.flow.FlowWrappedException;
-import org.rxbooter.flow.Promise;
+import org.rxbooter.flow.exception.FlowException;
+import org.rxbooter.flow.exception.FlowWrappedException;
+import org.rxbooter.flow.reactor.Promise;
 
 import java.util.ArrayList;
 import java.util.List;

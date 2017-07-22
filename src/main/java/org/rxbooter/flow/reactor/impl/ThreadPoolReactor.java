@@ -1,4 +1,4 @@
-package org.rxbooter.flow.impl;
+package org.rxbooter.flow.reactor.impl;
 
 /*
  * Copyright (c) 2017 Sergiy Yevtushenko
@@ -18,9 +18,13 @@ package org.rxbooter.flow.impl;
  *
  */
 
-import org.rxbooter.flow.*;
+import org.rxbooter.flow.Flow;
+import org.rxbooter.flow.Functions;
+import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
+import org.rxbooter.flow.impl.FlowExecutor;
+import org.rxbooter.flow.reactor.*;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -141,7 +145,7 @@ public class ThreadPoolReactor implements Reactor {
                 continue;
             }
 
-            flowExecutor.run();
+            flowExecutor.invoke();
             submit(flowExecutor);
         }
     }
@@ -162,7 +166,7 @@ public class ThreadPoolReactor implements Reactor {
         runAllAsync(flowExecutor);
 
         while (ExecutionType.SYNC == flowExecutor.type()) {
-            flowExecutor.run();
+            flowExecutor.invoke();
         }
 
         submit(flowExecutor);

@@ -18,11 +18,11 @@ package org.rxbooter.flow.impl;
  *
  */
 
-import org.rxbooter.flow.ExecutionType;
 import org.rxbooter.flow.Flow;
-import org.rxbooter.flow.Promise;
-import org.rxbooter.flow.Reactor;
-import org.rxbooter.flow.Step;
+import org.rxbooter.flow.reactor.ExecutionType;
+import org.rxbooter.flow.reactor.Promise;
+import org.rxbooter.flow.reactor.Reactor;
+import org.rxbooter.flow.reactor.Step;
 
 import java.util.function.Consumer;
 
