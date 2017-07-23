@@ -57,7 +57,7 @@ public class Promise<T> {
      *          return result.
      * @return created {@link Promise} instance.
      */
-    public static <T> Promise<T> waifFor(int count) {
+    public static <T> Promise<T> waitingFor(int count) {
         return new Promise<>(count);
     }
 

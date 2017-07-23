@@ -21,7 +21,6 @@ package org.rxbooter.flow.reactor;
 import org.junit.Test;
 import org.rxbooter.flow.exception.FlowException;
 import org.rxbooter.flow.exception.FlowWrappedException;
-import org.rxbooter.flow.reactor.Promise;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +125,7 @@ public class PromiseTest {
 
     @Test
     public void shouldWaitForRequestedNumberOfNotifications() throws Exception {
-        Promise<Integer> promise = Promise.waifFor(2);
+        Promise<Integer> promise = Promise.waitingFor(2);
         AtomicReference<Optional<Integer>> value = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -142,7 +141,7 @@ public class PromiseTest {
 
     @Test
     public void shouldStopWaitingAfterFirstSuccessfulNotification() throws Exception {
-        Promise<Integer> promise = Promise.waifFor(100);
+        Promise<Integer> promise = Promise.waitingFor(100);
         AtomicReference<Optional<Integer>> value = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
 

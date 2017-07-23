@@ -110,6 +110,23 @@ public interface Reactor {
     <T> Optional<T> awaitAny(Supplier<T>... suppliers);
 
     /**
+     * Execute provided suppliers sequentially one by one until successful completion of one of them or failure
+     * completion of all of them. Note that failures (exceptions thrown by suppliers) are ignored by this method.
+     * <p/>
+     * Note: this method, unlike {@link #awaitAny(Supplier[])} does not start asynchronous processes and just
+     * executes provided suppliers one by one. As soon as supplier finishes successfully, result is returned
+     * and remaining suppliers are not executed.
+     *
+     * @param suppliers
+     *         Suppliers to execute
+     *
+     * @return @{@link Optional} which holds result of execution - non-null value if at least one call was successful or
+     *         {@code null} if all of them failed.
+     */
+    @SuppressWarnings({"unchecked"})
+    <T> Optional<T> awaitFirst(Supplier<T>... suppliers);
+
+    /**
      * Submit {@link FlowExecutor} to reactor for execution. Submission is performed asynchronously and result if
      * returned immediately. Notification about execution are performed via returned instance of {@link Promise}
      * associated with the {@link FlowExecutor} instance.

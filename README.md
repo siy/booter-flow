@@ -100,7 +100,31 @@ Both of these calls will set value only once (i.e. subsequent calls to same _not
 subsequent calls to _notifyError_ will not change error value), but value and error value are independent on 
 each other. It means that when, for example, _notifyError_ is called and error value is set, one may call _notify_
 and set the value.
------------- waiting conditions, number of notifications, etc.------------------------------
+
+Sometimes it is necessary to wait for more than one notification (see implementation of **Reactor.awaitAny()** 
+for example). For this purpose **Promise** can be created using **waitingFor** static factory method. Such a promise 
+will wait for at least one value notification or for specified number of error value notifications:
+~~~
+    Promise<String> promise = Promise.waitingFor(3);
+~~~
+If it's necessary to wait while notifications will come, then one of **await** or **safeAwait** methods can be used.
+First method will wait until notification will appear and then either returns value (if there was a value notification) 
+or throws an exception (if there was error value notification). Second method never throws an exception, instead it 
+returns empty **Optional** in case of error value notification.
+
+There is more reactive approach for dealing with value and error value notifications. Promise supports installation of
+listeners which will be invoked upon receiving appropriate notification. For value notifications _then_ method is used
+to install listener:
+~~~
+    Promise<String> promise = Promise.empty();
+    promise.then(s -> request.write(s));
+~~~
+If value is available by the moment when _then_ method is invoked, then listener will be called immediately. If value 
+is not available, then listener will be invoked upon receiving notification. Note that in these cases listener will be 
+invoked in context of different threads. Although listener will never be invoked concurrently in different threads,
+the distinction between these cases should be kept in mind. 
+
+Behavior of _onError_ method is identical to _then_ except it deals with error notifications. 
 
 #### Reactor
 Reactor provides convenient API for blocking and non-blocking execution of some 
@@ -119,11 +143,12 @@ Note that in this case we're dealing with asynchronous operation, so invocation 
 happen either before or after Promise actually receives it's value. The Promise transparently handles both 
 these situations and lambda passed to _then_ method will be always executed with received value. 
 
-Promise allows also to explicitly wait for result availability:
+As mentioned above, Promise allows also to explicitly wait for result availability:
 ~~~
     Optional<String> value = Reactor.pooled().submit(() -> externalService.retieveData())
         .safeAwait();
 ~~~
+
 Sometimes it is convenient to handle asynchronous execution just like a method call. For these cases _await_ metod
 might be handy:
 ~~~
@@ -131,9 +156,7 @@ might be handy:
 ~~~
 In this use case invocation will behave exactly like method call - when value will be available it will be returned. 
 If call to external service will throw exception it will be wrapped into **FlowWrappedException** if necessary
-and rethrown. Note that _safeAwait_ does not rethrow exception and just returns an empty **Optional** in case 
-of exception. If information about exception is necessary it can be retrieved from Promise using _isError_ and _getError_
-methods.   
+and rethrown.
 
 Since use case mentioned above is quite widespread, there is a shorter version of the same call:
 ~~~
@@ -146,7 +169,7 @@ convenient methods for retrieving multiple (1-9) results. For example, for 2 res
     Tuple2<Session, User> result = reactor.awaitAll(() -> sessionDAO.fromToken(token),
                                                     () -> userDAO.byToken(token));
 ~~~
-The Reactor will execute both tasks asynchronously and once both of them will be ready, result will be returned.
+The Reactor will execute both tasks asynchronously and once all of them will be ready, result will be returned.
 
 Sometimes waiting for all results is not necessary. Instead we need to get result as soon as possible but it 
 can be obtained from different sources with different reliability and speed. For this use case Reactor provides
@@ -158,12 +181,12 @@ convenient method _awaitAny_:
 This method executes all provided lambdas concurrently and first one which return valid result will be 
 returned to caller. If all lambdas will throw an exception then empty _Optional_ will be returned. Note that 
 even when result is returned execution of remaining lambdas will not be terminated and they will be allowed 
-to run to the end (either, successful or unsuccessful). Sometimes this behavior can be used (modified version 
-of previous example):
+to run to the end (either, successful or unsuccessful). Sometimes this behavior is not desirable and 
+it is necessary to invoke provided suppliers one by one until value will be returned. Handy _awaitFirst_
+method provides simple solution for this case:
 ~~~
-    Optional<Session> result = reactor.awaitAny(() -> distributedSessionCache.get(sessionId),
-                                                () -> distributedSessionCache.get(sessionId, sessionDAO.sessionById(sessionId)));
+    Optional<Session> result = reactor.awaitFirst(() -> distributedSessionCache.get(sessionId),
+                                                  () -> distributedSessionCache.get(sessionId, sessionDAO.sessionById(sessionId)));
 ~~~
-
 
 ### Error handling

@@ -78,18 +78,12 @@ public class ThreadPoolReactor implements Reactor {
     }
 
     /**
-     * Execute provided instances of {@link Supplier} and wait for one of them which will finish
-     * successful execution first. Once first supplier is finished, result is returned event if
-     * some other suppliers are still running. If all suppliers failed then empty result is returned.
-     *
-     * @param suppliers Suppliers to execute
-     * @return optional result of execution. It holds first returned value if at least one supplier
-     * provided valid instance or is empty if all suppliers failed.
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @Override
     public final <T> Optional<T> awaitAny(Supplier<T>... suppliers) {
-        Promise<Tuple1<T>> promise = Promise.waifFor(suppliers.length);
+        Promise<Tuple1<T>> promise = Promise.waitingFor(suppliers.length);
 
         Arrays.stream(suppliers)
               .map(s -> Flow.of(Step.await(Functions.TF.from(s)), Tuples.empty1()))
@@ -97,6 +91,22 @@ public class ThreadPoolReactor implements Reactor {
               .forEach(this::submit);
 
         return promise.safeAwait().map(Tuple1::get1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public final <T> Optional<T> awaitFirst(Supplier<T>... suppliers) {
+        for(Supplier<T> supplier : suppliers) {
+            Optional<T> result = submit(supplier).safeAwait().map(t -> t.get1());
+
+            if (result.isPresent()) {
+                return result;
+            }
+        }
+        return Optional.empty();
     }
 
     /**
