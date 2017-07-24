@@ -72,7 +72,40 @@ Such a contract avoids need to worry about synchronisation while writing steps.
 
 ## Getting Started
 ### Adding dependency to Maven project
+(NOTE: library is not yet included into public Maven repos)
+~~~
+    <dependency>
+        <groupId>org.rx-booter</groupId>
+        <artifactId>flow</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
+~~~
+
 ### Creating and Executing Flow
+Creation of Flows starts from one of static factory methods of **Flow** class. There are several such methods, but 
+all of them can be separated in two groups. First group of method takes classes as a parameters. These classes describe
+types of the **Flow** input parameters. Second group uses **Type** interface for same purposes. The first group is less
+verbose and little bit more convenient, but lacks ability to describe complex generic input types. Second group is more
+verbose but enables describing of arbitrary input parameter types. 
+
+Some examples:
+
+~~~
+    Flow<Tuple1<String>, Tuple2<Request, Response>> flow1 = Flow.take(Request.class, Response.class)
+                     .mapTo1((req, resp) -> processRequest(req, resp))
+                     .done();
+~~~
+
+Same code with **Type**:
+
+~~~
+    Flow<Tuple1<String>, Tuple2<Request, Response>> flow1 = Flow.take(new Type<Request>() {}, new Type<Response>() {})
+                     .mapTo1((req, resp) -> processRequest(req, resp))
+                     .done();
+~~~
+
+
+
 ### Utility methods of Reactor and Promise
 
 #### Promise
