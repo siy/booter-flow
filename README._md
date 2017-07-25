@@ -12,35 +12,63 @@ Copy of license is included in the sources or can be obtained at
 [Apache Software Foundation Site](http://www.apache.org/licenses/LICENSE-2.0). 
 
 ## Motivation and General Overview
-Traditional approaches to processing sequences of elements (or events) like Java8 Streams or RxJava have no clear separation
-between building processing pipeline and its execution. Also, built pipeline is inherently coupled to the source of 
-elements, so it's impossible to reuse built pipeline. Pipelines created with these approaches have sensible assembling and
-execution overheads.
+There are several approaches exists to processing of sequences of incoming events/pieces of data/requests in reactive applications.
+All of them are targeted to sequences of identical elements. For example, Java 8 Streams or RxJava are very convenient for such types
+of processing. Nevertheless these case do not cover one of the most frequent use cases - processing of incoming requests in various 
+servers, especially Web servers. 
 
-The **booter-flow** takes different approach: building of processing pipeline and execution of pipeline are separate stages.
-Built pipeline can be reused as many times as necessary with different data. Also, built pipeline has minimal execution overhead
-and, obviously, zero assembling overhead. It also possible to build partial pipelines
-and then assemble full pipelines as combination of partial pipelines. Finally, **booter-flow** incorporates convenient
-asynchronous execution framework which significantly simplifies implementation of common processing patterns.   
+The problem is that Web server API's and formats of input/output data
+are from technical domain, while application itself along with it's data belong to business domain. The transition between
+domains makes such a processing inconvenient to traditional approaches. One of the obstacles for such a use cases is that
+request processing often requires more than one intermediate state variables - request is processed to extract parameters,
+which are used to retrieve other pieces of data from some kind of storage, then all those pieces of data are 
+processed and form final response. At every stage of the processing several variables of different type exists and all 
+of them are necessary to process request. Depending on parameters and/or retrieved data processing may take quite different
+execution paths. Traditional approaches may use an workaround by using some kind of multivalue container
+(such as **Pair<T1, T2>** or **Tuple** or dedicated class). This approach has significant drawback: separate state variables need 
+to be accessed through inconvenient and verbose method call syntax, often quite cryptic and lacking freedom of arbitrary
+variable naming. 
 
-## Framework Structure
-The **booter-flow** consists of two core parts: Flow + builders and Reactor + Promise.
+Beside need to hold several values in reactive application it is quite important to be able to split processing into several 
+stages so each stage can be processed synchronously or asynchronously, depending on needs. Traditional approaches enable such 
+a processing but they lack granular control over each stage and in general use of this functionality is not convenient and 
+even less transparent. 
+
+The **booter-flow** addresses both these problems by providing convenient way to build and execute reactive processing
+flows.
+
+First of all assembling of the flow and its execution are clearly separate stages. Flow is assembled and then can be 
+processed as many times as necessary with different inputs in different
+**Reactor**'s (see below). 
+
+The **booter-flow** explicitly exposes **Reactor** - processor for the **Flow**'s (and much more). The **Reactor** is somewhat similar to 
+Java **ExecutorService**. The idea of **Reactor** is inspired by **RxJava Scheduler** concept but with significant improvements.
+
+The main idea behind **Reactor** is to have two thread pools - one dedicated for non-blocking, computationally intensive tasks
+while other is dedicated to blocking/slow/asynchronous operations such as I/O. First pool is called computational pool, second - I/O pool. 
+
+Execution of **Flow** uses both pools, switching between them as necessary. Regular non-blocking operations are performed by 
+computational thread pool. Once there is a need to perform asynchronous or blocking operation, processing is switched to I/O pool.
+
+Beside execution of **Flow** the **Reactor** provides a number of useful methods which, being combined with power of **Promise**,
+makes writing of reactive applications much more convenient.
 
 ## Introduction to Flow
-Flow is a processing pipeline with strictly typed inputs/outputs and processing steps. Each step takes input from 
-previous step of execution (or Flow inputs) and passes results to next step (or output). Steps can be of different 
-types - synchronous (non-blocking), asynchronous (executed concurrently with remaining steps) and blocking.
+Flow is a description of inputs/outputs and processing steps. Each step takes input from previous step of execution (or Flow inputs)
+and passes results to next step (or output). Steps can be of different types - synchronous (non-blocking), asynchronous (executed 
+concurrently with remaining steps) and blocking.
 
 Flow can be considered a function of Flow inputs that produces outputs, i.e. in general case Flow is
-stateless. In order to execute Flow it's necessary to provide initial state (input parameters) and specify Reactor where 
-Flow will be executed. Therefore one Flow can be used to concurrently process different input parameters in same or 
-different Reactors. In order to simplify use of **booter-flow** following contract was defined:
+stateless. In order to execute Flow it's necessary to provide initial state (input parameters) and specify Reactor where Flow will 
+be executed. Therefore one Flow
+can be used to concurrently process different input parameters in same or different Reactors. In order to simplify use of 
+**booter-flow** following contract was defined:
 
-#### Flow Contract
-**Each step of the Flow with same instance of state (input parameters/intermediate state) always executed 
-by only one thread.** 
+### Flow Contract
+__Each__ step of the **Flow** with same instance of __state__ (input parameters/intermediate state) is __always__ executed 
+by __one__ thread. 
 
-Such a contract avoids need to worry about synchronisation while writing flow steps.
+Such a contract avoids need to worry about synchronisation while writing steps.
 
 ## Getting Started
 ### Adding dependency to Maven project
@@ -53,30 +81,7 @@ Such a contract avoids need to worry about synchronisation while writing flow st
     </dependency>
 ~~~
 
-### Tuples
-The **booter-flow** framework heavily uses **Tuples**, i.e. vectors of variables where each variable has it's own type.
-Since Java does not allow variable length of type variable list, **booter-flow** provides nine implementations of Tuple - **Tuple1** through **Tuple9**
-which can hold from 1 to 9 variables respectively. Tuples provide methods to access each variable independently with strict
-type checking.  
-
 ### Creating and Executing Flow
-
-Flows are created using one of the **take** static Flow methods, for example:
-
-~~~
-    Flow<Tuple1<String>, Tuple2<Request, Response>> flow1 = Flow.take(Request.class, Response.class)
-                     .map((req, resp) -> Tuples.of(validate(req), resp)) 
-                     .mapTo3((req, resp) -> Tuples.of(extractToken(req), req, resp)) 
-                     .mapTo1((token, req, resp) -> processRequest(token, req, resp))
-                     .done();
-~~~
-
-Lets review this code step by step.
- - Flow in the example accepts tuple with two parameters - **Request** and **Response** and ** and returns tuple with **String**.
-Fir
-Two important things to note here: 
- - **booter-flow** automatically and transparently maps input parameter  
-
 Creation of Flows starts from one of static factory methods of **Flow** class. There are several such methods, but 
 all of them can be separated in two groups. First group of method takes classes as a parameters. These classes describe
 types of the **Flow** input parameters. Second group uses **Type** interface for same purposes. The first group is less
@@ -85,6 +90,11 @@ verbose but enables describing of arbitrary input parameter types.
 
 Some examples:
 
+~~~
+    Flow<Tuple1<String>, Tuple2<Request, Response>> flow1 = Flow.take(Request.class, Response.class)
+                     .mapTo1((req, resp) -> processRequest(req, resp))
+                     .done();
+~~~
 
 Same code with **Type**:
 
