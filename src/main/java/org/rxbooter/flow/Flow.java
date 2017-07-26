@@ -20,7 +20,7 @@ package org.rxbooter.flow;
 
 import org.rxbooter.flow.Tuples.*;
 import org.rxbooter.flow.impl.FlowBuilders.*;
-import org.rxbooter.flow.impl.FlowExecutor;
+import org.rxbooter.flow.impl.ExecutableFlow;
 import org.rxbooter.flow.reactor.ExecutionType;
 import org.rxbooter.flow.reactor.Promise;
 import org.rxbooter.flow.reactor.Reactor;
@@ -45,7 +45,7 @@ import java.util.function.Supplier;
  * <br/>
  * {@link Flow} is immutable container with zero flow state, so it can be freely shared across multiple
  * threads without need for synchronisation. In order to execute flow {@link #applyTo(Tuple)} is used.
- * It creates an instance of {@link FlowExecutor} which can be submitted to {@link Reactor} for execution.
+ * It creates an instance of {@link ExecutableFlow} which can be submitted to {@link Reactor} for execution.
  *
  * @param <O>
  *     Output type
@@ -62,20 +62,20 @@ public class Flow<O extends Tuple, I extends Tuple> {
     }
 
     /**
-     * Create {@link FlowExecutor} for this flow. Note that this call does not trigger immediate execution.
-     * Instead created instance of {@link FlowExecutor} should be submitted to {@link Reactor} for execution.
+     * Create {@link ExecutableFlow} for this flow. Note that this call does not trigger immediate execution.
+     * Instead created instance of {@link ExecutableFlow} should be submitted to {@link Reactor} for execution.
      *
      * @param input
      *          Actual input parameters for flow.
-     * @return created {@link FlowExecutor}
+     * @return created {@link ExecutableFlow}
      */
-    public FlowExecutor<O, I> applyTo(I input) {
-        return new FlowExecutor<>(steps, sanitizeInput(input), Promise.empty());
+    public ExecutableFlow<O, I> applyTo(I input) {
+        return new ExecutableFlow<>(steps, sanitizeInput(input), Promise.empty());
     }
 
     /**
-     * Create {@link FlowExecutor} for this flow. Note that this call does not trigger immediate execution.
-     * Instead created instance of {@link FlowExecutor} should be submitted to {@link Reactor} for execution.
+     * Create {@link ExecutableFlow} for this flow. Note that this call does not trigger immediate execution.
+     * Instead created instance of {@link ExecutableFlow} should be submitted to {@link Reactor} for execution.
      * <br/>
      * Along with input parameter this method requires instance of {@link Promise} which will receive
      * notification upon flow execution completion.
@@ -84,10 +84,10 @@ public class Flow<O extends Tuple, I extends Tuple> {
      *          Actual input parameters for flow.
      * @param promise
      *          Instance of {@link Promise} which will receive notification
-     * @return created {@link FlowExecutor}
+     * @return created {@link ExecutableFlow}
      */
-    public FlowExecutor<O, I> applyTo(I input, Promise<O> promise) {
-        return new FlowExecutor<>(steps, sanitizeInput(input), promise);
+    public ExecutableFlow<O, I> applyTo(I input, Promise<O> promise) {
+        return new ExecutableFlow<>(steps, sanitizeInput(input), promise);
     }
 
     @SuppressWarnings("unchecked")

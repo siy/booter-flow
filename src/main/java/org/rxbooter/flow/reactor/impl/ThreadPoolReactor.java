@@ -23,7 +23,7 @@ import org.rxbooter.flow.Functions;
 import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.Tuples.Tuple;
 import org.rxbooter.flow.Tuples.Tuple1;
-import org.rxbooter.flow.impl.FlowExecutor;
+import org.rxbooter.flow.impl.ExecutableFlow;
 import org.rxbooter.flow.reactor.*;
 
 import java.util.*;
@@ -42,8 +42,8 @@ import java.util.function.Supplier;
 public class ThreadPoolReactor implements Reactor {
     private static final long POLL_INTERVAL = 100;
 
-    private final BlockingQueue<FlowExecutor<?, ?>> computingInput = new LinkedBlockingQueue<>();
-    private final BlockingQueue<FlowExecutor<?, ?>> blockingInput = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ExecutableFlow<?, ?>> computingInput = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ExecutableFlow<?, ?>> blockingInput = new LinkedBlockingQueue<>();
     private final AtomicBoolean shutdown = new AtomicBoolean();
     private final ThreadPool computingPool;
     private final ThreadPool ioPool;
@@ -120,81 +120,81 @@ public class ThreadPoolReactor implements Reactor {
     }
 
     /**
-     * Submit {@link FlowExecutor} to reactor for execution. Submission is performed asynchronously
+     * Submit {@link ExecutableFlow} to reactor for execution. Submission is performed asynchronously
      * and result if returned immediately. Notification about execution are performed via returned
-     * instance of {@link Promise} associated with the {@link FlowExecutor} instance.
+     * instance of {@link Promise} associated with the {@link ExecutableFlow} instance.
      *
-     * @param flowExecutor
-     *          {@link FlowExecutor} instance which need to be processed.
-     * @return  Instance of {@link Promise} associated with submitted {@link FlowExecutor}.
+     * @param executableFlow
+     *          {@link ExecutableFlow} instance which need to be processed.
+     * @return  Instance of {@link Promise} associated with submitted {@link ExecutableFlow}.
      */
     @Override
-    public <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor) {
+    public <O extends Tuple, I extends Tuple> Promise<O> submit(ExecutableFlow<O, I> executableFlow) {
         if (shutdown.get()) {
             throw new IllegalStateException("Reactor is shutdown()");
         }
 
-        if(flowExecutor.isReady()) {
-            return flowExecutor.promise();
+        if(executableFlow.isReady()) {
+            return executableFlow.promise();
         }
 
-        if(!flowExecutor.canRun()) {
-            return flowExecutor.promise();
+        if(!executableFlow.canRun()) {
+            return executableFlow.promise();
         }
 
-        (flowExecutor.isBlocking() ? blockingInput : computingInput).offer(flowExecutor);
+        (executableFlow.isBlocking() ? blockingInput : computingInput).offer(executableFlow);
 
-        return flowExecutor.promise();
+        return executableFlow.promise();
     }
 
     private void ioHandler() {
         while (!shutdown.get()) {
-            FlowExecutor<?, ?> flowExecutor = pollQueueForSingle(blockingInput);
+            ExecutableFlow<?, ?> executableFlow = pollQueueForSingle(blockingInput);
 
-            if (flowExecutor == null) {
+            if (executableFlow == null) {
                 continue;
             }
 
-            flowExecutor.invoke();
-            submit(flowExecutor);
+            executableFlow.invoke();
+            submit(executableFlow);
         }
     }
 
     private void computingHandler() {
         while (!shutdown.get()) {
-            List<FlowExecutor<?, ?>> flowExecutors = pollQueue(computingInput);
+            List<ExecutableFlow<?, ?>> executableFlows = pollQueue(computingInput);
 
-            if (flowExecutors.isEmpty()) {
+            if (executableFlows.isEmpty()) {
                 continue;
             }
 
-            flowExecutors.forEach(this::executeSingle);
+            executableFlows.forEach(this::executeSingle);
         }
     }
 
-    private void executeSingle(FlowExecutor<?, ?> flowExecutor) {
-        runAllAsync(flowExecutor);
+    private void executeSingle(ExecutableFlow<?, ?> executableFlow) {
+        runAllAsync(executableFlow);
 
-        while (ExecutionType.SYNC == flowExecutor.type()) {
-            flowExecutor.invoke();
+        while (ExecutionType.SYNC == executableFlow.type()) {
+            executableFlow.invoke();
         }
 
-        submit(flowExecutor);
+        submit(executableFlow);
     }
 
-    protected void runAllAsync(FlowExecutor<?, ?> flowExecutor) {
-        while (flowExecutor.isAsync()) {
-            submit(flowExecutor.forCurrent());
+    protected void runAllAsync(ExecutableFlow<?, ?> executableFlow) {
+        while (executableFlow.isAsync()) {
+            submit(executableFlow.forCurrent());
         }
     }
 
-    private List<FlowExecutor<?, ?>> pollQueue(BlockingQueue<FlowExecutor<?, ?>> queue) {
+    private List<ExecutableFlow<?, ?>> pollQueue(BlockingQueue<ExecutableFlow<?, ?>> queue) {
         try {
-            FlowExecutor<?, ?> element = queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
+            ExecutableFlow<?, ?> element = queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
             if (element == null) {
                 return Collections.emptyList();
             }
-            List<FlowExecutor<?, ?>> result = new ArrayList<>();
+            List<ExecutableFlow<?, ?>> result = new ArrayList<>();
             result.add(element);
             queue.drainTo(result);
             return result;
@@ -205,7 +205,7 @@ public class ThreadPoolReactor implements Reactor {
         }
     }
 
-    private FlowExecutor<?, ?> pollQueueForSingle(BlockingQueue<FlowExecutor<?, ?>> queue) {
+    private ExecutableFlow<?, ?> pollQueueForSingle(BlockingQueue<ExecutableFlow<?, ?>> queue) {
         try {
             return queue.poll(POLL_INTERVAL, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

@@ -57,9 +57,15 @@ Such a contract avoids need to worry about synchronisation while writing flow st
 The **booter-flow** framework heavily uses **Tuples**, i.e. vectors of variables where each variable has it's own type.
 Since Java does not allow variable length of type variable list, **booter-flow** provides nine implementations of Tuple - **Tuple1** through **Tuple9**
 which can hold from 1 to 9 variables respectively. Tuples provide methods to access each variable independently with strict
-type checking.  
+type checking.
 
-### Creating and Executing Flow
+### Short introduction to Reactor and Promise
+The **booter-flow** uses concepts of **Reactor** and **Promise**. The **Reactor** is an extension of Java **ExecutorService**
+concept. In other words, it's an specialised version of **ExecutorService** for execution of Flow. Internally **Reactor**
+consists of two thread pools, one of which is relatively small and is used to execute short non-blocking steps of Flow.
+ 
+
+### Creating and executing Flow
 
 Flows are created using one of the **take** static Flow methods, for example:
 
@@ -72,10 +78,40 @@ Flows are created using one of the **take** static Flow methods, for example:
 ~~~
 
 Lets review this code step by step.
- - Flow in the example accepts tuple with two parameters - **Request** and **Response** and ** and returns tuple with **String**.
-Fir
-Two important things to note here: 
- - **booter-flow** automatically and transparently maps input parameter  
+ - Created Flow accepts tuple with two parameters - **Request** and **Response** and ** and returns tuple with **String**.
+ - Flow adds first step lambda and maps tuple content to lambda parameters and lambda returns tuple with **two** results
+ - Flow adds second step lambda, maps tuple to lambda parameters and lambda returns tuple with **three** results
+ - Flow adds third step lambda, maps tuple lambda parameters and lambda returns tuple with **single** result  
+ - Flow finishes building flow and from type of last build stage derives type of the lambda output 
+
+Created flow has no state and can be executed with any **Reactor**. In order to execute flow it's necessary to bind 
+input parameter values to flow and submit it for execution into **Reactor**. Lets see how this can be done. First of all
+it's necessary to bind input parameter values to Flow and create **ExecutableFlow**:
+
+~~~
+    ExecutableFlow<Tuple1<String>, Tuple2<Request, Response>> excutable =
+                    flow.applyTo(Tuples.of(request, response));
+~~~
+
+Created executable flow can be submitted to **Reactor** directly:
+
+~~~
+    Promise<Tuple1<String>> promise = Reactor.pooled().submit(excutable);
+~~~
+
+Another alternative is to use **ExecutableFlow**'s _in()_ method:
+
+~~~
+    Promise<Tuple1<String>> result = excutable.in(Reactor.pooled());
+~~~
+
+Basically both ways are identical except that second approach is more suitable for fluent syntax:
+
+~~~
+    Promise<Tuple1<String>> result = flow.applyTo(Tuples.of(request, response)).in(Reactor.pooled());
+~~~
+
+Once flow is submitted to **Reactor** 
 
 Creation of Flows starts from one of static factory methods of **Flow** class. There are several such methods, but 
 all of them can be separated in two groups. First group of method takes classes as a parameters. These classes describe

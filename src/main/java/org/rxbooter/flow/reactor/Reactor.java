@@ -24,7 +24,7 @@ import org.rxbooter.flow.Functions.TF;
 import org.rxbooter.flow.Tuples;
 import org.rxbooter.flow.exception.FlowException;
 import org.rxbooter.flow.exception.FlowWrappedException;
-import org.rxbooter.flow.impl.FlowExecutor;
+import org.rxbooter.flow.impl.ExecutableFlow;
 import org.rxbooter.flow.reactor.impl.ThreadPoolReactor;
 
 import java.util.Optional;
@@ -127,16 +127,16 @@ public interface Reactor {
     <T> Optional<T> awaitFirst(Supplier<T>... suppliers);
 
     /**
-     * Submit {@link FlowExecutor} to reactor for execution. Submission is performed asynchronously and result if
+     * Submit {@link ExecutableFlow} to reactor for execution. Submission is performed asynchronously and result if
      * returned immediately. Notification about execution are performed via returned instance of {@link Promise}
-     * associated with the {@link FlowExecutor} instance.
+     * associated with the {@link ExecutableFlow} instance.
      *
-     * @param flowExecutor
-     *         {@link FlowExecutor} instance which need to be processed.
+     * @param executableFlow
+     *         {@link ExecutableFlow} instance which need to be processed.
      *
-     * @return Instance of {@link Promise} associated with submitted {@link FlowExecutor}.
+     * @return Instance of {@link Promise} associated with submitted {@link ExecutableFlow}.
      */
-    <O extends Tuple, I extends Tuple> Promise<O> submit(FlowExecutor<O, I> flowExecutor);
+    <O extends Tuple, I extends Tuple> Promise<O> submit(ExecutableFlow<O, I> executableFlow);
 
     /**
      * Submit task provided as {@link Supplier}.

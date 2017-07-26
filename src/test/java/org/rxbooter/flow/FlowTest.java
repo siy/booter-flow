@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.rxbooter.flow.Tuples.Tuple2;
 import org.rxbooter.flow.Tuples.Tuple3;
+import org.rxbooter.flow.impl.ExecutableFlow;
+import org.rxbooter.flow.reactor.Promise;
 import org.rxbooter.flow.reactor.Reactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,6 +26,20 @@ public class FlowTest {
 
         String result = flow.applyTo(Tuples.of("abcABC")).in(Reactor.pooled()).await().get1();
         assertThat(result).isEqualTo("abcABC abcabc");
+    }
+
+    @Test
+    public void name() throws Exception {
+        Flow<Tuple1<String>, Tuple2<String, Long>> flow = take(String.class, Long.class)
+                .mapTo3((s, i) -> of(s, s.toLowerCase(), i))
+                .mapTo1((s1, s2, i) -> of(s1 + " " + i + " " + s2))
+                .done();
+
+        ExecutableFlow<Tuple1<String>, Tuple2<String, Long>> excutable =
+                flow.applyTo(Tuples.of("absABS", 1L));
+
+//        Promise<Tuple1<String>> result = Reactor.pooled().submit(excutable);
+        Promise<Tuple1<String>> result = excutable.in(Reactor.pooled());
     }
 
     @Test

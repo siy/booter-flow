@@ -33,38 +33,39 @@ import java.util.List;
  * Representation of the @{@link org.rxbooter.flow.Flow} in active state, i.e. when flow
  * is bound to input and can be executed.
  */
-public class FlowExecutor<O extends Tuple, I extends Tuple> {
+public class ExecutableFlow<O extends Tuple, I extends Tuple> {
     private final List<Step<?, ?>> steps;
     private final Promise<O> promise;
 
     private int index = 0;
     private Tuple intermediate;
 
-    public FlowExecutor(List<Step<?, ?>> steps, I input, Promise<O> promise) {
+    public ExecutableFlow(List<Step<?, ?>> steps, I input, Promise<O> promise) {
         this.steps = steps;
         this.intermediate = input;
         this.promise = promise;
     }
 
     /**
-     * Creates new {@link FlowExecutor} from current {@link Step} in the flow. Created flow consists of only one step
+     * Creates new {@link ExecutableFlow} from current {@link Step} in the flow. Created flow consists of only one step
      * and shares the same intermediate calculated value as original flow at the moment when all previous steps in the
      * flow are executed.
      *
      * @return new {@link Flow} consisting of single current step.
      */
-    public FlowExecutor<O, ?> forCurrent() {
+    public ExecutableFlow<O, ?> forCurrent() {
         if (!canRun()) {
             throw new FlowException("No active executable steps in cursor");
         }
 
-        FlowExecutor<O, Tuple> result = new FlowExecutor<>(Collections.singletonList(currentStep()), intermediate, Promise.empty());
+        ExecutableFlow<O, Tuple>
+                result = new ExecutableFlow<>(Collections.singletonList(currentStep()), intermediate, Promise.empty());
         advance();
         return result;
     }
 
     /**
-     * Access instance of {@link Promise} associated with this {@link FlowExecutor}.
+     * Access instance of {@link Promise} associated with this {@link ExecutableFlow}.
      *
      * @return reference to {@link Promise} instance.
      */
